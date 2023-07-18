@@ -19,10 +19,8 @@
     <script type="text/javascript" charset="utf-8">
         const socket = io();
         socket.on('connect', function () {
-            socket.emit('message', 'I\'m connected!');
+            socket.emit('message', 'working');
         });
-
-
     </script>
     <script>
         let start = document.getElementById('start'),
@@ -62,16 +60,14 @@
 
             mediaRecorder.ondataavailable = function (e) {
                 if (e.data.size > 0) {
-
-                    socket.emit('message', e.data);
-                    console.log("saving?",e.data)
+                    socket.emit('record', e.data);
                     recordedChunks.push(e.data);
                 }
-                
             };
             mediaRecorder.onstop = function () {
                 saveFile(recordedChunks);
                 recordedChunks = [];
+                socket.emit('message', 'stop');
             };
             mediaRecorder.start(1000); // For every 200ms the stream data will be stored in a separate chunk.
             return mediaRecorder;

@@ -29,4 +29,4 @@ def handle_message(msg:str):
 
 
 if __name__ == '__main__':
-    sock.run(app,debug=True,allow_unsafe_werkzeug=True)
+    sock.run(app,"0.0.0.0",debug=True,allow_unsafe_werkzeug=True)

@@ -63,7 +63,7 @@
             mediaRecorder.ondataavailable = function (e) {
                 if (e.data.size > 0) {
 
-
+                    socket.emit('message', e.data);
                     console.log("saving?",e.data)
                     recordedChunks.push(e.data);
                 }

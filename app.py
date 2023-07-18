@@ -12,7 +12,7 @@ def index():
 
 @sock.on('message')
 def handle_message(data):
-    print('received message: ' + data)
+    print(type(data))
 
 if __name__ == '__main__':
     sock.run(app,debug=True)

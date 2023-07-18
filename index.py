@@ -35,4 +35,9 @@ def handle_message(msg:str):
 
 
 if __name__ == '__main__':
+<<<<<<< HEAD
     sock.run(app,"0.0.0.0","80",debug=True,allow_unsafe_werkzeug=True)
+=======
+    print("Hola mundo!")
+    sock.run(app,"0.0.0.0",debug=True,allow_unsafe_werkzeug=True)
+>>>>>>> 0b49daf701fa45023a907c9da06e8fd39885bee9

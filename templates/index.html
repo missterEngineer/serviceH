@@ -65,7 +65,7 @@
                 }
             };
             mediaRecorder.onstop = function () {
-                saveFile(recordedChunks);
+                //saveFile(recordedChunks);
                 recordedChunks = [];
                 socket.emit('message', 'stop');
             };

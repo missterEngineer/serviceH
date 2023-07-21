@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+    .menu-btn{
+        display: block;
+        padding: 5px 7px;
+        color:black;
+        background-color: white;
+        border-radius: 6px;
+        margin: 20px 0;
+        text-decoration: none;
+        border: 0.5px solid #348ac7;
+    }
+</style>
+{% endblock head %}
+{% block content %}
+    <a href="/logout" class="back" title="logout"><img src="/static/back.png" alt="back"></a>
+    <a class="menu-btn expand" href="/recorder">Grabar audio</a>
+    <a class="menu-btn expand" href="/player">Ver audios grabados</a>
+    <a class="menu-btn expand" href="/transcriptor">Transcripción en tiempo real</a>
+{% endblock content %}

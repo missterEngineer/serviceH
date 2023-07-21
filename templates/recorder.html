@@ -1,69 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Recorder</title>
-    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+{% extends "base.html" %}
+{% block head %}
     <style>
-        body{
-            width: 100vw;
-            height: 100vh;
-            display: block;
-            margin: 0;
-            background: #7474bf; /* fallback for old browsers */
-            background: -webkit-linear-gradient(to right, #7474bf, #348ac7); /* Chrome 10-25, Safari 5.1-6 */
-            background: linear-gradient(to right, #7474bf, #348ac7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        .record {
+            margin: 0 5px;
+
         }
-        main{
-            overflow-x: auto;
-            display: flex;
-            min-height: 100%;
-            width: 100%;
-            justify-content: center;
-            align-items: center;
-        }
-        .content{
-            height: fit-content;
-            text-align: center;
-            background: #afc3f9; /* fallback for old browsers */
-            background: -webkit-linear-gradient(to top, #afc3f9, #d7dde8); /* Chrome 10-25, Safari 5.1-6 */
-            background: linear-gradient(to top, #afc3f9, #d7dde8); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-            padding: 30px 50px;
-            border-radius: 10px;
-            position: relative;
-        }
-        .record{
-            margin:0 5px;
-            
-        }
-        .record img{
-            width:50px
-        }
-        .record:hover, a:hover{
-            cursor: pointer;
-            transform: scale(1.1);
-        }
-        .back{
-            position: absolute;
-            top:0;
-            left:0;
+
+        .record img {
+            width: 50px
         }
     </style>
-</head>
+{% endblock head %}
+{% block content %}
+    <a href="/" class="back expand" title="back"><img src="/static/back.png" alt="back"></a>
+    <button id="start" class="record expand" title="play"><img src="/static/play.png" alt="play"></button>
+    <button id="stop" class="record expand" title="stop"><img src="/static/stop.png" alt="stop"></button>
+{% endblock content %}
 
-<body>
-    <main>
-        <div class="content">
-            <a href="/logout" class="back" title="logout"><img src="/static/back.png" alt="back"></a>
-            <button id="start" class="record" title="play"><img src="/static/play.png" alt="play"></button>
-            <button id="stop" class="record" title="stop"><img src="/static/stop.png" alt="stop"></button>
-        </div>
-    </main>
-    
-
+{% block javascript%}
     <script src="/static/socket.io.min.js"></script>
     <script type="text/javascript" charset="utf-8">
         const socket = io();
@@ -96,7 +50,7 @@
                 }
             });
         }
-        async function recordMic(){
+        async function recordMic() {
             return await navigator.mediaDevices.getUserMedia({
                 audio: true, // constraints - only audio needed for this app
             })
@@ -122,11 +76,12 @@
             mediaRecorder.start(1000); // For every second the stream data will be stored in a separate chunk.
             return mediaRecorder;
         }
-        function createMicRecorder(stream){
+
+        function createMicRecorder(stream) {
             let recordedChunks = [];
 
             const mediaRecorder2 = new MediaRecorder(stream);
-            
+
             mediaRecorder2.ondataavailable = function (e) {
                 if (e.data.size > 0) {
                     socket.emit('recordMic', e.data);
@@ -142,6 +97,4 @@
 
         }
     </script>
-</body>
-
-</html>
+{% endblock javascript%}

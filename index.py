@@ -1,13 +1,13 @@
 import os
-import subprocess
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_socketio import SocketIO
 from audio import saveAudio, saveMic
 from user_manager import login_user, login_required
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
-secret_key = "0bd0cd99257f9f0c3954cc26b7f20d4d02858797f470d0cdcaeed5d49037fac4823188598d1b19b9"
-app.config["SECRET_KEY"] = secret_key
+app.config["SECRET_KEY"] = os.getenv('flask_secret_key') 
 sock = SocketIO(app)
 record_chunks = []
 mic_chunks = []
@@ -16,7 +16,12 @@ mic_chunks = []
 @login_required
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("menu.html")
+
+@login_required
+@app.route("/recorder")
+def recorder():
+    return render_template("recorder.html")
 
 
 @app.route("/login", methods=["GET", "POST"])

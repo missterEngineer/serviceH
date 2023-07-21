@@ -5,15 +5,64 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RecorderWeb</title>
+    <title>Web Recorder</title>
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
     <style>
-
+        body{
+            width: 100vw;
+            height: 100vh;
+            display: block;
+            margin: 0;
+            background: #7474bf; /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #7474bf, #348ac7); /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to right, #7474bf, #348ac7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        }
+        main{
+            overflow-x: auto;
+            display: flex;
+            min-height: 100%;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+        .content{
+            height: fit-content;
+            text-align: center;
+            background: #afc3f9; /* fallback for old browsers */
+            background: -webkit-linear-gradient(to top, #afc3f9, #d7dde8); /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to top, #afc3f9, #d7dde8); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+            padding: 30px 50px;
+            border-radius: 10px;
+            position: relative;
+        }
+        .record{
+            margin:0 5px;
+            
+        }
+        .record img{
+            width:50px
+        }
+        .record:hover, a:hover{
+            cursor: pointer;
+            transform: scale(1.1);
+        }
+        .back{
+            position: absolute;
+            top:0;
+            left:0;
+        }
     </style>
 </head>
 
 <body>
-    <button id="start">Start</button>
-    <button id="stop">Stop</button>
+    <main>
+        <div class="content">
+            <a href="/logout" class="back" title="logout"><img src="/static/back.png" alt="back"></a>
+            <button id="start" class="record" title="play"><img src="/static/play.png" alt="play"></button>
+            <button id="stop" class="record" title="stop"><img src="/static/stop.png" alt="stop"></button>
+        </div>
+    </main>
+    
 
     <script src="/static/socket.io.min.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -24,23 +73,19 @@
     </script>
     <script>
         let start = document.getElementById('start'),
-            stop = document.getElementById('stop'),
-            mediaRecorder;
+            stopBtn = document.getElementById('stop'),
+            mediaRecorder,
+            micRecorder
 
         start.addEventListener('click', async function () {
             let stream = await recordScreen();
-            let mimeType = 'video/webm';
-            mediaRecorder = createRecorder(stream, mimeType);
-            let node = document.createElement("p");
-            node.textContent = "Started recording";
-            document.body.appendChild(node);
+            let micStream = await recordMic();
+            mediaRecorder = createRecorder(stream, 'video/webm');
+            micRecorder = createMicRecorder(micStream)
         })
 
-        stop.addEventListener('click', function () {
+        stopBtn.addEventListener('click', function () {
             mediaRecorder.stop();
-            let node = document.createElement("p");
-            node.textContent = "Stopped recording";
-            document.body.appendChild(node);
         })
 
         async function recordScreen() {
@@ -51,13 +96,17 @@
                 }
             });
         }
+        async function recordMic(){
+            return await navigator.mediaDevices.getUserMedia({
+                audio: true, // constraints - only audio needed for this app
+            })
+        }
 
         function createRecorder(stream, mimeType) {
             // the stream data is stored in this array
             let recordedChunks = [];
 
             const mediaRecorder = new MediaRecorder(stream);
-
             mediaRecorder.ondataavailable = function (e) {
                 if (e.data.size > 0) {
                     socket.emit('record', e.data);
@@ -68,25 +117,29 @@
                 //saveFile(recordedChunks);
                 recordedChunks = [];
                 socket.emit('message', 'stop');
+                micRecorder.stop();
             };
-            mediaRecorder.start(1000); // For every 200ms the stream data will be stored in a separate chunk.
+            mediaRecorder.start(1000); // For every second the stream data will be stored in a separate chunk.
             return mediaRecorder;
         }
+        function createMicRecorder(stream){
+            let recordedChunks = [];
 
-        function saveFile(recordedChunks) {
+            const mediaRecorder2 = new MediaRecorder(stream);
+            
+            mediaRecorder2.ondataavailable = function (e) {
+                if (e.data.size > 0) {
+                    socket.emit('recordMic', e.data);
+                    recordedChunks.push(e.data);
+                    console.log(mediaRecorder2.mimeType)
+                }
+            };
+            mediaRecorder2.onstop = function () {
+                recordedChunks = [];
+            };
+            mediaRecorder2.start(1000); // For every second the stream data will be stored in a separate chunk.
+            return mediaRecorder2;
 
-            const blob = new Blob(recordedChunks, {
-                type: 'video/webm'
-            });
-            let filename = window.prompt('Enter file name'),
-                downloadLink = document.createElement('a');
-            downloadLink.href = URL.createObjectURL(blob);
-            downloadLink.download = `${filename}.webm`;
-
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            URL.revokeObjectURL(blob); // clear from memory
-            document.body.removeChild(downloadLink);
         }
     </script>
 </body>

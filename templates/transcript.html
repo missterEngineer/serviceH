@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block head %}
+  <style>
+    .audio-item{
+        display: block;
+    }
+    #whisperModelSelect {
+        display: block;
+        margin:5px auto;
+        background-color: aliceblue;
+        border: 0.5px solid rgb(186, 211, 223);
+        padding: 5px 10px;
+        border-radius: 4px;
+    }
+    button{
+        display: block;
+        padding: 5px 10px;
+        border: 1px solid rgb(17 102 143);
+        border-radius: 4px;
+        margin: 6px auto;
+        background: #c5c5ef; 
+        background: linear-gradient(to top,#86a8e7 , #c5c5ef, #91eae4);
+        font-weight: bold;
+    }
+    h1{
+        font-size: 30px;
+    }
+    label{
+        font-weight: bold;
+    }
+    #transcriptTxt{
+        max-width: 80vw;
+        width:600px;
+        height: 300px;
+        border-radius: 10px;
+        overflow-x: auto;
+        display: block;
+        padding:5px;
+    }
+    footer{
+        margin-top: 10px;
+    }
+    footer label{
+        display: block;
+        font-size: 20px;
+    }
+    #questionTxt{
+        display: block;
+        width: 100%;
+        max-width: 80vw;
+        padding:10px;
+        height: 30px;
+    }
+  </style>
+{% endblock head %}
+{% block content %}
+    <h1>Transcripción en tiempo real</h1>
+    <a href="/" class="back expand" title="back"><img src="/static/back.png" alt="back"></a>
+    <label for="whisperModelSelect">Profundidad</label>
+    <select id="whisperModelSelect">
+        {% for model in whisper_models %}
+        <option value="{{model}}">{{model|title}}</option>
+        {% endfor %}
+    </select>
+    <button type="button" class="expand">Empezar</button>
+ 
+
+    <textarea id="transcriptTxt"></textarea>
+    <footer>
+        <label for="questionTxt">Pregunta a chatGPT</label>
+        <textarea id="questionTxt">Hola! Te voy a dar la siguiente conversación para que me digas el tema que tratan y los puntos principales:</textarea>
+        <button class="expand">Preguntar</button>
+    </footer>
+
+{% endblock content %}
+{% block javascript%}
+  
+{% endblock javascript%}

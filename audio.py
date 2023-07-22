@@ -1,5 +1,6 @@
 import subprocess
-
+from pydub import AudioSegment
+import time
 
 def saveAudio(record_chunks):
     if len(record_chunks) > 0:
@@ -35,3 +36,9 @@ def saveMic(mic_chunks):
         return True
     return False
 
+def mergeAudios():
+    speakerSound = AudioSegment.from_file("./audio/speaker.mp3")
+    micSound = AudioSegment.from_file("./audio/mic.mp3")
+    mixSound = speakerSound.overlay(micSound)
+    currentTime = time.strftime("%Y-%m-%d-%H-%M-%S",time.localtime())
+    mixSound.export(f"./audio/final/{currentTime}.mp3", format='mp3')

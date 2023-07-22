@@ -21,9 +21,12 @@ main{
     background: #afc3f9; /* fallback for old browsers */
     background: -webkit-linear-gradient(to top, #afc3f9, #d7dde8); /* Chrome 10-25, Safari 5.1-6 */
     background: linear-gradient(to top, #afc3f9, #d7dde8); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-    padding: 30px 50px;
+    padding: 10px 50px;
     border-radius: 10px;
     position: relative;
+    margin:20px 0px;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 .back{
     position: absolute;
@@ -33,4 +36,10 @@ main{
 .expand:hover{
     cursor: pointer;
     transform: scale(1.1);
+}
+@media (max-width: 480px) {
+    .content{
+        padding: 15px 10px;
+        max-width: 90vw;
+    }
 }

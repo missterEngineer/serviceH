@@ -9,10 +9,14 @@
         .record img {
             width: 50px
         }
+        h1{
+            font-size: 30px;
+        }
     </style>
 {% endblock head %}
 {% block content %}
     <a href="/" class="back expand" title="back"><img src="/static/back.png" alt="back"></a>
+    <h1>Grabar audio</h1>
     <button id="start" class="record expand" title="play"><img src="/static/play.png" alt="play"></button>
     <button id="stop" class="record expand" title="stop"><img src="/static/stop.png" alt="stop"></button>
 {% endblock content %}

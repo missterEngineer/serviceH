@@ -1,9 +1,12 @@
 import os
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO
-from audio import saveAudio, saveMic
+from audio import mergeAudios, saveAudio, saveMic
 from user_manager import login_user, login_required
 from dotenv import load_dotenv
+from whisper import whisper_models
+from werkzeug.utils import secure_filename
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -18,11 +21,30 @@ mic_chunks = []
 def index():
     return render_template("menu.html")
 
+
 @login_required
 @app.route("/recorder")
 def recorder():
     return render_template("recorder.html")
 
+@login_required
+@app.route("/player")
+def player():
+    audios = os.listdir('./audio/final')
+    audios.remove(".noignore")
+    context={
+        "whisper_models":whisper_models,
+        "audios":audios
+    }
+    return render_template("player.html",**context)
+
+@login_required
+@app.route("/transcript")
+def transcript():
+    context={
+        "whisper_models":whisper_models
+    }
+    return render_template("transcript.html", **context)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -58,7 +80,7 @@ def handle_message(msg: str):
         if saveAudio(record_chunks) and saveMic(mic_chunks):
             record_chunks.clear()
             mic_chunks.clear()
-
+            mergeAudios()
 
 
 if __name__ == "__main__":

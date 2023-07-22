@@ -3,6 +3,8 @@ venv/
 .env
 .keys
 audio/*
+!audio/final/
+audio/final/*
+models/*
 !.noignore
 .vscode/
-models/

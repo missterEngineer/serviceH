@@ -4,14 +4,6 @@
     .audio-item{
         display: block;
     }
-    #whisperModelSelect {
-        display: block;
-        margin:5px auto;
-        background-color: aliceblue;
-        border: 0.5px solid rgb(186, 211, 223);
-        padding: 5px 10px;
-        border-radius: 4px;
-    }
     button{
         display: block;
         padding: 5px 10px;
@@ -89,12 +81,6 @@
     
     <div class="transcript">
         <p id="audioName"></p>
-        <label for="whisperModelSelect">Profundidad</label>
-        <select id="whisperModelSelect">
-            {% for model in whisper_models %}
-            <option value="{{model}}">{{model|title}}</option>
-            {% endfor %}
-        </select>
         <button type="button" class="expand" id="startBtn">Empezar</button>
      
     
@@ -144,9 +130,8 @@
         socket = io(),
         transcriptTxt = document.getElementById("transcriptTxt");
         startBtn.addEventListener("click", ()=>{
-            const whisperModelSelect = document.getElementById("whisperModelSelect");
             socket.emit('startTranscript', {
-                model: whisperModelSelect.value,
+                model: 'small',
                 audio: audio
             });
             startBtn.disabled = true

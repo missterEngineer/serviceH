@@ -62,8 +62,7 @@
         <option value="{{model}}">{{model|title}}</option>
         {% endfor %}
     </select>
-    <button type="button" class="expand">Empezar</button>
- 
+    <button type="button" class="expand" id="startBtn">Empezar</button>
 
     <textarea id="transcriptTxt"></textarea>
     <footer>
@@ -74,5 +73,19 @@
 
 {% endblock content %}
 {% block javascript%}
-  
+  <script>
+    const startBtn = document.getElementById("start"),
+     socket = io(),
+     transcriptTxt = document.getElementById("transcriptTxt");
+    startBtn.addEventListener("click", ()=>{
+        socket.on('connect', function () {
+            const whisperModelSelect = document.getElementById("whisperModelSelect");
+            socket.emit('message', whisperModelSelect.value);
+        });
+    })
+
+    socket.on('response', function (msg) {
+        transcriptTxt.innerText += msg + "\n" 
+    });
+  </script>
 {% endblock javascript%}

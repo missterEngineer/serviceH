@@ -4,7 +4,7 @@ from flask_socketio import SocketIO
 from audio import mergeAudios, saveAudio, saveMic
 from user_manager import login_user, login_required
 from dotenv import load_dotenv
-from whisper import whisper_models
+from whisper import resume, transcription, whisper_models
 from werkzeug.utils import secure_filename
 
 load_dotenv()
@@ -27,6 +27,7 @@ def index():
 def recorder():
     return render_template("recorder.html")
 
+
 @login_required
 @app.route("/player")
 def player():
@@ -38,6 +39,7 @@ def player():
     }
     return render_template("player.html",**context)
 
+
 @login_required
 @app.route("/transcript")
 def transcript():
@@ -45,6 +47,7 @@ def transcript():
         "whisper_models":whisper_models
     }
     return render_template("transcript.html", **context)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -62,10 +65,12 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+
 @login_required
 @sock.on("record")
 def handle_record(data: bytes):
     record_chunks.append(data)
+
 
 @login_required
 @sock.on("recordMic")
@@ -81,6 +86,21 @@ def handle_message(msg: str):
             record_chunks.clear()
             mic_chunks.clear()
             mergeAudios()
+
+
+@login_required
+@sock.on("startTranscript")
+def handle_model(data:dict):
+    whisper_model = data['model']
+    if whisper_model in whisper_models:
+        audio = secure_filename(data['audio'])
+        transcription(whisper_model, audio)
+        
+
+@login_required
+@sock.on("startChat")
+def handle_chat(data:dict):
+    resume(data['conversation'], data['question'])
 
 
 if __name__ == "__main__":

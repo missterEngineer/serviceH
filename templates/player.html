@@ -60,6 +60,22 @@
     .transcript{
         display: none;
     }
+    #closeModalBtn img{
+        width: 30px;
+        margin: 2px;
+    }
+    #gptResponse{
+        width: 600px;
+        max-width: 85vw;
+        overflow-y: auto;
+        max-height: 60vh;
+    }
+    dialog{
+        border: 1px solid #b7d1ff;
+    }
+    dialog::backdrop{
+        background-color: rgba(158, 158, 158, 0.6);
+    }
   </style>
 {% endblock head %}
 {% block content %}
@@ -79,26 +95,34 @@
             <option value="{{model}}">{{model|title}}</option>
             {% endfor %}
         </select>
-        <button type="button" class="expand">Empezar</button>
+        <button type="button" class="expand" id="startBtn">Empezar</button>
      
     
         <textarea id="transcriptTxt"></textarea>
         <footer>
             <label for="questionTxt">Pregunta a chatGPT</label>
             <textarea id="questionTxt">Hola! Te voy a dar la siguiente conversación para que me digas el tema que tratan y los puntos principales:</textarea>
-            <button class="expand">Preguntar</button>
+            <button class="expand" id="askBtn">Preguntar</button>
         </footer>    
     </div>
-    
+    <dialog id="gptModal">
+        <a class="back expand"  title="close Modal" id="closeModalBtn" ><img src="/static/close.png" alt="close"></a>
+        <h2>Respuesta</h2>
+        <article id="gptResponse">
+            <p>Generando...</p>
+        </article>
+    </dialog>
 {% endblock content %}
 {% block javascript%}
+<script src="/static/socket.io.min.js"></script>
+
     <script>
+        // Selecting audio
         let audio
         const divAudios = document.querySelector(".audios"),
         divTranscript = document.querySelector(".transcript"),
         backBtn = document.getElementById("back")
         ;
-
         function selectAudio(index){
             audio = document.getElementById('audio-' + index).innerText;
             document.getElementById("audioName").innerText = audio;
@@ -115,5 +139,50 @@
                 divTranscript.style.display = 'none';
             }
         }
+        // Converting audio to text
+        const startBtn = document.getElementById("startBtn"),
+        socket = io(),
+        transcriptTxt = document.getElementById("transcriptTxt");
+        startBtn.addEventListener("click", ()=>{
+            const whisperModelSelect = document.getElementById("whisperModelSelect");
+            socket.emit('startTranscript', {
+                model: whisperModelSelect.value,
+                audio: audio
+            });
+            startBtn.disabled = true
+            startBtn.innerText = "Cargando..."
+            startBtn.classList.remove("expand")
+        })
+
+        socket.on('response', msg => {
+            transcriptTxt.value += msg  +"\n"
+        });
+        socket.on('end',()=>{
+            startBtn.disabled = false
+            startBtn.innerText = "Empezar"
+            startBtn.classList.add("expand")
+        })
+
+        // Modal config
+        const gptModal = document.getElementById("gptModal"),
+        askBtn = document.getElementById("askBtn"),
+        closeModalBtn = document.getElementById("closeModalBtn"),
+        questionTxt = document.getElementById("questionTxt"),
+        gptResponse = document.getElementById("gptResponse");
+
+        askBtn.addEventListener('click',()=> gptModal.showModal())
+        closeModalBtn.addEventListener('click',()=> gptModal.close())
+
+        // Using ChatGPT
+        askBtn.addEventListener('click', ()=>{
+            gptResponse.innerHTML = '<p>Generando...</p>';
+            socket.emit('startChat', {
+                conversation: transcriptTxt.value,
+                question: questionTxt.value
+            });
+        })
+        socket.on('chatResponse', msg => {
+            gptResponse.innerHTML += msg
+        })
     </script>
 {% endblock javascript%}

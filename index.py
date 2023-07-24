@@ -54,6 +54,9 @@ def login():
         user = request.form["user"]
         password = request.form["password"]
         if login_user(user, password):
+            carpet = f"./audio/final/{user}"
+            if not os.path.exists(carpet):
+                os.mkdir(carpet)
             return redirect(url_for("index"))
         flash("Usuario o contraseña inválido")
         return redirect(url_for('login'))

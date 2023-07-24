@@ -54,6 +54,8 @@ def transcription(whisper_model, audio):
 def resume(conversation, question):
     messages = []
     messages.append({"role":"user", "content": question + conversation})
+    openai.organization = os.getenv("OPENAI_ORG")
+    openai.api_key = os.getenv("OPENAI_API_KEY")
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages = messages,

@@ -12,6 +12,9 @@
         h1{
             font-size: 30px;
         }
+        #stop{
+            display: none;
+        }
     </style>
 {% endblock head %}
 {% block content %}
@@ -22,83 +25,37 @@
 {% endblock content %}
 
 {% block javascript%}
-    <script src="/static/socket.io.min.js"></script>
-    <script type="text/javascript" charset="utf-8">
+    <script src="/static/js/socket.io.min.js"></script>
+    <script>
         const socket = io();
+    </script>
+    <script src="/static/js/record.js"></script>
+    <script>
         socket.on('connect', function () {
             socket.emit('message', 'working');
         });
-    </script>
-    <script>
         let start = document.getElementById('start'),
             stopBtn = document.getElementById('stop'),
             mediaRecorder,
-            micRecorder
+            micRecorder,
+            speaker_stream,
+            mic_stream
 
         start.addEventListener('click', async function () {
-            let stream = await recordScreen();
-            let micStream = await recordMic();
-            mediaRecorder = createRecorder(stream, 'video/webm');
-            micRecorder = createMicRecorder(micStream)
+            start.style.display = 'none'
+            stopBtn.style.display = 'inline-block'
+            speaker_stream = await recordScreen();
+            mic_stream = await recordMic();
+            mediaRecorder = createRecorder(speaker_stream, 'record');
+            micRecorder = createRecorder(mic_stream, 'recordMic')
         })
 
         stopBtn.addEventListener('click', function () {
+            stopBtn.style.display = 'none'
+            start.style.display = 'inline-block'
             mediaRecorder.stop();
+            micRecorder.stop();
+            socket.emit('message', 'stop');
         })
-
-        async function recordScreen() {
-            return await navigator.mediaDevices.getDisplayMedia({
-                audio: true,
-                video: {
-                    mediaSource: "screen"
-                }
-            });
-        }
-        async function recordMic() {
-            return await navigator.mediaDevices.getUserMedia({
-                audio: true, // constraints - only audio needed for this app
-            })
-        }
-
-        function createRecorder(stream, mimeType) {
-            // the stream data is stored in this array
-            let recordedChunks = [];
-
-            const mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.ondataavailable = function (e) {
-                if (e.data.size > 0) {
-                    socket.emit('record', e.data);
-                    recordedChunks.push(e.data);
-                }
-            };
-            mediaRecorder.onstop = function () {
-                //saveFile(recordedChunks);
-                recordedChunks = [];
-                socket.emit('message', 'stop');
-                micRecorder.stop();
-            };
-            mediaRecorder.start(1000); // For every second the stream data will be stored in a separate chunk.
-            return mediaRecorder;
-        }
-
-        function createMicRecorder(stream) {
-            let recordedChunks = [];
-
-            const mediaRecorder2 = new MediaRecorder(stream);
-
-            mediaRecorder2.ondataavailable = function (e) {
-                if (e.data.size > 0) {
-                    socket.emit('recordMic', e.data);
-                    recordedChunks.push(e.data);
-                    console.log(mediaRecorder2.mimeType)
-                }
-            };
-            mediaRecorder2.onstop = function () {
-                recordedChunks = [];
-            };
-            mediaRecorder2.start(1000); // For every second the stream data will be stored in a separate chunk.
-            return mediaRecorder2;
-
-        }
     </script>
 {% endblock javascript%}

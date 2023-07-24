@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% block head %}
     <link rel="stylesheet" href="/static/transcript.css">
+    <style>
+        .transcript{
+            display: block;
+        }
+        #stopBtn{
+            display: none;
+        }
+    </style>
 {% endblock head %}
 {% block content %}
     <a href="/" class="back expand" title="back"><img src="/static/back.png" alt="back"></a>
@@ -8,8 +16,8 @@
     <div class="transcript">
         <p id="audioName"></p>
         <button type="button" class="expand" id="startBtn">Empezar</button>
-     
-    
+        <button type="button" class="expand" id="stopBtn">Detener</button>
+
         <textarea id="transcriptTxt"></textarea>
         <footer>
             <label for="questionTxt">Pregunta a chatGPT</label>
@@ -27,50 +35,41 @@
 
 {% endblock content %}
 {% block javascript%}
+<script src="/static/js/socket.io.min.js"></script>
 <script>
-    // Converting audio to text
-    const startBtn = document.getElementById("startBtn"),
-    socket = io(),
-    transcriptTxt = document.getElementById("transcriptTxt");
-    startBtn.addEventListener("click", ()=>{
-        socket.emit('startRealTime', {
-            model: 'small',
-            audio: audio
-        });
-        startBtn.disabled = true
-        startBtn.innerText = "Cargando..."
-        startBtn.classList.remove("expand")
+    const socket = io();
+</script>
+<script src="/static/js/record.js"></script>
+<script src="/static/js/gptModal.js"></script>
+<script>
+    let startBtn = document.getElementById('startBtn'),
+        stopBtn = document.getElementById('stopBtn'),
+        mediaRecorder,
+        micRecorder
+
+    startBtn.addEventListener('click', async function () {
+        let stream = await recordScreen();
+        let micStream = await recordMic();
+        mediaRecorder = createRecorder(stream, 'record');
+        micRecorder = createRecorder(micStream, 'recordMic');
+        socket.emit('startRealTime');
+        stopBtn.style.display = 'block';
+        startBtn.style.display = 'none';
     })
+
+    stopBtn.addEventListener('click', function () {
+        mediaRecorder.stop();
+        micRecorder.stop();
+        socket.emit('message', 'stopRealTime');
+        startBtn.style.display = 'block';
+        stopBtn.style.display = 'none';
+    })
+
+    // Converting audio to text
+    transcriptTxt = document.getElementById("transcriptTxt");
 
     socket.on('response', msg => {
         transcriptTxt.value += msg  +"\n"
     });
-    socket.on('end',()=>{
-        startBtn.disabled = false
-        startBtn.innerText = "Empezar"
-        startBtn.classList.add("expand")
-    })
-
-    // Modal config
-    const gptModal = document.getElementById("gptModal"),
-    askBtn = document.getElementById("askBtn"),
-    closeModalBtn = document.getElementById("closeModalBtn"),
-    questionTxt = document.getElementById("questionTxt"),
-    gptResponse = document.getElementById("gptResponse");
-
-    askBtn.addEventListener('click',()=> gptModal.showModal())
-    closeModalBtn.addEventListener('click',()=> gptModal.close())
-
-    // Using ChatGPT
-    askBtn.addEventListener('click', ()=>{
-        gptResponse.innerHTML = '<p>Generando...</p>';
-        socket.emit('startChat', {
-            conversation: transcriptTxt.value,
-            question: questionTxt.value
-        });
-    })
-    socket.on('chatResponse', msg => {
-        gptResponse.innerHTML += msg
-    })
 </script>
 {% endblock javascript%}

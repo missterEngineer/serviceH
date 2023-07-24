@@ -1,7 +1,12 @@
 from faster_whisper import WhisperModel
 from flask_socketio import emit
 import openai
-from flask import request
+from flask import request, session
+import time
+from datetime import datetime
+from audio import delTrash, mergeAudios, saveAudio, saveMic
+import os
+
 whisper_models = [
     "tiny",
     "base",
@@ -21,7 +26,7 @@ FORBIDDEN_PROMPTS = [
 ]
 
 
-#model = WhisperModel("small", download_root="./models")
+model = WhisperModel("small", download_root="./models")
 
 
 def check_prompt(text):
@@ -31,14 +36,19 @@ def check_prompt(text):
     return False
 
 
-def transcription(whisper_model, audio):
-    segments, _ = '', '' #model.transcribe(f"./audio/final/{audio}","es")
+def transcribe(path):
+    segments, _ =  model.transcribe(path,"es")
     for segment in segments:
         if check_prompt(segment.text):
             continue
         txt = "[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text)
-        emit('response', txt, to=request.uid)
-    emit("end", to=request.uid)
+        emit('response', txt, to=request.sid)
+
+
+def transcription(whisper_model, audio):
+    user = session['user']
+    transcribe(f"./audio/final/{user}/{audio}")
+    emit("end", to=request.sid)
 
 
 def resume(conversation, question):
@@ -53,4 +63,20 @@ def resume(conversation, question):
         chunk = obj["choices"][0]
         if chunk["finish_reason"] != "stop":
             msg = chunk["delta"]["content"]
-            emit('chatResponse', msg, to=request.uid)
+            emit('chatResponse', msg, to=request.sid)
+
+
+def real_time(record_chunks, mic_chunks):
+    seconds = 0
+    while session['realTime']:
+        if (seconds < 5):
+            time.sleep(5 - seconds)
+        saveAudio(record_chunks)
+        saveMic(mic_chunks)
+        audio = mergeAudios()
+        start_time = datetime.now()
+        transcribe(audio)
+        final_time = datetime.now()
+        seconds = (final_time - start_time).seconds
+        delTrash()
+        os.remove(audio)

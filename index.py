@@ -1,12 +1,11 @@
 import os
 from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO, emit
-from audio import mergeAudios, saveAudio, saveMic
+from audio import delTrash, mergeAudios, saveAudio, saveMic
 from user_manager import login_user, login_required
 from dotenv import load_dotenv
-from whisper import resume, transcription, whisper_models
+from whisper import resume, transcription, real_time, whisper_models
 from werkzeug.utils import secure_filename
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -77,11 +76,11 @@ def handle_record(data: bytes):
 
 @sock.on("recordMic")
 @login_required
-def handle_record(data: bytes):
+def handle_record_mic(data: bytes):
     sid = request.sid
     if sid not in mic_chunks:
-        record_chunks[sid] = []
-    mic_chunks.append(data)
+        mic_chunks[sid] = []
+    mic_chunks[sid].append(data)
 
 
 @sock.on("message")
@@ -89,9 +88,10 @@ def handle_record(data: bytes):
 def handle_message(msg: str):
     if msg == "stop":
         if saveAudio(record_chunks) and saveMic(mic_chunks):
-            record_chunks.clear()
-            mic_chunks.clear()
             mergeAudios()
+            delTrash()
+    if msg == "stopRealTime":
+        session['realTime'] = False
 
 
 @sock.on("startTranscript")
@@ -107,6 +107,19 @@ def handle_model(data:dict):
 @login_required
 def handle_chat(data:dict):
     resume(data['conversation'], data['question'])
+
+
+@sock.on("startRealTime")
+@login_required
+def handle_real_time():
+    session['realTime'] = True
+    real_time(record_chunks, mic_chunks)
+
+
+@sock.on('disconnect')
+def handle_disconnect():
+    session['realTime'] = False
+
 
 
 if __name__ == "__main__":

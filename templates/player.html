@@ -30,8 +30,11 @@
     </dialog>
 {% endblock content %}
 {% block javascript%}
-<script src="/static/socket.io.min.js"></script>
-
+<script src="/static/js/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+    </script>
+    <script src="/static/js/gptModal.js"></script>
     <script>
         // Selecting audio
         let audio
@@ -56,9 +59,8 @@
             }
         }
         // Converting audio to text
-        const startBtn = document.getElementById("startBtn"),
-        socket = io(),
-        transcriptTxt = document.getElementById("transcriptTxt");
+        const   startBtn = document.getElementById("startBtn"),
+                transcriptTxt = document.getElementById("transcriptTxt");
         startBtn.addEventListener("click", ()=>{
             socket.emit('startTranscript', {
                 model: 'small',
@@ -76,28 +78,6 @@
             startBtn.disabled = false
             startBtn.innerText = "Empezar"
             startBtn.classList.add("expand")
-        })
-
-        // Modal config
-        const gptModal = document.getElementById("gptModal"),
-        askBtn = document.getElementById("askBtn"),
-        closeModalBtn = document.getElementById("closeModalBtn"),
-        questionTxt = document.getElementById("questionTxt"),
-        gptResponse = document.getElementById("gptResponse");
-
-        askBtn.addEventListener('click',()=> gptModal.showModal())
-        closeModalBtn.addEventListener('click',()=> gptModal.close())
-
-        // Using ChatGPT
-        askBtn.addEventListener('click', ()=>{
-            gptResponse.innerHTML = '<p>Generando...</p>';
-            socket.emit('startChat', {
-                conversation: transcriptTxt.value,
-                question: questionTxt.value
-            });
-        })
-        socket.on('chatResponse', msg => {
-            gptResponse.innerHTML += msg
         })
     </script>
 {% endblock javascript%}

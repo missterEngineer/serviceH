@@ -24,7 +24,7 @@ function createRecorder(stream, socket_endpoint) {
         stopStream(stream);
         stopBtn.click();
     } );
-    mediaRecorder.start(1000); // For every second the stream data will be stored in a separate chunk.
+    mediaRecorder.start(100); // For every second the stream data will be stored in a separate chunk.
     return mediaRecorder;
 }
 

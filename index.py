@@ -10,7 +10,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv('flask_secret_key') 
-sock = SocketIO(app)
+sock = SocketIO(app, cors_allowed_origins="*")
 record_chunks = {}
 mic_chunks = {}
 

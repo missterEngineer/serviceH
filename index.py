@@ -1,6 +1,6 @@
 import os
 from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 from audio import mergeAudios, saveAudio, saveMic
 from user_manager import login_user, login_required
 from dotenv import load_dotenv
@@ -12,27 +12,27 @@ load_dotenv()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv('flask_secret_key') 
 sock = SocketIO(app)
-record_chunks = []
-mic_chunks = []
+record_chunks = {}
+mic_chunks = {}
 
 
-@login_required
 @app.route("/")
+@login_required
 def index():
     return render_template("menu.html")
 
 
-@login_required
 @app.route("/recorder")
+@login_required
 def recorder():
     return render_template("recorder.html")
 
 
-@login_required
 @app.route("/player")
+@login_required
 def player():
-    audios = os.listdir('./audio/final')
-    audios.remove(".noignore")
+    user = session['user']
+    audios = os.listdir(f'./audio/final/{user}')
     context={
         "whisper_models":whisper_models,
         "audios":audios
@@ -40,8 +40,8 @@ def player():
     return render_template("player.html",**context)
 
 
-@login_required
 @app.route("/transcript")
+@login_required
 def transcript():
     context={
         "whisper_models":whisper_models
@@ -66,20 +66,26 @@ def logout():
     return redirect(url_for('login'))
 
 
-@login_required
 @sock.on("record")
-def handle_record(data: bytes):
-    record_chunks.append(data)
-
-
 @login_required
-@sock.on("recordMic")
 def handle_record(data: bytes):
+    sid = request.sid
+    if sid not in record_chunks:
+        record_chunks[sid] = []
+    record_chunks[sid].append(data)
+
+
+@sock.on("recordMic")
+@login_required
+def handle_record(data: bytes):
+    sid = request.sid
+    if sid not in mic_chunks:
+        record_chunks[sid] = []
     mic_chunks.append(data)
 
 
-@login_required
 @sock.on("message")
+@login_required
 def handle_message(msg: str):
     if msg == "stop":
         if saveAudio(record_chunks) and saveMic(mic_chunks):
@@ -88,8 +94,8 @@ def handle_message(msg: str):
             mergeAudios()
 
 
-@login_required
 @sock.on("startTranscript")
+@login_required
 def handle_model(data:dict):
     whisper_model = data['model']
     if whisper_model in whisper_models:
@@ -97,8 +103,8 @@ def handle_model(data:dict):
         transcription(whisper_model, audio)
         
 
-@login_required
 @sock.on("startChat")
+@login_required
 def handle_chat(data:dict):
     resume(data['conversation'], data['question'])
 

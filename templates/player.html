@@ -1,74 +1,6 @@
 {% extends "base.html" %}
 {% block head %}
-  <style>
-    .audio-item{
-        display: block;
-    }
-    button{
-        display: block;
-        padding: 5px 10px;
-        border: 1px solid rgb(17 102 143);
-        border-radius: 4px;
-        margin: 6px auto;
-        background: #c5c5ef; 
-        background: linear-gradient(to top,#86a8e7 , #c5c5ef, #91eae4);
-        font-weight: bold;
-    }
-    h1{
-        font-size: 30px;
-    }
-    label{
-        font-weight: bold;
-    }
-    #transcriptTxt{
-        max-width: 80vw;
-        width:600px;
-        height: 300px;
-        border-radius: 10px;
-        overflow-y: auto;
-        display: block;
-        padding:5px;
-    }
-    footer{
-        margin-top: 10px;
-    }
-    footer label{
-        display: block;
-        font-size: 20px;
-    }
-    #questionTxt{
-        display: block;
-        width: 100%;
-        max-width: 80vw;
-        padding:10px;
-        height: 30px;
-    }
-    .audios{
-        overflow-y: auto;
-    }
-    .audios a{
-        margin: 3px 0;
-    }
-    .transcript{
-        display: none;
-    }
-    #closeModalBtn img{
-        width: 30px;
-        margin: 2px;
-    }
-    #gptResponse{
-        width: 600px;
-        max-width: 85vw;
-        overflow-y: auto;
-        max-height: 60vh;
-    }
-    dialog{
-        border: 1px solid #b7d1ff;
-    }
-    dialog::backdrop{
-        background-color: rgba(158, 158, 158, 0.6);
-    }
-  </style>
+  <link rel="stylesheet" href="/static/transcript.css">
 {% endblock head %}
 {% block content %}
     <a href="/" class="back expand" title="back" id="back"><img src="/static/back.png" alt="back"></a>
@@ -82,8 +14,6 @@
     <div class="transcript">
         <p id="audioName"></p>
         <button type="button" class="expand" id="startBtn">Empezar</button>
-     
-    
         <textarea id="transcriptTxt"></textarea>
         <footer>
             <label for="questionTxt">Pregunta a chatGPT</label>

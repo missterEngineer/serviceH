@@ -19,6 +19,7 @@ def login_user(user,password):
 def login_required(func):
     def main_func(*args, **kwargs):
         if "user" in session:
+            print(session['user'])
             return func(*args, **kwargs)
         else:
             return redirect(url_for("login"))

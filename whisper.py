@@ -1,6 +1,7 @@
 from faster_whisper import WhisperModel
 from flask_socketio import emit
 import openai
+from flask import request
 whisper_models = [
     "tiny",
     "base",
@@ -36,8 +37,8 @@ def transcription(whisper_model, audio):
         if check_prompt(segment.text):
             continue
         txt = "[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text)
-        emit('response', txt)
-    emit("end")
+        emit('response', txt, to=request.uid)
+    emit("end", to=request.uid)
 
 
 def resume(conversation, question):
@@ -52,4 +53,4 @@ def resume(conversation, question):
         chunk = obj["choices"][0]
         if chunk["finish_reason"] != "stop":
             msg = chunk["delta"]["content"]
-            emit('chatResponse', msg)
+            emit('chatResponse', msg, to=request.uid)

@@ -26,7 +26,7 @@ FORBIDDEN_PROMPTS = [
 ]
 
 
-model = WhisperModel("small", download_root="./models")
+model = WhisperModel("base", download_root="./models")
 
 
 def check_prompt(text):

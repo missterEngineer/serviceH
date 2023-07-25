@@ -10,7 +10,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv('flask_secret_key') 
-sock = SocketIO(app, cors_allowed_origins="*")
+sock = SocketIO(app, cors_allowed_origins="*",  logger=True, engineio_logger=True)
 record_chunks = {}
 mic_chunks = {}
 
@@ -74,7 +74,7 @@ def downloadFile(filename):
     user = session['user']
     file = secure_filename(filename)
     audio_dir = f'./audio/final/{user}'
-    return send_from_directory(audio_dir, file)
+    return send_from_directory(audio_dir, file, as_attachment=True)
 
 
 @sock.on("record")
@@ -137,6 +137,6 @@ if __name__ == "__main__":
     sock.run(
         app,
         "0.0.0.0",
-        os.getenv("PORT", default=5000),
-        debug=True
+        os.getenv("PORT", default=8000),
+        debug=False,
     )

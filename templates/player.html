@@ -12,7 +12,7 @@
     </div>
     
     <div class="transcript">
-        <p id="audioName"></p>
+        <a href="#" id="audioName"></a>
         <button type="button" class="expand" id="startBtn">Empezar</button>
         <textarea id="transcriptTxt"></textarea>
         <footer>
@@ -40,11 +40,13 @@
         let audio
         const divAudios = document.querySelector(".audios"),
         divTranscript = document.querySelector(".transcript"),
-        backBtn = document.getElementById("back")
+        backBtn = document.getElementById("back"),
+        audioName = document.getElementById('audioName')
         ;
         function selectAudio(index){
             audio = document.getElementById('audio-' + index).innerText;
-            document.getElementById("audioName").innerText = audio;
+            audioName.innerText = audio;
+            audioName.href = `/download/${audio}`;
             divAudios.style.display = 'none';
             divTranscript.style.display = 'block';
             backBtn.href = "#"

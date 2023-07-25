@@ -1,5 +1,7 @@
+import functools
 from flask import session, redirect, url_for
 from werkzeug.security import check_password_hash
+from flask_socketio import disconnect
 
 Users = [
     {
@@ -7,6 +9,7 @@ Users = [
         "password":"pbkdf2:sha256:600000$ISFCZIBw42UqzXYk$2fc5091a44170014419aef48e4c55afa1e6ece06ec19f37894005deda8350c5a"
     }
 ]
+
 
 def login_user(user,password):
     for item in Users:
@@ -16,6 +19,7 @@ def login_user(user,password):
                 return True
     return False
 
+
 def login_required(func):
     def main_func(*args, **kwargs):
         if "user" in session:
@@ -24,3 +28,13 @@ def login_required(func):
             return redirect(url_for("login"))
     main_func.__name__ = func.__name__
     return main_func
+
+
+def authenticated_only(func):
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        if not 'user' in session:
+            disconnect()
+        else:
+            return func(*args, **kwargs)
+    return wrapped

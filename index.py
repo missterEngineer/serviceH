@@ -2,10 +2,10 @@ import os
 from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO, emit
 from audio import delTrash, mergeAudios, saveAudio, saveMic
-from user_manager import login_user, login_required
+from user_manager import authenticated_only, login_user, login_required
 from dotenv import load_dotenv
 from whisper import resume, transcription, real_time, whisper_models
-from werkzeug.utils import secure_filename
+from werkzeug.utils import secure_filename, safe_join
 load_dotenv()
 
 app = Flask(__name__)
@@ -62,14 +62,23 @@ def login():
         return redirect(url_for('login'))
     return render_template("login.html")
 
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
 
+@app.route('/download/<filename>')
+def downloadFile(filename):
+    user = session['user']
+    file = secure_filename(filename)
+    audio_dir = f'./audio/final/{user}'
+    return send_from_directory(audio_dir, file)
+
+
 @sock.on("record")
-@login_required
+@authenticated_only
 def handle_record(data: bytes):
     sid = request.sid
     if sid not in record_chunks:
@@ -78,7 +87,7 @@ def handle_record(data: bytes):
 
 
 @sock.on("recordMic")
-@login_required
+@authenticated_only
 def handle_record_mic(data: bytes):
     sid = request.sid
     if sid not in mic_chunks:
@@ -87,7 +96,7 @@ def handle_record_mic(data: bytes):
 
 
 @sock.on("message")
-@login_required
+@authenticated_only
 def handle_message(msg: str):
     if msg == "stop":
         if saveAudio(record_chunks) and saveMic(mic_chunks):
@@ -98,7 +107,7 @@ def handle_message(msg: str):
 
 
 @sock.on("startTranscript")
-@login_required
+@authenticated_only
 def handle_model(data:dict):
     whisper_model = data['model']
     if whisper_model in whisper_models:
@@ -107,13 +116,13 @@ def handle_model(data:dict):
         
 
 @sock.on("startChat")
-@login_required
+@authenticated_only
 def handle_chat(data:dict):
     resume(data['conversation'], data['question'])
 
 
 @sock.on("startRealTime")
-@login_required
+@authenticated_only
 def handle_real_time():
     session['realTime'] = True
     real_time(record_chunks, mic_chunks)
@@ -124,12 +133,10 @@ def handle_disconnect():
     session['realTime'] = False
 
 
-
 if __name__ == "__main__":
     sock.run(
         app,
         "0.0.0.0",
         os.getenv("PORT", default=5000),
-        debug=True,
-        allow_unsafe_werkzeug=True,
+        debug=True
     )

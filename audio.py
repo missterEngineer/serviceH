@@ -5,8 +5,10 @@ from flask import session, request
 import os
 
 
-def saveAudio(record_chunks):
-    sid = request.sid
+def saveAudio(record_chunks, sid=None):
+    print(sid)
+    if sid is None:
+        sid = request.sid
     rec_chunks = record_chunks[sid]
     if len(rec_chunks) > 0:
         completeFile = rec_chunks[0]
@@ -20,14 +22,16 @@ def saveAudio(record_chunks):
         rec_chunks.clear()
         # Extract the audio using ffmpeg.
         subprocess.run(
-            ["ffmpeg","-loglevel", "quiet", "-y", "-i",  video_path, "-f", "mp3", f"./audio/speaker{sid}.mp3"]
+            ["ffmpeg", "-y", "-i",  video_path, "-f", "mp3", f"./audio/speaker{sid}.mp3"]
         )
         return True
     return False
 
 
-def saveMic(mic_chunks):
-    sid = request.sid
+def saveMic(mic_chunks, sid=None):
+    print(sid)
+    if sid is None:
+        sid = request.sid
     mic_rec_chunks = mic_chunks[sid]
     if len(mic_rec_chunks) > 0:
         completeFile = mic_rec_chunks[0]
@@ -48,21 +52,29 @@ def saveMic(mic_chunks):
         return True
     return False
 
-def mergeAudios(realTime=False):
-    sid = request.sid
-    user = session['user']
+def mergeAudios(realTime=False, sid=None):
+    print(sid)
+    if sid is None:
+        sid = request.sid
+    
     speaker_path = f"./audio/speaker{sid}.mp3"
     mic_path = f"./audio/mic{sid}.mp3"
-    micSound = AudioSegment.from_file(mic_path)
-    if os.path.isfile(speaker_path):
-        speakerSound = AudioSegment.from_file(speaker_path)
-        mixSound = speakerSound.overlay(micSound)
+    if os.path.isfile(mic_path):
+        micSound = AudioSegment.from_file(mic_path)
+        if os.path.isfile(speaker_path):
+            speakerSound = AudioSegment.from_file(speaker_path)
+            mixSound = speakerSound.overlay(micSound)
+        else:
+            mixSound = micSound
     else:
-        mixSound = micSound
+        if os.path.isfile(speaker_path):
+            mixSound = speakerSound
     currentTime = time.strftime("%Y-%m-%d-%H-%M-%S",time.localtime())
     if realTime:
         path = f"./audio"
-    path = f"./audio/final/{user}"
+    else:
+        user = session['user']
+        path = f"./audio/final/{user}"
     if not os.path.isdir(path):
         os.mkdir(path)
     full_path = f"{path}/{currentTime}.mp3"
@@ -70,8 +82,9 @@ def mergeAudios(realTime=False):
     return full_path
 
 
-def delTrash():
-    sid = request.sid
+def delTrash(sid=None):
+    if sid is None:
+        sid = request.sid
     trash_list =[
         f"./audio/video{sid}.webm",
         f"./audio/mic{sid}.webm",

@@ -68,17 +68,18 @@ def resume(conversation, question):
             emit('chatResponse', msg, to=request.sid)
 
 
-def real_time(record_chunks, mic_chunks):
+def real_time(record_chunks, mic_chunks, sid, app, realTime):
     seconds = 0
-    while session['realTime']:
+    app.app_context().push()
+    while realTime:
         if (seconds < 5):
             time.sleep(5 - seconds)
-        saveAudio(record_chunks)
-        saveMic(mic_chunks)
-        audio = mergeAudios()
+        saveAudio(record_chunks, sid)
+        saveMic(mic_chunks, sid)
+        audio = mergeAudios(True, sid)
         start_time = datetime.now()
-        transcribe(audio)
+        transcribe(audio, sid)
         final_time = datetime.now()
         seconds = (final_time - start_time).seconds
-        delTrash()
         os.remove(audio)
+    #delTrash(sid)

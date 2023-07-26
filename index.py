@@ -10,7 +10,7 @@ load_dotenv()
 import threading
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv('flask_secret_key') 
-sock = SocketIO(app, cors_allowed_origins="*",  logger=True, engineio_logger=True)
+sock = SocketIO(app, cors_allowed_origins="*")
 record_chunks = {}
 mic_chunks = {}
 
@@ -103,7 +103,7 @@ def handle_message(msg: str):
             mergeAudios()
             delTrash()
     if msg == "stopRealTime":
-        session['realTime'] = False
+        session['realTime'].stop()
     
 
 
@@ -127,17 +127,30 @@ def handle_chat(data:dict):
     except:
         pass
 
+class RealTime():
+    def __init__(self) -> None:
+        self.running  = True
+
+    def __bool__(self):
+        return self.running
+    
+    def stop(self):
+        self.running = False
+    
+    __nonzero__ = __bool__
 
 @sock.on("startRealTime")
 @authenticated_only
 def handle_real_time():
-    session['realTime'] = True
-    real_time(record_chunks, mic_chunks)
+    session['realTime'] = RealTime()
+    trans = threading.Thread(target=real_time, args=(record_chunks,mic_chunks, request.sid, app, session['realTime']))
+    trans.start()
 
 
 @sock.on('disconnect')
 def handle_disconnect():
-    session['realTime'] = False
+    if 'realTime' in session:
+        session['realTime'].stop()
     
 
 if __name__ == "__main__":

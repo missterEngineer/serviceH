@@ -20,11 +20,14 @@ function createRecorder(stream, socket_endpoint) {
             socket.emit(socket_endpoint, e.data);
         }
     };
-    mediaRecorder.addEventListener("stop",()=> {
+    mediaRecorder.addEventListener("stop",($e, fromBtn=false)=> {
         stopStream(stream);
-        stopBtn.click();
+        if(!mediaRecorder.fromBtn){
+            stopBtn.click();
+        }
     } );
     mediaRecorder.start(100); // For every second the stream data will be stored in a separate chunk.
+    mediaRecorder.stopped = false
     return mediaRecorder;
 }
 

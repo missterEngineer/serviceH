@@ -1,6 +1,6 @@
 import os
 from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, disconnect
 from audio import delTrash, mergeAudios, saveAudio, saveMic
 from user_manager import authenticated_only, login_user, login_required
 from dotenv import load_dotenv
@@ -104,6 +104,7 @@ def handle_message(msg: str):
             delTrash()
     if msg == "stopRealTime":
         session['realTime'] = False
+    
 
 
 @sock.on("startTranscript")
@@ -113,12 +114,14 @@ def handle_model(data:dict):
     if whisper_model in whisper_models:
         audio = secure_filename(data['audio'])
         transcription(whisper_model, audio)
+    disconnect()
         
 
 @sock.on("startChat")
 @authenticated_only
 def handle_chat(data:dict):
     resume(data['conversation'], data['question'])
+    disconnect()
 
 
 @sock.on("startRealTime")
@@ -131,12 +134,13 @@ def handle_real_time():
 @sock.on('disconnect')
 def handle_disconnect():
     session['realTime'] = False
-
+    
 
 if __name__ == "__main__":
     sock.run(
         app,
         "0.0.0.0",
-        os.getenv("PORT", default=8000),
-        debug=False,
+        int(os.getenv("PORT", default=8000)),
+        debug=os.getenv("DEBUG", default=False),
+        use_reloader=False 
     )

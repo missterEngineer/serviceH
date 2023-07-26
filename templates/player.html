@@ -7,12 +7,12 @@
     <h1>Audios Grabados</h1>
     <div class="audios">
         {% for audio in audios %}
-        <a id="audio-{{loop.index}}"  download href="#" class="audio-item" onclick="selectAudio('{{loop.index}}')">{{audio}}</a>
+        <a id="audio-{{loop.index}}"   href="#" class="audio-item" onclick="selectAudio('{{loop.index}}')">{{audio}}</a>
         {% endfor %}
     </div>
     
     <div class="transcript">
-        <a href="#" id="audioName"></a>
+        <a download href="#" id="audioName"></a>
         <button type="button" class="expand" id="startBtn">Empezar</button>
         <textarea id="transcriptTxt"></textarea>
         <footer>
@@ -22,7 +22,7 @@
         </footer>    
     </div>
     <dialog id="gptModal">
-        <a class="back expand"  title="close Modal" id="closeModalBtn" ><img src="/static/close.png" alt="close"></a>
+        <a class="back expand"   title="close Modal" id="closeModalBtn" ><img src="/static/close.png" alt="close"></a>
         <h2>Respuesta</h2>
         <article id="gptResponse">
             <p>Generando...</p>
@@ -30,11 +30,9 @@
     </dialog>
 {% endblock content %}
 {% block javascript%}
-<script src="/static/js/socket.io.js"></script>
-    <script>
-        const socket = io();
-    </script>
-    <script src="/static/js/gptModal.js"></script>
+    <script src="/static/js/socket.io.js"></script>
+    <script src="/static/js/socket.config.js"></script>
+    <script src="/static/js/gptModalv0.0.1.js"></script>
     <script>
         // Selecting audio
         let audio
@@ -64,6 +62,7 @@
         const   startBtn = document.getElementById("startBtn"),
                 transcriptTxt = document.getElementById("transcriptTxt");
         startBtn.addEventListener("click", ()=>{
+            socket.connect()
             socket.emit('startTranscript', {
                 model: 'small',
                 audio: audio
@@ -80,6 +79,7 @@
             startBtn.disabled = false
             startBtn.innerText = "Empezar"
             startBtn.classList.add("expand")
+            socket.close()
         })
     </script>
 {% endblock javascript%}

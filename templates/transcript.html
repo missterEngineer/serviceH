@@ -36,11 +36,9 @@
 {% endblock content %}
 {% block javascript%}
 <script src="/static/js/socket.io.js"></script>
-<script>
-    const socket = io();
-</script>
+<script src="/static/js/socket.config.js"></script>
 <script src="/static/js/record.js"></script>
-<script src="/static/js/gptModal.js"></script>
+<script src="/static/js/gptModalv0.0.1.js"></script>
 <script>
     let startBtn = document.getElementById('startBtn'),
         stopBtn = document.getElementById('stopBtn'),
@@ -50,6 +48,7 @@
     startBtn.addEventListener('click', async function () {
         let stream = await recordScreen();
         let micStream = await recordMic();
+        socket.connect()
         mediaRecorder = createRecorder(stream, 'record');
         micRecorder = createRecorder(micStream, 'recordMic');
         socket.emit('startRealTime');
@@ -58,12 +57,19 @@
     })
 
     stopBtn.addEventListener('click', function () {
-        mediaRecorder.stop();
-        micRecorder.stop();
+        stopRecord(mediaRecorder)
+        stopRecord(micRecorder)
         socket.emit('message', 'stopRealTime');
         startBtn.style.display = 'block';
         stopBtn.style.display = 'none';
+        socket.stop()
     })
+    function stopRecord(recorder){
+        if(recorder.state === "recording"){
+            recorder.fromBtn = true
+            recorder.stop();
+        }
+    }
 
     // Converting audio to text
     transcriptTxt = document.getElementById("transcriptTxt");
@@ -71,5 +77,6 @@
     socket.on('response', msg => {
         transcriptTxt.value += msg  +"\n"
     });
+    
 </script>
 {% endblock javascript%}

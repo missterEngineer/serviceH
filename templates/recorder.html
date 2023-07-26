@@ -26,14 +26,9 @@
 
 {% block javascript%}
     <script src="/static/js/socket.io.js"></script>
-    <script>
-        const socket = io();
-    </script>
+    <script src="/static/js/socket.config.js"></script>
     <script src="/static/js/record.js"></script>
     <script>
-        socket.on('connect', function () {
-            socket.emit('message', 'working');
-        });
         let start = document.getElementById('start'),
             stopBtn = document.getElementById('stop'),
             mediaRecorder,
@@ -42,6 +37,7 @@
             mic_stream
 
         start.addEventListener('click', async function () {
+            socket.connect();
             start.style.display = 'none'
             stopBtn.style.display = 'inline-block'
             speaker_stream = await recordScreen();
@@ -51,11 +47,18 @@
         })
 
         stopBtn.addEventListener('click', function () {
+            stopRecord(mediaRecorder)
+            stopRecord(micRecorder)
+            socket.emit('message', 'stop');
             stopBtn.style.display = 'none'
             start.style.display = 'inline-block'
-            mediaRecorder.stop();
-            micRecorder.stop();
-            socket.emit('message', 'stop');
+            socket.close()
         })
+        function stopRecord(recorder){
+            if(recorder.state === "recording"){
+                recorder.fromBtn = true
+                recorder.stop();
+            }
+        }
     </script>
 {% endblock javascript%}

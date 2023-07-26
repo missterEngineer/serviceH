@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from whisper import resume, transcription, real_time, whisper_models
 from werkzeug.utils import secure_filename, safe_join
 load_dotenv()
-
+import threading
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv('flask_secret_key') 
 sock = SocketIO(app, cors_allowed_origins="*",  logger=True, engineio_logger=True)
@@ -113,15 +113,19 @@ def handle_model(data:dict):
     whisper_model = data['model']
     if whisper_model in whisper_models:
         audio = secure_filename(data['audio'])
-        transcription(whisper_model, audio)
-    disconnect()
+        trans = threading.Thread(target=transcription, args=(whisper_model, audio, session['user'], request.sid, app))
+        trans.start()
+
         
 
 @sock.on("startChat")
 @authenticated_only
 def handle_chat(data:dict):
     resume(data['conversation'], data['question'])
-    disconnect()
+    try:
+        disconnect()
+    except:
+        pass
 
 
 @sock.on("startRealTime")

@@ -36,19 +36,19 @@ def check_prompt(text):
     return False
 
 
-def transcribe(path):
+def transcribe(path, sid):
     segments, _ =  model.transcribe(path,"es")
     for segment in segments:
         if check_prompt(segment.text):
             continue
         txt = "[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text)
-        emit('response', txt, to=request.sid)
+        emit('response', txt, to=sid, namespace="/")
 
 
-def transcription(whisper_model, audio):
-    user = session['user']
-    transcribe(f"./audio/final/{user}/{audio}")
-    emit("end", to=request.sid)
+def transcription(whisper_model, audio, user, sid, app):
+    app.app_context().push()
+    transcribe(f"./audio/final/{user}/{audio}", sid)
+    emit("end", to=sid, namespace="/")
 
 
 def resume(conversation, question):

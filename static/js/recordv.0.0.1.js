@@ -20,7 +20,7 @@ function createRecorder(stream, socket_endpoint) {
             socket.emit(socket_endpoint, e.data);
         }
     };
-    mediaRecorder.addEventListener("stop",($e, fromBtn=false)=> {
+    mediaRecorder.addEventListener("stop",($e)=> {
         stopStream(stream);
         if(!mediaRecorder.fromBtn){
             stopBtn.click();

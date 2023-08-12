@@ -26,8 +26,9 @@ def saveAudio(record_chunks, sid=None):
             os.remove(f"./audio/speaker{sid}.mp3")
         except: pass
         subprocess.run(
-            ["ffmpeg","-loglevel", "quiet", "-y", "-i",  video_path, "-f", "mp3", f"./audio/speaker{sid}.mp3"]
+            ["ffmpeg", "-y", "-i",  video_path, "-f", "mp3", f"./audio/speaker{sid}.mp3"]
         )
+        print("speaker saved")
         return True
     return False
 
@@ -44,6 +45,7 @@ def saveMic(mic_chunks, sid=None):
         for record in mic_rec_chunks:
             if record != completeFile:
                 completeFile += record
+        print("mic saved")
         audio_path = f"./audio/mic{sid}.webm"
         try:
             os.remove(audio_path)
@@ -62,7 +64,7 @@ def saveMic(mic_chunks, sid=None):
         except: pass
         
         subprocess.run(
-            ["ffmpeg","-loglevel", "quiet", "-y", "-i",  audio_path, "-f", "mp3", f"./audio/mic{sid}.mp3"]
+            ["ffmpeg", "-y", "-i",  audio_path, "-f", "mp3", f"./audio/mic{sid}.mp3"]
         )
  
         return True
@@ -96,6 +98,7 @@ def mergeAudios(realTime=False, sid=None):
     if not os.path.isdir(path):
         os.mkdir(path)
     full_path = f"{path}/{currentTime}.mp3"
+    print("audios saved")
     mixSound.export(full_path, format='mp3')
     return full_path
 

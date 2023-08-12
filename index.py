@@ -115,7 +115,9 @@ def handle_record_mic(data: bytes):
 @sock.on("message")
 @authenticated_only
 def handle_message(msg: str):
+    print(msg)
     if msg == "stop":
+        print("stopping")
         saveAudio(record_chunks) 
         saveMic(mic_chunks)
         mergeAudios()

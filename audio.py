@@ -87,6 +87,7 @@ def mergeAudios(realTime=False, sid=None):
             mixSound = micSound
     else:
         if os.path.isfile(speaker_path):
+            speakerSound = AudioSegment.from_file(speaker_path)
             mixSound = speakerSound
     
     currentTime = time.strftime("%Y-%m-%d-%H-%M-%S",time.localtime())

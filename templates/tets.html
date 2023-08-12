@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>MyTitle</title>
+    <base href="/">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+
+<body>
+    <input type="file" id="file">
+    <a href="#" id="download_link">descargar</a>
+    <script src="/static/js/socket.io.js"></script>
+    <script src="/static/js/socket.config.js"></script>
+    <script src="/static/js/video2audio.js"></script>
+    <script>
+        window.addEventListener('beforeunload', function(){
+            socket.close();
+        })
+        const file = document.getElementById("file")
+        file.onchange = (obj)=>{
+            console.log(file)
+            convert2audio(file.files[0])
+            socket.emit("testSock", "HOLA");
+        }
+    </script>
+
+</body>
+
+</html>

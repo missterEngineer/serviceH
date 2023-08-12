@@ -69,12 +69,28 @@ def logout():
     return redirect(url_for('login'))
 
 
+
+
 @app.route('/download/<filename>')
 def downloadFile(filename):
     user = session['user']
     file = secure_filename(filename)
     audio_dir = f'./audio/final/{user}'
     return send_from_directory(audio_dir, file, as_attachment=True)
+
+
+
+@app.route('/test', methods=["GET","POST"])
+def test():
+    if request.method == "POST":
+        print(request)
+        print(request.files)
+    return render_template("tets.html")
+
+
+@sock.on('testSock')
+def testSock(buffer):
+    print(type(buffer))
 
 
 @sock.on("record")
@@ -91,6 +107,7 @@ def handle_record(data: bytes):
 def handle_record_mic(data: bytes):
     sid = request.sid
     if sid not in mic_chunks:
+        print("created")
         mic_chunks[sid] = []
     mic_chunks[sid].append(data)
 
@@ -99,9 +116,10 @@ def handle_record_mic(data: bytes):
 @authenticated_only
 def handle_message(msg: str):
     if msg == "stop":
-        if saveAudio(record_chunks) and saveMic(mic_chunks):
-            mergeAudios()
-            delTrash()
+        saveAudio(record_chunks) 
+        saveMic(mic_chunks)
+        mergeAudios()
+        delTrash()
     if msg == "stopRealTime":
         session['realTime'].stop()
     

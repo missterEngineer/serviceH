@@ -3,7 +3,7 @@ from pydub import AudioSegment
 import time
 from flask import session, request
 import os
-
+old_chunks = {}
 
 def saveAudio(record_chunks, sid=None):
     print(sid)
@@ -21,8 +21,12 @@ def saveAudio(record_chunks, sid=None):
         file.close()
         rec_chunks.clear()
         # Extract the audio using ffmpeg.
+        print("converting audio")
+        try:
+            os.remove(f"./audio/speaker{sid}.mp3")
+        except: pass
         subprocess.run(
-            ["ffmpeg", "-y", "-i",  video_path, "-f", "mp3", f"./audio/speaker{sid}.mp3"]
+            ["ffmpeg","-loglevel", "quiet", "-y", "-i",  video_path, "-f", "mp3", f"./audio/speaker{sid}.mp3"]
         )
         return True
     return False
@@ -33,18 +37,30 @@ def saveMic(mic_chunks, sid=None):
     if sid is None:
         sid = request.sid
     mic_rec_chunks = mic_chunks[sid]
+    old_chunk = mic_rec_chunks[0]
+
     if len(mic_rec_chunks) > 0:
         completeFile = mic_rec_chunks[0]
         for record in mic_rec_chunks:
             if record != completeFile:
                 completeFile += record
         audio_path = f"./audio/mic{sid}.webm"
+        try:
+            os.remove(audio_path)
+        except:
+            pass
         file = open(audio_path, "wb")
         file.write(completeFile)
         file.close()
+        print(len(mic_rec_chunks))
         mic_rec_chunks.clear()
-        
+        mic_rec_chunks.append(old_chunk)
+        print("converting mic")
         # Extract the audio using ffmpeg.
+        try:
+            os.remove(f"./audio/mic{sid}.mp3")
+        except: pass
+        
         subprocess.run(
             ["ffmpeg","-loglevel", "quiet", "-y", "-i",  audio_path, "-f", "mp3", f"./audio/mic{sid}.mp3"]
         )
@@ -61,6 +77,7 @@ def mergeAudios(realTime=False, sid=None):
     mic_path = f"./audio/mic{sid}.mp3"
     if os.path.isfile(mic_path):
         micSound = AudioSegment.from_file(mic_path)
+        mixSound = micSound
         if os.path.isfile(speaker_path):
             speakerSound = AudioSegment.from_file(speaker_path)
             mixSound = speakerSound.overlay(micSound)
@@ -69,6 +86,7 @@ def mergeAudios(realTime=False, sid=None):
     else:
         if os.path.isfile(speaker_path):
             mixSound = speakerSound
+    
     currentTime = time.strftime("%Y-%m-%d-%H-%M-%S",time.localtime())
     if realTime:
         path = f"./audio"

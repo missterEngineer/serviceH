@@ -26,7 +26,7 @@ FORBIDDEN_PROMPTS = [
 ]
 
 
-model = WhisperModel("tiny", download_root="./models")
+model = WhisperModel("small", download_root="./models")
 
 
 def check_prompt(text):
@@ -81,5 +81,6 @@ def real_time(record_chunks, mic_chunks, sid, app, realTime):
         transcribe(audio, sid)
         final_time = datetime.now()
         seconds = (final_time - start_time).seconds
+        print(seconds)
         os.remove(audio)
     #delTrash(sid)

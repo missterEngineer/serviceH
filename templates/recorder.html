@@ -52,7 +52,6 @@
             socket.emit('message', 'stop');
             stopBtn.style.display = 'none'
             start.style.display = 'inline-block'
-            socket.close()
         })
         function stopRecord(recorder){
             if(recorder.state === "recording"){

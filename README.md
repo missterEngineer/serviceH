@@ -1,0 +1,1 @@
+create a .env file like .env.example, debug can be True or False, whisper_model can be tiny, base, small, medium, large-v1, large-v2

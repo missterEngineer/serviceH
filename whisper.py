@@ -27,8 +27,8 @@ FORBIDDEN_PROMPTS = [
     "www.mooji.org"
 ]
 
-
-model = WhisperModel("small", download_root="./models")
+model_name = os.getenv("WHISPER_MODEL", default="small")
+model = WhisperModel(model_name, download_root="./models")
 
 
 def check_prompt(text):

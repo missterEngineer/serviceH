@@ -15,6 +15,33 @@
         #stop{
             display: none;
         }
+        #save_filename{
+            display: block;
+            margin: 10px auto;
+            border: 0;
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            background: #614385;
+            border-radius: 5px;
+            transition: all .2s ease-in-out;
+        }
+        label[for=filename]{
+            display: block;
+            font-size: 18px;
+        }
+        #filename{
+            margin: 5px 0px;
+            padding: 5px 5px;
+            font-size: 14px;
+        }
+        dialog{
+            border: solid 1px #00000075;
+            border-radius: 12px;
+        }
+        ::backdrop {
+            background-color: #000000a1;
+        }
     </style>
 {% endblock head %}
 {% block content %}
@@ -22,6 +49,11 @@
     <h1>Grabar audio</h1>
     <button id="start" class="record expand" title="play"><img src="/static/play.png" alt="play"></button>
     <button id="stop" class="record expand" title="stop"><img src="/static/stop.png" alt="stop"></button>
+    <dialog id="filename_modal">
+        <label for="filename">Nombre del audio</label>
+        <input type="text" id="filename">
+        <button class="record expand" id="save_filename">Guardar</button>
+    </dialog>  
 {% endblock content %}
 
 {% block javascript%}
@@ -49,10 +81,17 @@
         stopBtn.addEventListener('click', function () {
             stopRecord(mediaRecorder)
             stopRecord(micRecorder)
-            socket.emit('message', 'stop');
+            document.getElementById("filename_modal").showModal()
             stopBtn.style.display = 'none'
             start.style.display = 'inline-block'
         })
+
+        document.getElementById("save_filename").onclick = () => {
+            let filename = document.getElementById("filename").value
+            socket.emit('stopRecord', filename)
+            document.getElementById("filename_modal").close()
+        }
+
         function stopRecord(recorder){
             if(recorder.state === "recording"){
                 recorder.fromBtn = true

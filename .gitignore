@@ -6,5 +6,6 @@ audio/*
 !audio/final/
 audio/final/*
 models/*
+prompts/*
 !.noignore
 .vscode/

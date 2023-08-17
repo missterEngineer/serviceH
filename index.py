@@ -1,10 +1,11 @@
+import json
 import os
-from flask import Flask, flash, redirect, render_template, request, session, url_for, send_from_directory
+from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO, emit, disconnect
 from audio import delTrash, mergeAudios, saveAudio, saveMic
 from user_manager import authenticated_only, login_user, login_required
 from dotenv import load_dotenv
-from whisper import resume, transcription, real_time, whisper_models
+from whisper import resume, saveResponse, transcription, real_time, whisper_models
 from werkzeug.utils import secure_filename, safe_join
 load_dotenv()
 import threading
@@ -88,6 +89,19 @@ def test():
     return render_template("tets.html")
 
 
+@app.route('/del_file')
+def del_file():
+    filename = request.args.get("filename")
+    if filename:
+        user = session['user']
+        filename = secure_filename(filename)
+        full_path = os.path.join("audio/final/", f"{user}/", filename)
+        if os.path.isfile(full_path):
+            os.remove(full_path)
+            return json.dumps({'success':True}), 200, {'ContentType':'application/json'} 
+    abort(400)
+
+
 @sock.on('testSock')
 def testSock(buffer):
     print(type(buffer))
@@ -115,16 +129,20 @@ def handle_record_mic(data: bytes):
 @sock.on("message")
 @authenticated_only
 def handle_message(msg: str):
-    print(msg)
-    if msg == "stop":
-        print("stopping")
-        saveAudio(record_chunks) 
-        saveMic(mic_chunks)
-        mergeAudios()
-        delTrash()
     if msg == "stopRealTime":
         session['realTime'].stop()
     
+
+@sock.on("stopRecord")
+@authenticated_only
+def stop_record(record_name):
+    print(record_name)
+    print("stopping")
+    saveAudio(record_chunks) 
+    saveMic(mic_chunks)
+    mergeAudios(filename=record_name)
+    delTrash()
+
 
 
 @sock.on("startTranscript")
@@ -141,7 +159,8 @@ def handle_model(data:dict):
 @sock.on("startChat")
 @authenticated_only
 def handle_chat(data:dict):
-    resume(data['conversation'], data['question'])
+    answer = resume(data['conversation'], data['question'])
+    saveResponse(answer)
     try:
         disconnect()
     except:

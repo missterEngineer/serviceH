@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+import json
 from faster_whisper import WhisperModel
 from flask_socketio import emit
 import openai
@@ -65,7 +67,31 @@ def resume(conversation, question):
         chunk = obj["choices"][0]
         if chunk["finish_reason"] != "stop":
             msg = chunk["delta"]["content"]
-            emit('chatResponse', msg, to=request.sid)
+            emit('chatResponse', msg, to=request.sid)  
+
+
+def saveResponse(audio_name, conversation, question, answer):
+    user_dir = "audio/" + session['user']
+    if not os.path.isdir(user_dir):
+        os.mkdir(user_dir)
+    fullpath = os.path.join(user_dir, audio_name + ".json")
+    if not os.path.isfile(fullpath):
+        content = {
+            "conversation": conversation,
+            "messages" : [question, answer]
+        }
+    else:
+        json_file = open(fullpath, "r", encoding="utf-8")
+        content = json.loads(json_file.read())
+        json_file.close()
+        content["messages"].append(question)
+        content["messages"].append(answer)
+    json_data = json.dumps(content)
+    json_file = open(fullpath, "w", encoding="utf-8")
+    json_file.write(json_data)
+    json_file.close()
+
+        
 
 
 def real_time(record_chunks, mic_chunks, sid, app, realTime):

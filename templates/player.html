@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block head %}
   <link rel="stylesheet" href="/static/transcript.css">
+  <style>
+    .delete{
+        color:red
+    }
+  </style>
 {% endblock head %}
 {% block content %}
     <a href="/" class="back expand" title="back" id="back"><img src="/static/back.png" alt="back"></a>
@@ -12,7 +17,7 @@
     </div>
     
     <div class="transcript">
-        <a download href="#" id="audioName"></a>
+        <a download href="#" id="audioName"></a> <a href="#" onclick="del_file()" class="expand delete">Eliminar</a>
         <button type="button" class="expand" id="startBtn">Empezar</button>
         <textarea id="transcriptTxt"></textarea>
         <footer>
@@ -33,15 +38,17 @@
     <script src="/static/js/socket.io.js"></script>
     <script src="/static/js/socket.config.js"></script>
     <script src="/static/js/gptModalv0.0.1.js"></script>
+
     <script>
         // Selecting audio
-        let audio
+        let audio, actual_index
         const divAudios = document.querySelector(".audios"),
         divTranscript = document.querySelector(".transcript"),
         backBtn = document.getElementById("back"),
         audioName = document.getElementById('audioName')
         ;
         function selectAudio(index){
+            actual_index = index
             audio = document.getElementById('audio-' + index).innerText;
             audioName.innerText = audio;
             audioName.href = `/download/${audio}`;
@@ -81,5 +88,15 @@
             startBtn.classList.add("expand")
             socket.close()
         })
+
+        function del_file(){
+            let filename = audio
+            fetch(`/del_file?filename=${audio}`).then(()=>{
+                document.getElementById('audio-' + actual_index).remove()
+            }).catch(()=>{
+                alert("No existe el archivo")
+            }).finally(()=> backBtn.click())
+        }
+
     </script>
 {% endblock javascript%}

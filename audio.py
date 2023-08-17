@@ -70,7 +70,7 @@ def saveMic(mic_chunks, sid=None):
         return True
     return False
 
-def mergeAudios(realTime=False, sid=None):
+def mergeAudios(realTime=False, sid=None, filename=""):
     print(sid)
     if sid is None:
         sid = request.sid
@@ -98,7 +98,9 @@ def mergeAudios(realTime=False, sid=None):
         path = f"./audio/final/{user}"
     if not os.path.isdir(path):
         os.mkdir(path)
-    full_path = f"{path}/{currentTime}.mp3"
+    if not filename:
+        filename = currentTime
+    full_path = f"{path}/{filename}.mp3"
     print("audios saved")
     mixSound.export(full_path, format='mp3')
     return full_path

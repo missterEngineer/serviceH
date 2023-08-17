@@ -5,6 +5,40 @@
     .delete{
         color:red
     }
+    #historyModal{
+        width: 85vw;
+        max-height: 80vh;
+        max-width: 700px;
+    }
+    #historyContent{
+        margin-top: 15px;
+    }
+    .msg1, .msg2{
+        width: 100%;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        padding: 10px 0px;
+    }
+    .msg1{
+        justify-content: end;
+    }
+    .msg2{
+        justify-content: initial;
+    }
+    span.msg{
+        border-radius: 10px;
+        padding: 10px;
+        max-width: 80%;
+    }
+    .msg1 span{
+        background-color: #c4dcf0;
+        text-align: right;
+    }
+    .msg2 span{
+        background-color: #cff0c4;
+        text-align: left;
+    }
   </style>
 {% endblock head %}
 {% block content %}
@@ -23,6 +57,7 @@
         <footer>
             <label for="questionTxt">Pregunta a chatGPT</label>
             <textarea id="questionTxt">Hola! Te voy a dar la siguiente conversación para que me digas el tema que tratan y los puntos principales:</textarea>
+            <button class="expand" id="historyBtn">Historial</button>
             <button class="expand" id="askBtn">Preguntar</button>
         </footer>    
     </div>
@@ -33,13 +68,34 @@
             <p>Generando...</p>
         </article>
     </dialog>
+    <dialog id="historyModal">
+        <a class="back expand"   title="close Modal" id="closeModalBtn2" ><img src="/static/close.png" alt="close"></a>
+        <div id="historyContent">
+            <div class="msg1">
+                <span class="msg">
+                    message1
+                </span>
+            </div>
+            <div class="msg2">
+                <span class="msg">
+                    message1
+                </span>
+            </div>
+      
+        </div>
+    </dialog>
 {% endblock content %}
 {% block javascript%}
     <script src="/static/js/socket.io.js"></script>
     <script src="/static/js/socket.config.js"></script>
     <script src="/static/js/gptModalv0.0.2.js"></script>
-
+    
     <script>
+        //configure history modal
+        const historyModal = document.getElementById("historyModal");
+        document.getElementById("closeModalBtn2").onclick = () => historyModal.close();
+        document.getElementById("historyBtn").onclick = () => historyModal.showModal();
+
         // Selecting audio
         let audio, actual_index
         const divAudios = document.querySelector(".audios"),
@@ -47,7 +103,7 @@
         backBtn = document.getElementById("back"),
         audioName = document.getElementById('audioName')
         ;
-        function selectAudio(index){
+        async function selectAudio(index){
             actual_index = index
             audio = document.getElementById('audio-' + index).innerText;
             audioName.innerText = audio;
@@ -56,6 +112,25 @@
             divTranscript.style.display = 'block';
             backBtn.href = "#"
             backBtn.addEventListener("click", getBack, false)
+            await loadData()
+        }
+        async function loadData(){
+            const response = await fetch(`/get_prompts?filename=${audio}`)
+            const audio_txt = await response.json()
+            const audio_data = JSON.parse(audio_txt)
+            document.getElementById("transcriptTxt").value = audio_data.conversation
+            const historyContent = document.getElementById("historyContent")
+            let msg_num = 1
+            for(let msg of audio_data.messages){
+                historyContent.innerHTML += `
+                <div class="msg${msg_num}">
+                    <span class="msg">
+                        ${msg}
+                    </span>
+                </div>
+                `
+                msg_num = msg_num == 1 ? 2 : 1
+            }
         }
         function getBack(){
             if(divAudios.style.display === 'block'){
@@ -90,7 +165,6 @@
         })
 
         function del_file(){
-            let filename = audio
             fetch(`/del_file?filename=${audio}`).then(()=>{
                 document.getElementById('audio-' + actual_index).remove()
             }).catch(()=>{

@@ -102,6 +102,21 @@ def del_file():
     abort(400)
 
 
+@app.route('/get_prompts')
+def get_prompts():
+    filename = request.args.get("filename")
+    if filename:
+        user = session['user']
+        filename = secure_filename(filename)
+        full_path = os.path.join("prompts/", f"{user}/", filename + ".json")
+        if os.path.isfile(full_path):
+            json_file = open(full_path, "r", encoding="utf-8")
+            json_data = json_file.read()
+            json_file.close()
+            return json.dumps(json_data), 200, {'ContentType':'application/json'} 
+    abort(400)
+
+
 @sock.on('testSock')
 def testSock(buffer):
     print(type(buffer))

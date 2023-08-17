@@ -43,7 +43,7 @@ def transcribe(path, sid):
     for segment in segments:
         if check_prompt(segment.text):
             continue
-        txt = "[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text)
+        txt =  segment.text
         emit('response', txt, to=sid, namespace="/")
 
 
@@ -63,15 +63,18 @@ def resume(conversation, question):
         messages = messages,
         stream = True
     )
+    final_response = ""
     for obj in completion:
         chunk = obj["choices"][0]
         if chunk["finish_reason"] != "stop":
             msg = chunk["delta"]["content"]
+            final_response += msg
             emit('chatResponse', msg, to=request.sid)  
+    return final_response
 
 
-def saveResponse(audio_name, conversation, question, answer):
-    user_dir = "audio/" + session['user']
+def saveResponse(audio_name:str, conversation:str, question:str, answer:str):
+    user_dir = "prompts/" + session['user']
     if not os.path.isdir(user_dir):
         os.mkdir(user_dir)
     fullpath = os.path.join(user_dir, audio_name + ".json")

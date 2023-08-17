@@ -159,12 +159,13 @@ def handle_model(data:dict):
 @sock.on("startChat")
 @authenticated_only
 def handle_chat(data:dict):
-    answer = resume(data['conversation'], data['question'])
-    saveResponse(answer)
-    try:
-        disconnect()
-    except:
-        pass
+    audio_name = data["audio_name"]
+    conversation = data["conversation"]
+    question = data["question"]
+    answer = resume(conversation, question)
+    if audio_name:
+        saveResponse(audio_name, conversation, question, answer)
+        
 
 class RealTime():
     def __init__(self) -> None:

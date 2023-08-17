@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import json
+from dotenv import load_dotenv
 from faster_whisper import WhisperModel
 from flask_socketio import emit
 import openai
@@ -26,8 +27,9 @@ FORBIDDEN_PROMPTS = [
     "y nos vemos en el próximo vídeo, ¡hasta la próxima!" ,
     "www.mooji.org"
 ]
-
+load_dotenv()
 model_name = os.getenv("WHISPER_MODEL", default="small")
+print(model_name)
 model = WhisperModel(model_name, download_root="./models")
 
 

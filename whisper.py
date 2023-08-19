@@ -29,7 +29,6 @@ FORBIDDEN_PROMPTS = [
 ]
 load_dotenv()
 model_name = os.getenv("WHISPER_MODEL", default="small")
-print(model_name)
 model = WhisperModel(model_name, download_root="./models")
 
 
@@ -41,12 +40,18 @@ def check_prompt(text):
 
 
 def transcribe(path, sid):
-    segments, _ =  model.transcribe(path,"es")
+    openai.organization = os.getenv("OPENAI_ORG")
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    audio_file= open(path, "rb")
+    transcript = openai.Audio.transcribe("whisper-1", audio_file, language="es")
+    texto = transcript.text
+    emit('response', texto, to=sid, namespace="/")
+    """segments, _ =  model.transcribe(path,"es")
     for segment in segments:
         if check_prompt(segment.text):
             continue
         txt =  segment.text
-        emit('response', txt, to=sid, namespace="/")
+        emit('response', txt, to=sid, namespace="/")"""
 
 
 def transcription(whisper_model, audio, user, sid, app):

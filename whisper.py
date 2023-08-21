@@ -77,6 +77,7 @@ def resume(conversation, question):
             msg = chunk["delta"]["content"]
             final_response += msg
             emit('chatResponse', msg, to=request.sid)  
+    emit('chatEnd', to=request.sid)
     return final_response
 
 

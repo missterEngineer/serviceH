@@ -11,7 +11,7 @@ closeModalBtn.addEventListener('click',()=> gptModal.close())
 // Using ChatGPT
 askBtn.addEventListener('click', ()=>{
     socket.connect();
-    gptResponse.innerHTML = '<p>Generando...</p>';
+    gptResponse.innerHTML = '<p id="generando">Generando...</p>';
     if (!audio){
         audio = ""
     }
@@ -20,7 +20,16 @@ askBtn.addEventListener('click', ()=>{
         question: questionTxt.value,
         audio_name: audio
     });
+    if(loadMsg !== undefined){
+        loadMsg(1, questionTxt.value)
+    }
 })
 socket.on('chatResponse', msg => {
     gptResponse.innerHTML += msg
+})
+socket.on('chatEnd', () => {
+    document.getElementById("generando").remove()
+    if(loadMsg !== undefined){
+        loadMsg(2,  gptResponse.innerHTML)
+    }
 })

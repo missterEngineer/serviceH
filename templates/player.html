@@ -27,17 +27,38 @@
         justify-content: initial;
     }
     span.msg{
-        border-radius: 10px;
+        position: relative;
+        border-radius: 15px;
         padding: 10px;
         max-width: 80%;
     }
     .msg1 span{
         background-color: #c4dcf0;
         text-align: right;
+        border-bottom-right-radius: 1px;
     }
     .msg2 span{
         background-color: #cff0c4;
         text-align: left;
+        border-bottom-left-radius: 1px;
+    }
+   
+    span.msg::after {
+        width: 0;
+        position: absolute;
+        display: block;
+        content: '\00a0';
+        bottom: 0;
+        border: 8px solid transparent;
+        height: 0;
+    }
+     .msg1 span::after{
+        right: -16px;
+        border-left-color: #c4dcf0;
+    }
+    .msg2 span::after{
+        left: -15px;
+        border-right-color: #cff0c4;
     }
   </style>
 {% endblock head %}
@@ -76,7 +97,7 @@
 {% block javascript%}
     <script src="/static/js/socket.io.js"></script>
     <script src="/static/js/socket.config.js"></script>
-    <script src="/static/js/gptModalv0.0.2.js"></script>
+    <script src="/static/js/gptModalv0.0.3.js"></script>
     
     <script>
         //configure history modal
@@ -107,18 +128,15 @@
             const audio_txt = await response.json()
             const audio_data = JSON.parse(audio_txt)
             document.getElementById("transcriptTxt").value = audio_data.conversation
-            const historyContent = document.getElementById("historyContent")
             let msg_num = 1
             for(let msg of audio_data.messages){
-                historyContent.innerHTML += `
-                <div class="msg${msg_num}">
-                    <span class="msg">
-                        ${msg}
-                    </span>
-                </div>
-                `
+                loadMsg(msg_num, msg)
                 msg_num = msg_num == 1 ? 2 : 1
             }
+        }
+        function loadMsg(msg_num, msg){
+            const historyContent = document.getElementById("historyContent")
+            historyContent.innerHTML += `<div class="msg${msg_num}"><span class="msg">${msg}</span></div>`
         }
         function getBack(){
             if(divAudios.style.display === 'block'){

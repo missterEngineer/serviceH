@@ -65,6 +65,7 @@ def login():
 
 
 @app.route('/logout')
+@login_required
 def logout():
     session.clear()
     return redirect(url_for('login'))
@@ -73,6 +74,7 @@ def logout():
 
 
 @app.route('/download/<filename>')
+@login_required
 def downloadFile(filename):
     user = session['user']
     file = secure_filename(filename)
@@ -81,15 +83,8 @@ def downloadFile(filename):
 
 
 
-@app.route('/test', methods=["GET","POST"])
-def test():
-    if request.method == "POST":
-        print(request)
-        print(request.files)
-    return render_template("tets.html")
-
-
 @app.route('/del_file')
+@login_required
 def del_file():
     filename = request.args.get("filename")
     if filename:
@@ -103,6 +98,7 @@ def del_file():
 
 
 @app.route('/get_prompts')
+@login_required
 def get_prompts():
     filename = request.args.get("filename")
     if filename:
@@ -118,6 +114,7 @@ def get_prompts():
 
 
 @sock.on('testSock')
+@authenticated_only
 def testSock(buffer):
     print(type(buffer))
 

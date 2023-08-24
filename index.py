@@ -2,7 +2,7 @@ import json
 import os
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO, emit, disconnect
-from audio import delTrash, mergeAudios, saveAudio, saveMic
+from audio import delTrash, mergeAudios, save_record, saveAudio, saveMic
 from user_manager import authenticated_only, login_user, login_required
 from dotenv import load_dotenv
 from whisper import resume, saveResponse, transcription, real_time, whisper_models
@@ -123,19 +123,20 @@ def testSock(buffer):
 @authenticated_only
 def handle_record(data: bytes):
     sid = request.sid
-    if sid not in record_chunks:
-        record_chunks[sid] = []
-    record_chunks[sid].append(data)
+    video_path = f"./audio/video{sid}.webm"
+    file = open(video_path, "ab")
+    file.write(data)
+    file.close()
 
 
 @sock.on("recordMic")
 @authenticated_only
 def handle_record_mic(data: bytes):
     sid = request.sid
-    if sid not in mic_chunks:
-        print("created")
-        mic_chunks[sid] = []
-    mic_chunks[sid].append(data)
+    video_path = f"./audio/mic{sid}.webm"
+    file = open(video_path, "ab")
+    file.write(data)
+    file.close()
 
 
 @sock.on("message")
@@ -150,10 +151,8 @@ def handle_message(msg: str):
 def stop_record(record_name):
     print(record_name)
     print("stopping")
-    saveAudio(record_chunks) 
-    saveMic(mic_chunks)
-    mergeAudios(filename=record_name)
-    delTrash()
+    thread = threading.Thread(target=save_record, args=(record_name, request.sid, session['user']))
+    thread.start()
 
 
 

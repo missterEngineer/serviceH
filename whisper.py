@@ -75,18 +75,21 @@ def resume(conversation, question):
     messages.append({"role":"user", "content": question + conversation})
     openai.organization = os.getenv("OPENAI_ORG")
     openai.api_key = os.getenv("OPENAI_API_KEY")
-    completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages = messages,
-        stream = True
-    )
     final_response = ""
-    for obj in completion:
-        chunk = obj["choices"][0]
-        if chunk["finish_reason"] != "stop":
-            msg = chunk["delta"]["content"]
-            final_response += msg
-            emit('chatResponse', msg, to=request.sid)  
+    try:
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages = messages,
+            stream = True
+        )
+        for obj in completion:
+            chunk = obj["choices"][0]
+            if chunk["finish_reason"] != "stop":
+                msg = chunk["delta"]["content"]
+                final_response += msg
+                emit('chatResponse', msg, to=request.sid)  
+    except:
+        emit('chatResponse', "Ha ocurrido un error", to=request.sid) 
     emit('chatEnd', to=request.sid)
     return final_response
 

@@ -49,7 +49,6 @@ def transcribe(path, sid):
     print("end diarization")
     transcript = openai.Audio.transcribe("whisper-1", audio_file, language="es")
     texto = transcript.text
-    texto = ""
     print("init text")
     print("end text")
     emit('response', texto, to=sid, namespace="/")

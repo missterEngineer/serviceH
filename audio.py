@@ -3,7 +3,7 @@ from pydub import AudioSegment
 import time
 from flask import session, request
 import os
-old_chunks = {}
+
 
 def saveAudio(record_chunks, sid=None):
     if sid is None:
@@ -52,7 +52,8 @@ def mergeAudios(realTime=False, sid=None, filename="", user=""):
         if os.path.isfile(speaker_path):
             speakerSound = AudioSegment.from_file(speaker_path)
             mixSound = speakerSound
-    
+
+            
     currentTime = time.strftime("%Y-%m-%d-%H-%M-%S",time.localtime())
     if realTime:
         path = f"./audio"

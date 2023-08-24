@@ -210,5 +210,6 @@ if __name__ == "__main__":
         "0.0.0.0",
         int(os.getenv("PORT", default=8000)),
         debug=os.getenv("DEBUG", default=False),
-        use_reloader=False 
+        use_reloader=os.getenv("DEBUG", default=False) 
     )
+    print("running")

@@ -30,7 +30,7 @@
         }
         const data = new FormData();
         data.append('audio', input_file.files[0]);
-        text_element.innerText = "Subiendo archivo <span>0%</span>"
+        text_element.innerHTML = "Subiendo archivo <span>0%</span>"
         const ajax = new XMLHttpRequest();
         ajax.upload.addEventListener("progress", progressHandler, false);
         ajax.addEventListener("loadend", completeHandler, false);

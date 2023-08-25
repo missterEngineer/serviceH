@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block head %}
+  <style>
+    h1{
+        font-size: 30px;
+    }
+  </style>
+{% endblock head %}
+{% block content %} 
+    <a href="/" class="back expand" title="back"><img src="/static/back.png" alt="back"></a>
+    <h1>Subir archivo</h1>
+    <button type="button" id="select">Seleccionar archivo</button>
+    <input type="file" name="audio" id="audio" hidden>
+    <p id="text"></p>
+
+{% endblock content %}
+
+{% block javascript %}
+  <script>
+    const input_file = document.querySelector('input[type="file"]'),
+        text_element = document.getElementById("text");
+
+    document.getElementById("select").onclick = ()=>{
+        input_file.click()
+    }
+    input_file.addEventListener("change", async ()=>{
+        if(!checkFile()){
+            text_element.innerText = "Archivo inválido, solo puede subir archivos de audio (ejemplo: .mp3, .wav)"
+            return
+        }
+        const data = new FormData();
+        data.append('audio', input_file.files[0]);
+        text_element.innerText = "Subiendo archivo <span>0%</span>"
+        const ajax = new XMLHttpRequest();
+        ajax.upload.addEventListener("progress", progressHandler, false);
+        ajax.addEventListener("loadend", completeHandler, false);
+        ajax.addEventListener("error", errorHandler, false);
+        ajax.addEventListener("abort", errorHandler, false);
+        ajax.open("POST", "/upload_file"); 
+        ajax.send(data);
+    })
+
+    function checkFile(){
+        const audio_formats = ['MP3', 'WAV', 'AAC', 'FLAC', 'OGG', 'WMA', 'ALAC', 'AIFF', 'M4A', 'AC3'];
+        let ext = input_file.files[0].name.split('.');
+        ext = ext[ext.length - 1];
+        return audio_formats.includes(ext.toUpperCase())
+    }
+    
+    function progressHandler(event) {
+        const percent = (event.loaded / event.total) * 100;
+        const span = text_element.querySelector("span");
+        if(span){
+            console.log(Math.round(percent) + "%")
+            span.innerText = Math.round(percent) + "%"
+            console.log(text_element.innerText)
+        }
+    }
+      
+      function completeHandler(event) {
+        try{
+            console.log(event)
+            const response = JSON.parse(event.target.response) 
+            if ('success' in response){
+                text_element.innerText = "Archivo subido correctamente"
+                text_element.style.color = "#0e8843"
+            }
+        }catch(error){
+            console.error(error)
+            errorHandler(event)
+        }
+      
+      }
+      
+      function errorHandler(event) {
+        text_element.style.color ="#9b0909"
+        text_element.innerHTML = "Error al subir archivo";
+      }
+      
+  </script>
+{% endblock javascript %}

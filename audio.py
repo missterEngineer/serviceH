@@ -3,6 +3,7 @@ from pydub import AudioSegment
 import time
 from flask import session, request
 import os
+from utils import allowed_file, check_filename
 
 
 def saveAudio(record_chunks, sid=None):
@@ -64,8 +65,9 @@ def mergeAudios(realTime=False, sid=None, filename="", user=""):
     if not filename:
         filename = currentTime
     full_path = f"{path}/{filename}.mp3"
-    print("audios saved")
+    full_path = check_filename(full_path)
     mixSound.export(full_path, format='mp3')
+    print("audio saved")
     return full_path
 
 

@@ -110,7 +110,9 @@
         const divAudios = document.querySelector(".audios"),
         divTranscript = document.querySelector(".transcript"),
         backBtn = document.getElementById("back"),
-        audioName = document.getElementById('audioName')
+        audioName = document.getElementById('audioName'),
+        transcriptTxt = document.getElementById("transcriptTxt"),
+        historyContent = document.getElementById("historyContent")
         ;
         async function selectAudio(index){
             actual_index = index
@@ -121,13 +123,15 @@
             divTranscript.style.display = 'block';
             backBtn.href = "#"
             backBtn.addEventListener("click", getBack, false)
+            transcriptTxt.value = ""
+            historyContent.innerHTML = ''
             await loadData()
         }
         async function loadData(){
             const response = await fetch(`/get_prompts?filename=${audio}`)
             const audio_txt = await response.json()
             const audio_data = JSON.parse(audio_txt)
-            document.getElementById("transcriptTxt").value = audio_data.conversation
+            transcriptTxt.value = audio_data.conversation
             let msg_num = 1
             for(let msg of audio_data.messages){
                 loadMsg(msg_num, msg)
@@ -135,7 +139,6 @@
             }
         }
         function loadMsg(msg_num, msg){
-            const historyContent = document.getElementById("historyContent")
             historyContent.innerHTML += `<div class="msg${msg_num}"><span class="msg">${msg}</span></div>`
         }
         function getBack(){
@@ -147,8 +150,7 @@
             }
         }
         // Converting audio to text
-        const   startBtn = document.getElementById("startBtn"),
-                transcriptTxt = document.getElementById("transcriptTxt");
+        const   startBtn = document.getElementById("startBtn");
         startBtn.addEventListener("click", ()=>{
             socket.connect()
             socket.emit('startTranscript', {

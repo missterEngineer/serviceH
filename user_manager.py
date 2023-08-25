@@ -4,6 +4,8 @@ from flask import session, redirect, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import disconnect
 
+from utils import validate_string
+
 
 def get_users():
     with open("users.json", "r", encoding="utf-8") as file:
@@ -28,6 +30,8 @@ def create_user(user:str, password:str):
     for item in users:
         if item['user'] == user or user == 'final':
             return {"error": "El usuario ya existe"}
+    if(not validate_string(user)):
+        return {"error": "El nombre de usuario solo puede contener números, letras sin acentos o guion bajo (_)"}
     new_user = {
         "user":user,
         "password":generate_password_hash(password)

@@ -7,6 +7,8 @@ from user_manager import authenticated_only, create_user, login_user, login_requ
 from dotenv import load_dotenv
 from whisper import resume, saveResponse, transcription, real_time, whisper_models
 from werkzeug.utils import secure_filename, safe_join
+from utils import allowed_file, check_filename
+
 load_dotenv()
 import threading
 app = Flask(__name__)
@@ -125,19 +127,27 @@ def create_user_view():
 @app.route('/upload_file', methods=["GET","POST"])
 @login_required
 def upload_file():
+    if request.method == "POST":
+        file = request.files.get('audio')
+        print(request.files)
+        print(request.form)
+        if file is None :
+            print("is none")
+            return abort(400)
+        filename = file.filename
+        if filename == "":
+            print("is empty")
+            return abort(400)
+        if allowed_file(filename):
+            filename = secure_filename(file.filename)
+            folder = f"audio/final/{session['user']}/"
+            path = os.path.join(folder, filename)
+            path = check_filename(path)
+            file.save(path)
+            return {"success":"success"}
+        print("is not valid")
+        return abort(400)
     return render_template("upload_file.html")
-
-
-@sock.on('upload')
-@authenticated_only
-def handle_upload():
-    return
-
-
-@sock.on('name_upload')
-@authenticated_only
-def handle_name_upload():
-    return
 
 
 @sock.on('testSock')
@@ -175,9 +185,11 @@ def handle_message(msg: str):
 
 @sock.on("stopRecord")
 @authenticated_only
-def stop_record(record_name):
+def stop_record(record_name:str):
     print(record_name)
     print("stopping")
+    record_name = record_name.replace(" ", "_")
+    record_name = secure_filename(record_name)
     thread = threading.Thread(target=save_record, args=(record_name, request.sid, session['user']))
     thread.start()
 

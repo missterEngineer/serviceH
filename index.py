@@ -3,7 +3,7 @@ import os
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO, emit, disconnect
 from audio import delTrash, mergeAudios, save_record, saveAudio, saveMic
-from user_manager import authenticated_only, login_user, login_required
+from user_manager import authenticated_only, create_user, login_user, login_required
 from dotenv import load_dotenv
 from whisper import resume, saveResponse, transcription, real_time, whisper_models
 from werkzeug.utils import secure_filename, safe_join
@@ -19,6 +19,7 @@ mic_chunks = {}
 @app.route("/")
 @login_required
 def index():
+    print(session['user'])
     return render_template("menu.html")
 
 
@@ -71,8 +72,6 @@ def logout():
     return redirect(url_for('login'))
 
 
-
-
 @app.route('/download/<filename>')
 @login_required
 def downloadFile(filename):
@@ -111,6 +110,34 @@ def get_prompts():
             json_file.close()
             return json.dumps(json_data), 200, {'ContentType':'application/json'} 
     abort(400)
+
+
+@app.route('/create_user', methods=["GET","POST"])
+@login_required
+def create_user_view():
+    if request.method == "POST":
+        user = request.form['user']
+        password = request.form['password']
+        return create_user(user, password)
+    return render_template("create_user.html")
+
+
+@app.route('/upload_file', methods=["GET","POST"])
+@login_required
+def upload_file():
+    return render_template("upload_file.html")
+
+
+@sock.on('upload')
+@authenticated_only
+def handle_upload():
+    return
+
+
+@sock.on('name_upload')
+@authenticated_only
+def handle_name_upload():
+    return
 
 
 @sock.on('testSock')

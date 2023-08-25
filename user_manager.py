@@ -1,23 +1,41 @@
 import functools
+import json
 from flask import session, redirect, url_for
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import disconnect
 
-Users = [
-    {
-        "user":"prueba",
-        "password":"pbkdf2:sha256:600000$ISFCZIBw42UqzXYk$2fc5091a44170014419aef48e4c55afa1e6ece06ec19f37894005deda8350c5a"
-    }
-]
+
+def get_users():
+    with open("users.json", "r", encoding="utf-8") as file:
+        users = json.loads(file.read())
+    return users
 
 
 def login_user(user,password):
-    for item in Users:
+    users = get_users()
+    for item in users:
         if item['user'] == user:
-            if check_password_hash(item['password'],password):
+            print("usuario existe")
+            print(check_password_hash(item['password'], password))
+            if check_password_hash(item['password'], password):
                 session['user'] = user
                 return True
     return False
+
+
+def create_user(user:str, password:str):
+    users = get_users()
+    for item in users:
+        if item['user'] == user or user == 'final':
+            return {"error": "El usuario ya existe"}
+    new_user = {
+        "user":user,
+        "password":generate_password_hash(password)
+    }
+    users.append(new_user)
+    with open("users.json", "w", encoding="utf-8") as file:
+        file.write(json.dumps(users))
+    return {"success":"success"}
 
 
 def login_required(func):

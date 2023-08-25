@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+    #new_user_form label{
+        display: block;
+        margin: 5px 0;
+    }
+    #new_user_form input{
+        display: block;
+        margin: 0 auto;
+    }
+    #new_user_form h1{
+        font-size: 30px;
+    }
+    #new_user_form h2{
+        font-size: 20px;
+    }
+
+</style>
+{% endblock head %}
+
+{% block content %} 
+<a href="/" class="back expand" title="back"><img src="/static/back.png" alt="back"></a>
+<form id="new_user_form">
+    <h1>Registro de usuario</h1>
+    <h2></h2>
+    <label>
+        Usuario
+        <input type="text" name="user">
+    </label>
+    <label>
+        Contraseña
+        <input type="password" name="password">
+    </label>
+    <button type="button" id="submit">Guardar</button>
+</form>
+{% endblock content %}
+
+{% block javascript%} 
+<script>
+    document.getElementById("submit").onclick = async ()=>{
+        const new_user_form = document.getElementById("new_user_form")
+        const data = new FormData(new_user_form)
+        const response = await fetch("/create_user",{
+            method: "POST",
+            body: data
+        })
+        const result = await response.json();
+        console.log(result)
+        const info_label = new_user_form.querySelector("h2")
+        if('error' in result){
+            info_label.innerText = "Error: " + result['error']
+            info_label.style.color = "#9b0909"
+        }else{
+            info_label.innerText = "Usuario creado exitosamente"
+            info_label.style.color = "#0e8843"
+        }
+    }
+</script>
+{% endblock javascript %}

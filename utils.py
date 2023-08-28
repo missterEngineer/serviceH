@@ -12,7 +12,7 @@ def check_filename(path:str):
     ext = file_parts.pop()
     filepath = ".".join(file_parts)
     while(os.path.isfile(path)):
-        path = f"{filepath}({cont}).{ext}"
+        path = f"{filepath}_{cont}.{ext}"
         cont += 1
     return path
     

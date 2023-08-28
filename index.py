@@ -78,7 +78,9 @@ def logout():
 @login_required
 def downloadFile(filename):
     user = session['user']
+    file = filename
     file = secure_filename(filename)
+    print(file)
     audio_dir = f'./audio/final/{user}'
     return send_from_directory(audio_dir, file, as_attachment=True)
 
@@ -129,8 +131,6 @@ def create_user_view():
 def upload_file():
     if request.method == "POST":
         file = request.files.get('audio')
-        print(request.files)
-        print(request.form)
         if file is None :
             print("is none")
             return abort(400)
@@ -149,6 +149,40 @@ def upload_file():
         return abort(400)
     return render_template("upload_file.html")
 
+
+@app.route("/recover_audio",methods=["POST"])
+@login_required
+def recover_audio():
+    audio_file = request.files.get('audio_file')
+    mic_file = request.files.get('mic_file')
+    sid = request.form.get('sid')
+    print(audio_file.filename, mic_file.filename)
+    if valid_audio_file(audio_file.filename) and valid_mic_file(mic_file.filename):
+        filename = ".".join(audio_file.filename.split(".")[0:-2])
+        mic_path = f"./audio/mic{sid}.webm"
+        mic_file.save(mic_path)
+        audio_path = f"./audio/speaker{sid}.mp3"
+        audio_file.save(audio_path)
+        thread = threading.Thread(target=save_record, args=(filename, sid, session['user'], app, False))
+        thread.start()
+        return {"success":"success"}
+    return abort(400)
+
+    
+def valid_audio_file(filename:str):
+    splits = filename.split(".")
+    if (splits[-1] == "mp3" and  splits[-2] == "computer"):
+        return True
+    return False
+
+
+def valid_mic_file(filename:str):
+    splits = filename.split(".")
+    if (splits[-1] == "webm" and  splits[-2] == "mic"):
+        return True
+    return False
+
+    
 
 @sock.on('testSock')
 @authenticated_only
@@ -188,9 +222,8 @@ def handle_message(msg: str):
 def stop_record(record_name:str):
     print(record_name)
     print("stopping")
-    record_name = record_name.replace(" ", "_")
     record_name = secure_filename(record_name)
-    thread = threading.Thread(target=save_record, args=(record_name, request.sid, session['user']))
+    thread = threading.Thread(target=save_record, args=(record_name, request.sid, session['user'], app))
     thread.start()
 
 

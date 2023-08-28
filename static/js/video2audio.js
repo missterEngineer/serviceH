@@ -7,47 +7,37 @@ function convert2audio(video_file) {
     const sampleRate = 16000;
     const numberOfChannels = 1;
 
-    reader.onload = function () {
+    reader.onload = async function () {
         let videoFileAsBuffer = reader.result; // arraybuffer
-        audioContext.decodeAudioData(videoFileAsBuffer).then(function (decodedAudioData) {
+        let decodedAudioData = await audioContext.decodeAudioData(videoFileAsBuffer)
+        let duration = decodedAudioData.duration;
 
-            let duration = decodedAudioData.duration;
+        let offlineAudioContext = new OfflineAudioContext(numberOfChannels, sampleRate *
+            duration, sampleRate);
+        let soundSource = offlineAudioContext.createBufferSource();
 
-            let offlineAudioContext = new OfflineAudioContext(numberOfChannels, sampleRate *
-                duration, sampleRate);
-            let soundSource = offlineAudioContext.createBufferSource();
+        myBuffer = decodedAudioData;
+        soundSource.buffer = myBuffer;
+        soundSource.connect(offlineAudioContext.destination);
+        soundSource.start();
 
-            myBuffer = decodedAudioData;
-            soundSource.buffer = myBuffer;
-            soundSource.connect(offlineAudioContext.destination);
-            soundSource.start();
+        compressor = offlineAudioContext.createDynamicsCompressor();
 
-            compressor = offlineAudioContext.createDynamicsCompressor();
-
-            compressor.threshold.setValueAtTime(-20, offlineAudioContext.currentTime);
-            compressor.knee.setValueAtTime(30, offlineAudioContext.currentTime);
-            compressor.ratio.setValueAtTime(5, offlineAudioContext.currentTime);
-            compressor.attack.setValueAtTime(.05, offlineAudioContext.currentTime);
-            compressor.release.setValueAtTime(.25, offlineAudioContext.currentTime);
-            // Connect nodes to destination
-            soundSource.connect(compressor);
-            compressor.connect(offlineAudioContext.destination);
-
-            offlineAudioContext.startRendering().then(function (renderedBuffer) {
-                socket.connect()
-                let new_file = bufferToWave(renderedBuffer,offlineAudioContext.length)
-                console.log(new_file)
-                socket.emit('testSock',new_file);
-                fetch(`test`, {method:"POST", body:new_file})
-                //make_download(renderedBuffer, offlineAudioContext.length);
-
-            }).catch(function (err) {
-                console.log('Rendering failed: ' + err);
-            });
-        });
+        compressor.threshold.setValueAtTime(-20, offlineAudioContext.currentTime);
+        compressor.knee.setValueAtTime(30, offlineAudioContext.currentTime);
+        compressor.ratio.setValueAtTime(5, offlineAudioContext.currentTime);
+        compressor.attack.setValueAtTime(.05, offlineAudioContext.currentTime);
+        compressor.release.setValueAtTime(.25, offlineAudioContext.currentTime);
+        // Connect nodes to destination
+        soundSource.connect(compressor);
+        compressor.connect(offlineAudioContext.destination);
+        let renderedBuffer = await offlineAudioContext.startRendering()
+        let new_file = bufferToWave(renderedBuffer,offlineAudioContext.length)
+        return new_file
+         //make_download(renderedBuffer, offlineAudioContext.length);
     };
 
-    reader.readAsArrayBuffer(video_file); // video file
+    return reader.readAsArrayBuffer(video_file); // video file
 }
 
 function make_download(buffer, total_samples) {
@@ -82,7 +72,7 @@ function bufferToWave(abuffer, len) {
         i, sample,
         offset = 0,
         pos = 0;
-
+    console.log("channels", numOfChan)
     // write WAVE header
     setUint32(0x46464952); // "RIFF"
     setUint32(length - 8); // file length - 8
@@ -129,3 +119,4 @@ function bufferToWave(abuffer, len) {
         pos += 4;
     }
 }
+

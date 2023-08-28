@@ -4,6 +4,7 @@ import time
 from flask import session, request
 import os
 from utils import allowed_file, check_filename
+from flask_socketio import emit
 
 
 def saveAudio(record_chunks, sid=None):
@@ -84,9 +85,15 @@ def delTrash(sid=None):
         if os.path.isfile(item):
             os.remove(item)
 
-def save_record(record_name, sid, username):
-    saveAudio(None, sid) 
-    saveMic(None, sid)
-    mergeAudios(filename=record_name, sid=sid, user=username)
-    delTrash(sid)
-    print("Record saved")
+def save_record(record_name, sid, username, app, save_audio=True):
+    app.app_context().push()
+    try:
+        if save_audio:
+            saveAudio(None, sid) 
+        saveMic(None, sid)
+        mergeAudios(filename=record_name, sid=sid, user=username)
+        delTrash(sid)
+        emit('success_saving', to=sid, namespace="/")
+    except Exception as e:
+        print(e)
+        emit('error_saving', to=sid, namespace="/")

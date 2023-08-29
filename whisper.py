@@ -100,6 +100,7 @@ def resume(conversation, question):
         emit('chatResponse', "La conversación es demasiada larga", to=request.sid) 
         return
     final_response = ""
+    print("prompt send")
     try:
         completion = openai.ChatCompletion.create(
             model=model,
@@ -115,8 +116,10 @@ def resume(conversation, question):
     except RateLimitError: 
         time.sleep(25)
         return resume(conversation, question)
-    except:
-        emit('chatResponse', "Ha ocurrido un error", to=request.sid) 
+    except Exception as e:
+        print(e)
+        emit('chatResponse', "Ha ocurrido un error, espere unos segundos e intente de nuevo", to=request.sid) 
+    print("prompt received")
     emit('chatEnd', to=request.sid)
     return final_response
 

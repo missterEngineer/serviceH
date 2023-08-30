@@ -1,14 +1,14 @@
 import json
 import os
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
-from flask_socketio import SocketIO, emit, disconnect
-from audio import delTrash, mergeAudios, save_record, saveAudio, saveMic
-from user_manager import authenticated_only, create_user, login_user, login_required
+from flask_socketio import SocketIO
+from audio import save_record
+from user_manager import admin_required, authenticated_only, create_user, login_user, login_required, change_password
 from dotenv import load_dotenv
 from whisper import resume, saveResponse, transcription, real_time, whisper_models
-from werkzeug.utils import secure_filename, safe_join
-from utils import allowed_file, check_filename
-
+from werkzeug.utils import secure_filename
+from utils import allowed_file, check_filename, valid_audio_file, valid_mic_file, error_log
+from datetime import datetime
 load_dotenv()
 import threading
 app = Flask(__name__)
@@ -118,6 +118,7 @@ def get_prompts():
 
 @app.route('/create_user', methods=["GET","POST"])
 @login_required
+@admin_required
 def create_user_view():
     if request.method == "POST":
         user = request.form['user']
@@ -156,7 +157,6 @@ def recover_audio():
     audio_file = request.files.get('audio_file')
     mic_file = request.files.get('mic_file')
     sid = request.form.get('sid')
-    print(audio_file.filename, mic_file.filename)
     if valid_audio_file(audio_file.filename) and valid_mic_file(mic_file.filename):
         filename = ".".join(audio_file.filename.split(".")[0:-2])
         mic_path = f"./audio/mic{sid}.webm"
@@ -166,22 +166,23 @@ def recover_audio():
         thread = threading.Thread(target=save_record, args=(filename, sid, session['user'], app, False))
         thread.start()
         return {"success":"success"}
+    error_log(session['user'], f"recover_audio: not valid name '{audio_file.filename}' or '{mic_file.filename}'")
     return abort(400)
 
+
+@app.route("/change_password", methods=["GET","POST"])
+@login_required
+def change_pass():
+    if request.method == "POST":
+        user = session['user']
+        password = request.form.get("password")
+        verify_password = request.form.get("verify_password")
+        if password != verify_password:
+            return {"response": "error", "msg":"Las contraseñas no coinciden"}
+        change_password(user, password)
+        return {"response":"success", "msg": "Contraseña cambiada exitosamente"}
+    return render_template("change_password.html")
     
-def valid_audio_file(filename:str):
-    splits = filename.split(".")
-    if (splits[-1] == "mp3" and  splits[-2] == "computer"):
-        return True
-    return False
-
-
-def valid_mic_file(filename:str):
-    splits = filename.split(".")
-    if (splits[-1] == "webm" and  splits[-2] == "mic"):
-        return True
-    return False
-
     
 
 @sock.on('testSock')
@@ -227,7 +228,6 @@ def stop_record(record_name:str):
     thread.start()
 
 
-
 @sock.on("startTranscript")
 @authenticated_only
 def handle_model(data:dict):
@@ -236,7 +236,6 @@ def handle_model(data:dict):
         audio = secure_filename(data['audio'])
         trans = threading.Thread(target=transcription, args=(whisper_model, audio, session['user'], request.sid, app))
         trans.start()
-
         
 
 @sock.on("startChat")
@@ -261,6 +260,7 @@ class RealTime():
         self.running = False
     
     __nonzero__ = __bool__
+
 
 @sock.on("startRealTime")
 @authenticated_only

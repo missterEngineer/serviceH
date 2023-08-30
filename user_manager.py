@@ -42,9 +42,27 @@ def create_user(user:str, password:str):
     return {"success":"success"}
 
 
+def change_password(user:str, password:str):
+    users = get_users()
+    for item in users:
+        if item['user'] == user :
+            item['password'] = generate_password_hash(password) 
+            with open("users.json", "w", encoding="utf-8") as file:
+                file.write(json.dumps(users))
+
+
 def login_required(func):
     def main_func(*args, **kwargs):
         if "user" in session:
+            return func(*args, **kwargs)
+        else:
+            return redirect(url_for("login"))
+    main_func.__name__ = func.__name__
+    return main_func
+
+def admin_required(func):
+    def main_func(*args, **kwargs):
+        if session['user'].lower() == 'prueba':
             return func(*args, **kwargs)
         else:
             return redirect(url_for("login"))

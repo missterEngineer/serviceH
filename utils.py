@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 audio_formats = ['MP3', 'WAV', 'AAC', 'FLAC', 'OGG', 'WMA', 'ALAC', 'AIFF', 'M4A', 'AC3']
 
 def allowed_file(filename):
@@ -23,3 +24,22 @@ def validate_string(string):
         return True 
     else: 
         return False 
+    
+def valid_audio_file(filename:str):
+    splits = filename.split(".")
+    if (splits[-1] == "mp3" and  splits[-2] == "computer"):
+        return True
+    return False
+
+
+def valid_mic_file(filename:str):
+    splits = filename.split(".")
+    if (splits[-1] == "webm" and  splits[-2] == "mic"):
+        return True
+    return False
+
+def error_log(user, reason):
+    with open("errors.txt","a") as file:
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log = f"{date} {user} {reason}"
+        file.write(log)

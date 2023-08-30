@@ -9,7 +9,7 @@ import time
 from datetime import datetime
 from audio import delTrash, mergeAudios, saveAudio, saveMic
 import os
-from utils import allowed_file, check_filename
+from utils import allowed_file, check_filename, error_log
 from openai.error import RateLimitError, InvalidRequestError
 old_chunks = {}
 from gradio_client import Client
@@ -74,6 +74,7 @@ def transcribe(path, sid):
     except Exception as e:
         print(e)
         emit('response', "Ha ocurrido un error al transcribir", to=sid, namespace="/")
+        error_log(session['user'],f"transcribe: {e}")
 
 
 
@@ -118,7 +119,8 @@ def resume(conversation, question):
         return resume(conversation, question)
     except Exception as e:
         print(e)
-        emit('chatResponse', "Ha ocurrido un error, espere unos segundos e intente de nuevo", to=request.sid) 
+        emit('chatResponse', "Ha ocurrido un error, espere unos segundos e intente de nuevo", to=request.sid)
+        error_log(session['user'], f"resume: {e}") 
     print("prompt received")
     emit('chatEnd', to=request.sid)
     return final_response

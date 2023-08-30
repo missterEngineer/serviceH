@@ -3,7 +3,7 @@ from pydub import AudioSegment
 import time
 from flask import session, request
 import os
-from utils import allowed_file, check_filename
+from utils import allowed_file, check_filename, error_log
 from flask_socketio import emit
 
 
@@ -95,5 +95,5 @@ def save_record(record_name, sid, username, app, save_audio=True):
         delTrash(sid)
         emit('success_saving', to=sid, namespace="/")
     except Exception as e:
-        print(e)
+        error_log(username, f"save_record: {e}")
         emit('error_saving', to=sid, namespace="/")

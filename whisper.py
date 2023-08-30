@@ -70,7 +70,9 @@ def transcribe(path, sid):
             emit('response', texto, to=sid, namespace="/")
             if file_path != path:
                 os.remove(file_path)
-            time.sleep(20)
+            if file_path != segments[-1]:
+                time.sleep(20)
+        saveResponse(path)
     except Exception as e:
         print(e)
         emit('response', "Ha ocurrido un error al transcribir", to=sid, namespace="/")
@@ -126,28 +128,28 @@ def resume(conversation, question):
     return final_response
 
 
-def saveResponse(audio_name:str, conversation:str, question:str, answer:str):
+def saveResponse(audio_name:str, conversation:str, question:str ='', answer:str =''):
     user_dir = "prompts/" + session['user']
     if not os.path.isdir(user_dir):
         os.mkdir(user_dir)
     fullpath = os.path.join(user_dir, audio_name + ".json")
     if not os.path.isfile(fullpath):
         content = {
-            "conversation": conversation,
-            "messages" : [question, answer]
+            "conversation": conversation
         }
+        if question and answer:
+            content['messages'] = [question, answer]
     else:
-        json_file = open(fullpath, "r", encoding="utf-8")
-        content = json.loads(json_file.read())
-        json_file.close()
-        content["messages"].append(question)
-        content["messages"].append(answer)
+        with open(fullpath, "r", encoding="utf-8") as json_file:
+            json_file = open(fullpath, "r", encoding="utf-8")
+            content = json.loads(json_file.read())
+            content['conversation'] = conversation
+            if question and answer:
+                content["messages"].append(question)
+                content["messages"].append(answer)
     json_data = json.dumps(content)
-    json_file = open(fullpath, "w", encoding="utf-8")
-    json_file.write(json_data)
-    json_file.close()
-
-        
+    with open(fullpath, "w", encoding="utf-8") as json_file:
+        json_file.write(json_data)
 
 
 def real_time(record_chunks, mic_chunks, sid, app, realTime):

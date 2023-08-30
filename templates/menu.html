@@ -17,9 +17,9 @@
     <a href="/logout" class="back" title="logout"><img src="/static/back.png" alt="back"></a>
     <a class="menu-btn expand" href="/recorder">Grabar audio</a>
     <a class="menu-btn expand" href="/player">Ver audios grabados</a>
-    
     <a class="menu-btn expand" href="/upload_file">Subir audio</a>
     {% if session.user == 'prueba' %}
     <a class="menu-btn expand" href="/create_user">Crear usuario</a>
     {% endif %}
+    <a class="menu-btn expand" href="/change_password">Cambiar contraseña</a>
 {% endblock content %}

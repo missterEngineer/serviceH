@@ -8,9 +8,8 @@ from dotenv import load_dotenv
 from whisper import resume, saveResponse, transcription, real_time, whisper_models
 from werkzeug.utils import secure_filename
 from utils import allowed_file, check_filename, valid_audio_file, valid_mic_file, error_log
-from datetime import datetime
-load_dotenv()
 import threading
+load_dotenv()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv('flask_secret_key') 
 sock = SocketIO(app, cors_allowed_origins="*")
@@ -21,7 +20,6 @@ mic_chunks = {}
 @app.route("/")
 @login_required
 def index():
-    print(session['user'])
     return render_template("menu.html")
 
 
@@ -83,7 +81,6 @@ def downloadFile(filename):
     print(file)
     audio_dir = f'./audio/final/{user}'
     return send_from_directory(audio_dir, file, as_attachment=True)
-
 
 
 @app.route('/del_file')
@@ -182,8 +179,17 @@ def change_pass():
         change_password(user, password)
         return {"response":"success", "msg": "Contraseña cambiada exitosamente"}
     return render_template("change_password.html")
-    
-    
+
+
+@app.route("/save_error", methods=["POST"])    
+@login_required
+def save_error():
+    page = request.form.get("page")
+    user = session['user']
+    error = request.form.get("error")
+    error_log(user, f"front-{page} {error}")
+    return {'success':'success'}
+
 
 @sock.on('testSock')
 @authenticated_only

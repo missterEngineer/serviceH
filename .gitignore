@@ -9,3 +9,5 @@ models/*
 prompts/*
 !.noignore
 .vscode/
+errors.txt
+users.json

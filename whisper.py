@@ -1,16 +1,14 @@
-from dataclasses import dataclass
 import json
 from dotenv import load_dotenv
-from faster_whisper import WhisperModel
 from flask_socketio import emit
 import openai
 from flask import request, session
 import time
 from datetime import datetime
-from audio import delTrash, mergeAudios, saveAudio, saveMic
+from audio import mergeAudios, saveAudio, saveMic
 import os
-from utils import allowed_file, check_filename, error_log
-from openai.error import RateLimitError, InvalidRequestError
+from utils import  error_log
+from openai.error import RateLimitError
 old_chunks = {}
 from gradio_client import Client
 import time

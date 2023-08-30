@@ -66,6 +66,7 @@
                 text_element.style.color = "#0e8843"
             }
         }catch(error){
+            save_error("upload_file", error.message )
             console.error(error)
             errorHandler(event)
         }
@@ -75,6 +76,8 @@
       function errorHandler(event) {
         text_element.style.color ="#9b0909"
         text_element.innerHTML = "Error al subir archivo";
+        console.log(event)
+        save_error("upload_file", event.target.statusText )
       }
       
   </script>

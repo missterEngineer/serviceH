@@ -41,5 +41,5 @@ def valid_mic_file(filename:str):
 def error_log(user, reason):
     with open("errors.txt","a") as file:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        log = f"{date} {user} {reason}"
+        log = f"{date} {user} {reason}\n"
         file.write(log)

@@ -130,12 +130,20 @@
         document.getElementById("retry_btn").addEventListener("click", ()=>{
             let filename = document.getElementById("filename").value;
             wait_h1.hidden = false;
-            retryMedia(filename);
+            try{
+                retryMedia(filename);
+            }catch(error){
+                save_error("recorder", error.message )
+            }
         })
 
         document.getElementById("save_btn").addEventListener("click", ()=>{
             let filename = document.getElementById("filename").value;
-            downloadMedia(filename)
+            try{
+                downloadMedia(filename)
+            }catch{
+                save_error("recorder", error.message )
+            }
         })
 
 

@@ -61,16 +61,18 @@ def transcribe(path, sid):
         segments.append(path)
     print("init diarization")
     try:
+        final_text = ''
         for file_path in segments:
             audio_file= open(file_path, "rb")
             transcript = openai.Audio.transcribe("whisper-1", audio_file, language="es")
             texto = transcript.text
+            final_text += texto
             emit('response', texto, to=sid, namespace="/")
             if file_path != path:
                 os.remove(file_path)
             if file_path != segments[-1]:
                 time.sleep(20)
-        saveResponse(path)
+        saveResponse(path, final_text)
     except Exception as e:
         print(e)
         emit('response', "Ha ocurrido un error al transcribir", to=sid, namespace="/")

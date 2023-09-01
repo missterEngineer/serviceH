@@ -237,11 +237,10 @@ def stop_record(record_name:str):
 @sock.on("startTranscript")
 @authenticated_only
 def handle_model(data:dict):
-    whisper_model = data['model']
-    if whisper_model in whisper_models:
-        audio = secure_filename(data['audio'])
-        trans = threading.Thread(target=transcription, args=(whisper_model, audio, session['user'], request.sid, app))
-        trans.start()
+    model = data['model']
+    audio = secure_filename(data['audio'])
+    trans = threading.Thread(target=transcription, args=(model, audio, session['user'], request.sid, app))
+    trans.start()
         
 
 @sock.on("startChat")

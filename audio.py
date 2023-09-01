@@ -36,6 +36,7 @@ def saveMic(mic_chunks, sid=None):
     return True
 
 def mergeAudios(realTime=False, sid=None, filename="", user=""):
+    A = 2/0
     print(sid)
     if sid is None:
         sid = request.sid

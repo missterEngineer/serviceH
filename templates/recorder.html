@@ -62,7 +62,7 @@
             <button class="record expand special" id="retry_btn">Reintentar</button>
             <button class="record expand special" id="save_btn">Guardar audios</button>
         </div>
-        <button class="record expand special" hidden id="close_modal"> Cerrar</button>
+        <button class="record expand special" hidden id="close_modal" hidden> Cerrar</button>
     </dialog>  
 {% endblock content %}
 
@@ -70,21 +70,25 @@
     <script src="/static/js/socket.io.js"></script>
     <script src="/static/js/socket.config.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js" integrity="sha512-xT0S/xXvkrfkRXGBPlzZPCAncnMK5c1N7slRkToUbv8Z901aUEuKO84tLy8dWU+3ew4InFEN7TebPaVMy2npZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="/static/js/recordv.0.0.2.js"></script>
+    <script src="/static/js/recordv.0.0.3.js"></script>
     <script>
         let start = document.getElementById('start'),
             stopBtn = document.getElementById('stop'),
             mediaRecorder,
             micRecorder,
             speaker_stream,
-            mic_stream
+            mic_stream, 
+            error = false;
+  
         const text_element = document.getElementById("wait_text"),
             close_modal = document.getElementById("close_modal"),
             wait_h1 = document.getElementById("wait_header"),
             wait_text = document.getElementById("wait_text"),
             error_options = document.getElementById("error_options");
 
-        close_modal.addEventListener("click", ()=> document.getElementById("filename_modal").close())
+        close_modal.addEventListener("click", ()=> {
+            document.getElementById("filename_modal").close()
+        })
 
         start.addEventListener('click', async function () {
             socket.connect();
@@ -119,7 +123,15 @@
             close_modal.hidden = false
         });
 
-        socket.on('error_saving', () => {
+        socket.on('error_saving', async () => {
+            console.log("error_saving")
+            if(!error){
+                let filename = document.getElementById("filename").value;
+                error = true
+                await saveFiles(filename)
+                retryMedia(filename);
+                return
+            }
             wait_h1.hidden = true
             text_element.style.color = "#9b0909"
             text_element.innerHTML = "Ha ocurrido un error guardando el audio en el servidor. ¿Que desea hacer?"
@@ -130,20 +142,28 @@
         document.getElementById("retry_btn").addEventListener("click", ()=>{
             let filename = document.getElementById("filename").value;
             wait_h1.hidden = false;
+            error_options.hidden = true
+            close_modal.hidden = true
             try{
                 retryMedia(filename);
             }catch(error){
                 save_error("recorder", error.message )
             }
+            error_options.hidden = false
+            close_modal.hidden = false
         })
 
         document.getElementById("save_btn").addEventListener("click", ()=>{
             let filename = document.getElementById("filename").value;
+            error_options.hidden = true
+            close_modal.hidden = true
             try{
                 downloadMedia(filename)
             }catch{
                 save_error("recorder", error.message )
             }
+            error_options.hidden = false
+            close_modal.hidden = false
         })
 
 

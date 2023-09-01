@@ -74,6 +74,7 @@
     <div class="transcript">
         <a download href="#" id="audioName"></a> <a href="#" onclick="del_file()" class="expand delete">Eliminar</a>
         <button type="button" class="expand" id="startBtn">Empezar</button>
+        <button type="button" class="expand" id="startSpeakerBtn">Transcribir con participantes</button>
         <textarea id="transcriptTxt"></textarea>
         <footer>
             <label for="questionTxt">Pregunta a chatGPT</label>
@@ -150,18 +151,32 @@
             }
         }
         // Converting audio to text
-        const   startBtn = document.getElementById("startBtn");
-        startBtn.addEventListener("click", ()=>{
+        const   startBtn = document.getElementById("startBtn"),
+        startSpeakerBtn = document.getElementById("startSpeakerBtn");
+
+        function start_transcript(speaker=false){
             socket.connect()
+            transcriptTxt.value = ""
+            let model
+            if(speaker===true){
+                model = "speaker"
+                startSpeakerBtn.innerText = "Cargando..."
+            }else{
+                model = "normal"
+                startBtn.innerText = "Cargando..."
+            }
             socket.emit('startTranscript', {
-                model: 'small',
+                model: model,
                 audio: audio
             });
             startBtn.disabled = true
-            startBtn.innerText = "Cargando..."
             startBtn.classList.remove("expand")
-        })
-
+            startSpeakerBtn.disabled = true
+            startSpeakerBtn.classList.remove("expand")
+        }
+        startBtn.addEventListener("click", start_transcript)
+        startSpeakerBtn.addEventListener("click", ()=>start_transcript(true))
+        
         socket.on('response', msg => {
             transcriptTxt.value += msg  +"\n"
         });
@@ -169,6 +184,9 @@
             startBtn.disabled = false
             startBtn.innerText = "Empezar"
             startBtn.classList.add("expand")
+            startSpeakerBtn.disabled = false
+            startSpeakerBtn.classList.add("expand")
+            startSpeakerBtn.innerText = "Transcribir con participantes"
             socket.close()
         })
 

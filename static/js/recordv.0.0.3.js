@@ -49,20 +49,24 @@ function createRecorder(stream, socket_endpoint) {
     return mediaRecorder;
 }
 
-async function retryMedia(name){
-    let audio_data = stream_data["record"]
-    let file = new File(audio_data, "recorder.webm")
-    let blob = await convert2audio(file)
-    let audio_file = new File([blob], name + ".computer.mp3")    
-    let mic_data = stream_data["recordMic"]
-    let mic_file = new File(mic_data,  name + ".mic.webm")
-    let form =  new FormData()
+
+async function saveFiles(name){
+    let file = new File(stream_data["record"], "recorder.webm")
+    stream_data["record"] = await convert2audio(file)
+    delete file
+    stream_data["audio_file"] = new File([stream_data["record"]], name + ".computer.mp3")      
+    delete stream_data["record"];
+    stream_data["mic_file"] = new File( stream_data["recordMic"],  name + ".mic.webm")
+    delete stream_data["recordMic"];
+}
 
 
-    form.append("audio_file", audio_file)
-    form.append("mic_file", mic_file)
-    form.append("sid", socket.id)
+function retryMedia(){
     document.getElementById("wait_text").innerText = "Subiendo archivo..."
+    let form =  new FormData()
+    form.append("audio_file", stream_data["audio_file"])
+    form.append("mic_file", stream_data["mic_file"])
+    form.append("sid", socket.id)
     const ajax = new XMLHttpRequest();
     ajax.upload.addEventListener("progress", (progressHandler), false);
     ajax.addEventListener("loadend", completeHandler, false);
@@ -73,14 +77,8 @@ async function retryMedia(name){
 }
 
 async function downloadMedia(filename){
-    let audio_data = stream_data["record"]
-    let file = new File(audio_data, "recorder.webm")
-    let blob = await convert2audio(file)
-    downloadBlob(filename + "computer.mp3", blob)
-
-    let mic_data = stream_data["recordMic"]
-    blob = new Blob(mic_data,{type:"video/webm"})
-    downloadBlob(filename + "microphone.webm", blob)
+    downloadBlob(filename + ".computer.mp3",stream_data["audio_file"])
+    downloadBlob(filename + ".microphone.webm", stream_data["mic_file"])
 }
 
 function downloadBlob(filename, blob){
@@ -108,7 +106,7 @@ try{
     if ('success' in response){
         const text_element = document.getElementById("wait_text")
         text_element.innerText = "Archivo subido correctamente, procesando audio..."
-        text_element.style.color = "#0e8843"
+        text_element.style.color = "rgb(144 99 9)"
     }
 }catch(error){
     console.error(error)

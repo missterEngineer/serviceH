@@ -43,7 +43,7 @@ def check_prompt(text):
     return False
 
 
-def transcribe(path, sid):
+def transcribe(path:str, sid:str, user:str, speaker:bool=False):
     openai.organization = os.getenv("OPENAI_ORG")
     openai.api_key = os.getenv("OPENAI_API_KEY")
     size = os.path.getsize(path)
@@ -60,29 +60,45 @@ def transcribe(path, sid):
     else:
         segments.append(path)
     print("init diarization")
-    try:
-        final_text = ''
-        for file_path in segments:
-            audio_file= open(file_path, "rb")
+    final_text = ''
+    for file_path in segments:
+        audio_file= open(file_path, "rb")
+        if speaker:
+            texto = speaker_detect(file_path)
+        else:
             transcript = openai.Audio.transcribe("whisper-1", audio_file, language="es")
             texto = transcript.text
-            final_text += texto
-            emit('response', texto, to=sid, namespace="/")
-            if file_path != path:
-                os.remove(file_path)
-            if file_path != segments[-1]:
-                time.sleep(20)
-        saveResponse(path, final_text)
+        final_text += texto
+        emit('response', texto, to=sid, namespace="/")
+        if file_path != path:
+            os.remove(file_path)
+        if file_path != segments[-1]:
+            time.sleep(20)
+    audio_name = path.split("/")[-1]
+    saveResponse(audio_name, final_text, user=user)
+
+
+def speaker_detect(audio_file_path):
+    return client.predict(
+        audio_file_path,	# str (filepath or URL to file) in 'audio_path' Audio component
+        "transcribe",	# str in 'Task' Radio component
+        True,	# bool in 'Group by speaker' Checkbox component
+        api_name="/predict"
+    )
+
+
+
+def transcription(model, audio, user, sid, app):
+    app.app_context().push()
+    try:
+        transcript_args = [f"./audio/final/{user}/{audio}", sid, user]
+        if model == "speaker":
+            transcript_args.append(True)
+        transcribe(*transcript_args)
     except Exception as e:
         print(e)
         emit('response', "Ha ocurrido un error al transcribir", to=sid, namespace="/")
-        error_log(session['user'],f"transcribe: {e}")
-
-
-
-def transcription(whisper_model, audio, user, sid, app):
-    app.app_context().push()
-    transcribe(f"./audio/final/{user}/{audio}", sid)
+        error_log(user,f"transcribe: {e}")
     emit("end", to=sid, namespace="/")
 
 
@@ -128,14 +144,17 @@ def resume(conversation, question):
     return final_response
 
 
-def saveResponse(audio_name:str, conversation:str, question:str ='', answer:str =''):
-    user_dir = "prompts/" + session['user']
+def saveResponse(audio_name:str, conversation:str, question:str ='', answer:str ='', user=''):
+    if user == '':
+        user = session['user']
+    user_dir = "prompts/" + user
     if not os.path.isdir(user_dir):
         os.mkdir(user_dir)
     fullpath = os.path.join(user_dir, audio_name + ".json")
     if not os.path.isfile(fullpath):
         content = {
-            "conversation": conversation
+            "conversation": conversation,
+            "messages":[]
         }
         if question and answer:
             content['messages'] = [question, answer]
@@ -145,6 +164,8 @@ def saveResponse(audio_name:str, conversation:str, question:str ='', answer:str 
             content = json.loads(json_file.read())
             content['conversation'] = conversation
             if question and answer:
+                if not "messages" in content:
+                    content["messages"] = []
                 content["messages"].append(question)
                 content["messages"].append(answer)
     json_data = json.dumps(content)

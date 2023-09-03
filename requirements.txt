@@ -6,3 +6,4 @@ openai==0.27.8
 gradio_client
 tiktoken
 gevent
+gevent-websocket

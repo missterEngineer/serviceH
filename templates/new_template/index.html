@@ -1,0 +1,124 @@
+{% extends "new_template/base.html" %}
+{% block title %}
+  Inicio
+{% endblock title %}
+{% block style %}
+<style>
+    .btn{
+        color:white;
+        display: inline-flex;
+        align-items: center;
+        margin: 0 10px;
+        font-size: 16px;
+        text-decoration: none;
+    }
+    .btn img{
+        margin: 0 10px
+    }
+    .btn-box{
+        text-align: center;
+    }
+    .audio-item{
+        position: relative;
+        border-radius: 8px;
+        background: rgba(0, 28, 28, 0.50);
+        margin: 5px 0;
+        padding: 5px 10px;
+        display: grid;
+        gap: 10px;
+        grid-template-columns: 25px 1fr 25px 25px;
+    }
+    .card{
+        overflow-y: auto;
+        padding: 16px;
+        height: 400px;
+        position: relative;
+    }
+    .audio-txt{
+        width: auto;
+        padding: 0;
+        text-decoration: none;
+    }
+    .audio-txt:hover{
+        cursor:pointer;
+    }
+    .audio-name{
+        color: rgba(255, 255, 255, 0.75);
+        text-overflow: ellipsis; 
+        font-size: 20px;
+        margin: 0;
+        text-align: left;
+    }
+    .audio-date{
+        color: rgba(255, 255, 255, 0.40);
+        font-size: 12px;
+        margin: 0;
+        text-align: left;
+    }
+    .ico-link{
+        height: 25px;
+    }
+    .empty p{
+        color: rgba(255, 255, 255, 0.75);
+        text-align: center;
+        font-size: 14px; 
+    }
+    .empty{
+        width: 300px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%,-50%);
+        position: absolute;
+    }
+</style>
+{% endblock style %}
+{% block content %}
+<div class="btn-box">
+    <a class="btn" href="/recorder">
+        <img src="/static/images/micro.svg" alt="micrófono">
+        Grabar audio
+    </a>
+    <a class="btn" href="/upload_file">
+        <img src="/static/images/cloud.svg" alt="">
+        Subir audio
+    </a>
+</div>
+<div class="card">
+   
+    {% if audios %}
+        {% for audio in audios %}
+            <div class="audio-item" id="audio-{{loop.index}}">
+                <img src="/static/images/msg.svg">
+                <a href="/player/{{audio.name}}" class="audio-txt">
+                    <p class="audio-name">{{audio.name}}</p>
+                    <p class="audio-date">{{audio.date}}</p>
+                </a>
+                <a href="#" class="ico-link">
+                    <img src="/static/images/edit.svg" alt="editar">
+                </a>
+                <a href="#" class="ico-link" onclick="del_file(`{{audio.name}}`, `{{loop.index}}`)">
+                    <img src="/static/images/delete.svg" alt="eliminar">
+                </a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <img src="/static/images/find.svg" alt="buscar">
+            <p>Aquí verás tu historial de grabaciones. podrás revisar, vuelve a editar o eliminar sesiones</p>
+        </div>
+    {% endif %}
+    
+</div>
+{% endblock content %}
+
+{% block script %}
+  <script>
+    function del_file(audio, index){
+        fetch(`/del_file?filename=${audio}`).then(data=>data.json()).then(()=>{
+            document.getElementById('audio-' + index).remove()
+        }).catch(()=>{
+            alert("No existe el archivo")
+        })
+    }
+  </script>
+{% endblock script %}

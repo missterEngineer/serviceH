@@ -9,18 +9,35 @@ from whisper import resume, saveResponse, transcription, real_time, whisper_mode
 from werkzeug.utils import secure_filename
 from utils import allowed_file, check_filename, valid_audio_file, valid_mic_file, error_log
 import threading
+from datetime import datetime
+
 load_dotenv()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv('flask_secret_key') 
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+)
 sock = SocketIO(app, cors_allowed_origins="*")
-record_chunks = {}
-mic_chunks = {}
 
 
 @app.route("/")
 @login_required
 def index():
-    return render_template("menu.html")
+    user = session['user']
+    audios = []
+    with os.scandir(f'./audio/final/{user}') as folder_items:
+        for item in folder_items:
+            if item.is_file():
+                file_date_float = os.path.getmtime(item.path)
+                file_date = datetime.fromtimestamp(file_date_float)
+                audios.append({
+                    "name": item.name,
+                    "date": file_date.strftime('%m/%d/%Y')
+                })
+                
+    return render_template("new_template/index.html", audios=audios)
 
 
 @app.route("/recorder")
@@ -39,6 +56,12 @@ def player():
         "audios":audios
     }
     return render_template("player.html",**context)
+
+
+@app.route("/player/<audio>")
+@login_required
+def player_audio(audio:str):
+    return render_template("new_template/transcript.html", audio=audio)
 
 
 @app.route("/transcript")
@@ -62,7 +85,7 @@ def login():
             return redirect(url_for("index"))
         flash("Usuario o contraseña inválido")
         return redirect(url_for('login'))
-    return render_template("login.html")
+    return render_template("new_template/login.html")
 
 
 @app.route('/logout')
@@ -90,6 +113,7 @@ def del_file():
     if filename:
         user = session['user']
         filename = secure_filename(filename)
+        print(filename)
         full_path = os.path.join("audio/final/", f"{user}/", filename)
         if os.path.isfile(full_path):
             os.remove(full_path)
@@ -121,7 +145,7 @@ def create_user_view():
         user = request.form['user']
         password = request.form['password']
         return create_user(user, password)
-    return render_template("create_user.html")
+    return render_template("new_template/add_user.html")
 
 
 @app.route('/upload_file', methods=["GET","POST"])
@@ -178,7 +202,7 @@ def change_pass():
             return {"response": "error", "msg":"Las contraseñas no coinciden"}
         change_password(user, password)
         return {"response":"success", "msg": "Contraseña cambiada exitosamente"}
-    return render_template("change_password.html")
+    return render_template("new_template/change_password.html")
 
 
 @app.route("/save_error", methods=["POST"])    
@@ -271,7 +295,7 @@ class RealTime():
 @authenticated_only
 def handle_real_time():
     session['realTime'] = RealTime()
-    trans = threading.Thread(target=real_time, args=(record_chunks,mic_chunks, request.sid, app, session['realTime']))
+    trans = threading.Thread(target=real_time, args=([],[], request.sid, app, session['realTime']))
     trans.start()
 
 

@@ -1,0 +1,305 @@
+{% extends "new_template/base.html" %}
+{% block title %}
+    Transcribir
+{% endblock title %}
+{% block style %}
+<style>
+    .btn{
+        color: white;
+        padding: 10px 20px;
+        margin: auto 5px;
+        background: #001C1C; 
+    }
+    .delete{
+        height: 25px;
+        margin: auto 0;
+    }
+    .card-head{
+        display: grid;
+        grid-template-columns: 1fr 250px 30px;
+        gap: 10px;
+        border-bottom: 1px solid #B5C9C9;
+    }
+    .audio-txt{
+        margin: 15px 0;
+        text-align: left;
+        padding: 0 20px;
+    }
+    .audio-txt a{
+        color:#6B8282;
+        text-decoration: none;
+    }
+    .card-head > div{
+        display: flex;
+    }
+    .card-footer{
+        background: #002424; 
+        padding: 5px 10px;
+        position: relative;
+    }
+    .card-footer::before{
+        content: "Pregunta a ChatGPT";
+        position: absolute;
+        background: #002424;
+        top: -26px;
+        color: rgba(255, 255, 255, 0.75);
+        z-index: 1;
+        font-size: 16px;
+        font-weight: 400; 
+        border-radius: 12px 12px 0px 0px; 
+        padding: 4px 10px; 
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .card{
+        background: #002E2E;
+    }
+    .card-body{
+        height: 400px;
+        padding: 0 20px 30px 20px;
+        text-align: left;
+        overflow-y: auto;
+    }
+    textarea{
+        width:calc(100% - 45px);
+        resize: none;
+        overflow-y: auto;
+        border-radius: 8px;
+        border: 1px solid var(--bg-on-bg-tertiary, #B5C9C9);
+        background: #001919; 
+        height: 90px;
+        padding: 10px;
+        color:  #6B8282; 
+        font-size: 18px;
+        padding-right: 35px;
+    }
+    .send{
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 15px;
+    }
+    .txt-speaker{
+        margin: 10px 0;
+        gap: 15px;
+        display: grid;
+        grid-template-columns: 90px 1fr;
+    }
+    .txt-speaker span{
+        color:#6B8282;
+    }
+    .txt-speaker p{
+        margin: 0;
+        text-wrap: balance;
+    }
+    .gpt-divider{
+        position: relative;
+        text-align: center;
+    }
+    .gpt-divider div{
+        height: 2px;
+        width: 100%;
+        position: absolute;
+        display: block;
+        z-index: 0;
+        background-color: #6B8282;
+        top:50%;
+    }
+    .gpt-divider span{
+        color:#B5C9C9;
+        background: #002E2E;
+        z-index: 1;
+        position: relative;
+        padding: 0 5px;
+    }
+    #transcript-content{
+        margin-top: 10px;
+    }
+</style>
+{% endblock style %}
+{% block content %}
+<a href="/" class="back">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px">
+        <g id="SVGRepo_bgCarrier" stroke-width="0"></g> 
+        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+        <g id="SVGRepo_iconCarrier"> 
+            <path d="M16.1795 3.26875C15.7889 2.87823 15.1558 2.87823 14.7652 3.26875L8.12078 9.91322C6.94952 11.0845 6.94916 12.9833 8.11996 14.155L14.6903 20.7304C15.0808 21.121 15.714 21.121 16.1045 20.7304C16.495 20.3399 16.495 19.7067 16.1045 19.3162L9.53246 12.7442C9.14194 12.3536 9.14194 11.7205 9.53246 11.33L16.1795 4.68297C16.57 4.29244 16.57 3.65928 16.1795 3.26875Z" fill="#FFFFFF"></path> 
+        </g>
+    </svg>
+    <span>Volver</span>
+</a>
+<div class="card">
+    <div class="card-head">
+        <p class="audio-txt">Audio grabado: <a id="audio-link" href="/download/{{audio}}" download>{{audio}}</a></p>
+        <div>
+            <button class="btn" id="startBtn">Transcribir</button>
+            <button class="btn" id="startSpeakerBtn">Transcribir(P)</button>
+        </div>
+        <div>
+            <a href="#" class="delete" onclick="del_file()">
+                <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <mask id="mask0_38_809" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="24">
+                        <rect x="0.984375" width="24" height="24" fill="#D9D9D9"/>
+                    </mask>
+                    <g mask="url(#mask0_38_809)">
+                        <path d="M7.98438 21C7.43438 21 6.96354 20.8042 6.57187 20.4125C6.18021 20.0208 5.98438 19.55 5.98438 19V6H4.98438V4H9.98438V3H15.9844V4H20.9844V6H19.9844V19C19.9844 19.55 19.7885 20.0208 19.3969 20.4125C19.0052 20.8042 18.5344 21 17.9844 21H7.98438ZM17.9844 6H7.98438V19H17.9844V6ZM9.98438 17H11.9844V8H9.98438V17ZM13.9844 17H15.9844V8H13.9844V17Z" fill="#ACE5C6"/>
+                    </g>
+                </svg>
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="transcript-content">
+        </div>
+        <div class="gpt-divider">
+            <div class="line"></div>
+            <span>Comienzo de respuesta ChatGPT</span>
+        </div>
+        <div id="gpt-content">
+        </div>
+    </div>
+    <div class="card-footer">
+        <textarea name="" id="questionTxt" placeholder="Escribe una pregunta...">Haz un resumen de está conversación:</textarea>
+        <a class="send" href="#" id="sendGPT">
+            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <mask id="mask0_38_875" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="24">
+                <rect x="0.984375" width="24" height="24" fill="#D9D9D9"/>
+                </mask>
+                <g mask="url(#mask0_38_875)">
+                <path d="M3.48437 4.5L4.48438 3.5L22.4844 11.5L4.48437 19.5L3.48437 18.5L6.48437 11.5L3.48437 4.5ZM6.58437 6.6L8.68437 11.5L6.58437 16.4L17.5844 11.5L6.58437 6.6Z" fill="#6B8282"/>
+                </g>
+            </svg> 
+        </a>
+    </div>
+</div>
+{% endblock content %}
+{% block script %}
+    <script src="/static/js/socket.io.js"></script>
+    <script src="/static/js/socket.config.js"></script>
+  <script>
+    const startBtn = document.getElementById("startBtn"),
+        startSpeakerBtn = document.getElementById("startSpeakerBtn"),
+        transcript_content = document.getElementById("transcript-content"),
+        audio = document.getElementById("audio-link").innerText,
+        questionTxt = document.getElementById("questionTxt"),
+        sendGPT = document.getElementById("sendGPT");
+
+    let gptResponse,
+        with_speakers = false;
+
+    sendGPT.onclick = () => { 
+        socket.emit('startChat', {
+            conversation: transcript_content.innerText,
+            question: questionTxt.value,
+            audio_name: audio
+        });
+        writeSpeaker("Tú", questionTxt.value, "gpt-content")
+        sendGPT.style.display = "none"
+        gptResponse = writeSpeaker("ChatGPT", "", "gpt-content")
+    }
+
+    socket.on('chatResponse', msg => {
+        gptResponse.innerText += msg
+    })
+
+    socket.on('chatEnd', () => {
+        sendGPT.style.display = "block"
+    })
+
+
+
+    function start_transcript(speaker=false){
+        socket.connect()
+        with_speakers = speaker
+        transcript_content.innerText = ""
+        let model
+        if(speaker===true){
+            model = "speaker"
+            startSpeakerBtn.innerText = "Cargando..."
+        }else{
+            model = "normal"
+            startBtn.innerText = "Cargando..."
+        }
+        socket.emit('startTranscript', {
+            model: model,
+            audio: audio
+        });
+        startBtn.disabled = true
+        startSpeakerBtn.disabled = true
+    }
+    startBtn.addEventListener("click", start_transcript)
+    startSpeakerBtn.addEventListener("click", ()=>start_transcript(true))
+
+    socket.on('response', msg => {
+        if(with_speakers){
+            processTxtSpeaker(msg)
+        }else{
+            transcript_content.innerText += msg  +"\n"
+        }
+    });
+
+
+    function processTxtSpeaker(msg){
+        let messages = msg.split("\n\n")
+        for(message of  messages){
+            let result = extractTxtSpeaker(message)
+            writeSpeaker(result[0], result[1], "transcript-content")
+        }
+    }
+
+    function extractTxtSpeaker(txt=""){
+        let speaker = txt.split("[")[0]
+        let message = txt.split("]")
+        message.shift()
+        let text = message.join("]")
+        return [speaker, message]
+    }
+
+
+    function writeSpeaker(speaker, msg, node_id){
+        let span = document.createElement("span");
+        span.innerText = speaker;
+        let p = document.createElement("p");
+        p.innerText = msg;
+        let div = document.createElement("div");
+        div.appendChild(span);
+        div.appendChild(p);
+        div.classList.add("txt-speaker");
+        document.getElementById(node_id).appendChild(div);
+        return p
+    }
+
+    async function loadData(){
+        const response = await fetch(`/get_prompts?filename=${audio}`)
+        const audio_txt = await response.json()
+        const audio_data = JSON.parse(audio_txt)
+        if(audio_data.conversation.includes("SPEAKER_00")){
+            processTxtSpeaker(audio_data.conversation)
+        }else{
+            transcript_content.innerText = audio_data.conversation
+        }
+        let msg_speaker = "Tú"
+        for(let msg of audio_data.messages){
+            writeSpeaker(msg_speaker, msg, "gpt-content")
+            msg_speaker = msg_speaker == "Tú" ? "ChatGPT" : "Tú"
+        }
+    }
+
+    socket.on('end',()=>{
+        startBtn.disabled = false
+        startBtn.innerText = "Transcribir"
+        startSpeakerBtn.disabled = false
+        startSpeakerBtn.innerText = "Transcribir(P)"
+        socket.close()
+    })
+
+    function del_file(){
+        fetch(`/del_file?filename=${audio}`).then(()=>{
+            location.href = "/"
+        }).catch(()=>{
+            alert("No existe el archivo")
+        })
+    }
+    loadData()
+  </script>
+{% endblock script %}

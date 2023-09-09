@@ -61,20 +61,7 @@ async function saveFiles(name){
 }
 
 
-function retryMedia(){
-    document.getElementById("wait_text").innerText = "Subiendo archivo..."
-    let form =  new FormData()
-    form.append("audio_file", stream_data["audio_file"])
-    form.append("mic_file", stream_data["mic_file"])
-    form.append("sid", socket.id)
-    const ajax = new XMLHttpRequest();
-    ajax.upload.addEventListener("progress", (progressHandler), false);
-    ajax.addEventListener("loadend", completeHandler, false);
-    ajax.addEventListener("error", errorHandler, false);
-    ajax.addEventListener("abort", errorHandler, false);
-    ajax.open("POST", "/recover_audio"); 
-    ajax.send(form);
-}
+
 
 async function downloadMedia(filename){
     downloadBlob(filename + ".computer.mp3",stream_data["audio_file"])
@@ -93,6 +80,29 @@ function downloadBlob(filename, blob){
     window.URL.revokeObjectURL(url);
 }
 
+
+
+function retryMedia(){
+    let form =  new FormData()
+    form.append("audio_file", stream_data["audio_file"])
+    form.append("mic_file", stream_data["mic_file"])
+    form.append("sid", socket.id)
+    fetch("/recover_audio",{
+        method: "POST",
+        body: form
+    })
+    /*
+    const ajax = new XMLHttpRequest();
+    //ajax.upload.addEventListener("progress", (progressHandler), false);
+    ajax.addEventListener("loadend", completeHandler, false);
+    ajax.addEventListener("error", errorHandler, false);
+    ajax.addEventListener("abort", errorHandler, false);
+    ajax.open("POST", "/recover_audio"); 
+    ajax.send(form);
+    */
+}
+
+/* Ajax functions (not using) */
 function progressHandler(event) {
     const percent = (event.loaded / event.total) * 100;
     const span = document.getElementById("upload_time");
@@ -100,18 +110,18 @@ function progressHandler(event) {
 }
   
 function completeHandler(event) {
-try{
-    console.log(event)
-    const response = JSON.parse(event.target.response) 
-    if ('success' in response){
-        const text_element = document.getElementById("wait_text")
-        text_element.innerText = "Archivo subido correctamente, procesando audio..."
-        text_element.style.color = "rgb(144 99 9)"
+    try{
+        console.log(event)
+        const response = JSON.parse(event.target.response) 
+        if ('success' in response){
+            const text_element = document.getElementById("wait_text")
+            text_element.innerText = "Archivo subido correctamente, procesando audio..."
+            text_element.style.color = "rgb(144 99 9)"
+        }
+    }catch(error){
+        console.error(error)
+        errorHandler(event)
     }
-}catch(error){
-    console.error(error)
-    errorHandler(event)
-}
 
 }
 
@@ -121,7 +131,7 @@ function errorHandler(event) {
     text_element.innerHTML = "Error al subir archivo";
 }
   
-
+/* End ajax functions */
 
 
 function stopStream(stream) {
@@ -130,11 +140,6 @@ function stopStream(stream) {
     });
 }
 
-async function send_data(endpoint){
-    const data = stream_data[endpoint].slice();
-    let file = new File(data, "recorder.webm")
-    let audio = await convert2audio(file)
-}
 
 async function convert2audio(video_file) {
     return new Promise((resolve,reject) =>{

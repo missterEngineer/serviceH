@@ -7,7 +7,7 @@ from user_manager import admin_required, authenticated_only, create_user, login_
 from dotenv import load_dotenv
 from whisper import resume, saveResponse, transcription, real_time, whisper_models
 from werkzeug.utils import secure_filename
-from utils import allowed_file, check_filename, valid_audio_file, valid_mic_file, error_log
+from utils import allowed_file, check_filename, scan_audios, valid_audio_file, valid_mic_file, error_log
 import threading
 from datetime import datetime
 
@@ -26,24 +26,14 @@ sock = SocketIO(app, cors_allowed_origins="*")
 @login_required
 def index():
     user = session['user']
-    audios = []
-    with os.scandir(f'./audio/final/{user}') as folder_items:
-        for item in folder_items:
-            if item.is_file():
-                file_date_float = os.path.getmtime(item.path)
-                file_date = datetime.fromtimestamp(file_date_float)
-                audios.append({
-                    "name": item.name,
-                    "date": file_date.strftime('%m/%d/%Y')
-                })
-                
+    audios = scan_audios(user)
     return render_template("new_template/index.html", audios=audios)
 
 
 @app.route("/recorder")
 @login_required
 def recorder():
-    return render_template("recorder.html")
+    return render_template("new_template/recorder.html")
 
 
 @app.route("/player")

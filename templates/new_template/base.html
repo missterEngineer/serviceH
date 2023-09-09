@@ -68,7 +68,17 @@
         </section>
     </main>
     {% block modal %}{% endblock modal %}
-
+    <script>
+        function save_error(page, msg){
+            const data = new FormData()
+            data.append("page",page)
+            data.append("error",msg)
+            fetch("/save_error",{
+                method: "POST",
+                body:data
+            })
+        }
+    </script>
     {% block script %}{% endblock script %}
 </body>
 </html>

@@ -7,7 +7,7 @@ import time
 from datetime import datetime
 from audio import mergeAudios, saveAudio, saveMic
 import os
-from utils import  error_log
+from utils import  error_log, gladia
 from openai.error import RateLimitError
 old_chunks = {}
 from gradio_client import Client
@@ -64,7 +64,7 @@ def transcribe(path:str, sid:str, user:str, speaker:bool=False):
     for file_path in segments:
         audio_file= open(file_path, "rb")
         if speaker:
-            texto = speaker_detect(file_path)
+            texto = gladia(file_path)
         else:
             transcript = openai.Audio.transcribe("whisper-1", audio_file, language="es")
             texto = transcript.text

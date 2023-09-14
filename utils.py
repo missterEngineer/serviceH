@@ -1,5 +1,13 @@
 import os
 from datetime import datetime
+from dotenv import load_dotenv
+import shutil
+
+import requests
+from requests_toolbelt import MultipartEncoder
+
+load_dotenv()
+
 audio_formats = ['MP3', 'WAV', 'AAC', 'FLAC', 'OGG', 'WMA', 'ALAC', 'AIFF', 'M4A', 'AC3']
 
 
@@ -61,3 +69,32 @@ def scan_audios(user:str)->dict:
                     "date": file_date.strftime('%m/%d/%Y')
                 })
     return audios
+
+
+def gladia(audio_path):
+    filename = os.path.basename(audio_path)
+    
+    file = (filename, open(audio_path, "rb"), "mp3")
+
+    files = {
+        'audio': file,
+        'language_behaviour': (None, 'manual'),
+        'toggle_diarization': (None, 'true'),
+        'output_format': (None, 'plain'),
+        'language': (None, 'spanish'),
+        'toggle_noise_reduction':(None, 'true'),
+        'toggle_direct_translate': (None, 'false'),
+        'toggle_text_emotion_recognition':(None, 'false'),
+        'toggle_summarization': (None, 'false'),
+        'toggle_chapterization':(None, 'false')
+    }
+    data = MultipartEncoder(files)
+    headers = {
+        'x-gladia-key':os.getenv("GLADIA"),
+        'Content-Type': data.content_type
+    }
+    response = requests.post('https://api.gladia.io/audio/text/audio-transcription/', headers=headers, data=data)
+    data = response.text
+    for f in range(10):
+        data = data.replace(f"{f}: ", f"[Speaker_{f}]")
+    return data

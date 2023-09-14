@@ -69,7 +69,7 @@
         background: #001919; 
         height: 90px;
         padding: 10px;
-        color:  #6B8282; 
+        color:  white; 
         font-size: 18px;
         padding-right: 35px;
     }
@@ -114,6 +114,11 @@
     }
     #transcript-content{
         margin-top: 10px;
+    }
+    .spinner{
+        width: 100%;
+        text-align: center;
+        display: block;
     }
 </style>
 {% endblock style %}
@@ -184,8 +189,10 @@
         questionTxt = document.getElementById("questionTxt"),
         sendGPT = document.getElementById("sendGPT");
 
+
     let gptResponse,
         with_speakers = false;
+
 
     sendGPT.onclick = () => { 
         socket.emit('startChat', {
@@ -196,22 +203,26 @@
         writeSpeaker("Tú", questionTxt.value, "gpt-content")
         sendGPT.style.display = "none"
         gptResponse = writeSpeaker("ChatGPT", "", "gpt-content")
+        set_spinner(document.querySelector(".card-body"))
     }
+
 
     socket.on('chatResponse', msg => {
         gptResponse.innerText += msg
     })
 
-    socket.on('chatEnd', () => {
-        sendGPT.style.display = "block"
-    })
 
+    socket.on('chatEnd', () => {
+        sendGPT.style.display = "block";
+        document.querySelector(".spinner").remove();
+    })
 
 
     function start_transcript(speaker=false){
         socket.connect()
         with_speakers = speaker
         transcript_content.innerText = ""
+        set_spinner(transcript_content)
         let model
         if(speaker===true){
             model = "speaker"
@@ -227,8 +238,11 @@
         startBtn.disabled = true
         startSpeakerBtn.disabled = true
     }
+    
+    
     startBtn.addEventListener("click", start_transcript)
     startSpeakerBtn.addEventListener("click", ()=>start_transcript(true))
+
 
     socket.on('response', msg => {
         if(with_speakers){
@@ -236,6 +250,7 @@
         }else{
             transcript_content.innerText += msg  +"\n"
         }
+        document.querySelector(".spinner").remove()
     });
 
 
@@ -247,12 +262,13 @@
         }
     }
 
+
     function extractTxtSpeaker(txt=""){
         let speaker = txt.split("[")[0]
         let message = txt.split("]")
         message.shift()
         let text = message.join("]")
-        return [speaker, message]
+        return [speaker, text]
     }
 
 
@@ -301,5 +317,16 @@
         })
     }
     loadData()
+
+    /** @param {HTMLElement} parent */
+    function set_spinner(parent){
+        const span = document.createElement("span"),
+            img = document.createElement("img");
+        span.classList.add("spinner");
+        img.src = "/static/images/spinner.svg"
+        img.alt = "Cargando..."
+        span.appendChild(img)
+        parent.appendChild(span)
+    }
   </script>
 {% endblock script %}

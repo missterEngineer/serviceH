@@ -91,6 +91,7 @@
     .txt-speaker p{
         margin: 0;
         text-wrap: balance;
+        position: relative;
     }
     .gpt-divider{
         position: relative;
@@ -120,10 +121,41 @@
         text-align: center;
         display: block;
     }
+    @media screen and (max-width:480px) {
+        .card-head > div{
+            flex-direction: column;
+            margin: 10px 0;
+            gap: 10px;
+        }
+        .card-head{
+            grid-template-columns: 1fr 140px 30px;
+        }
+    }
+</style>
+<style>
+    .gpt-send{
+        color:rgb(107, 130, 130);
+    }
+    .gpt-send:hover{
+        color:white
+    }
+    .hide{
+        display: none;
+    }
+    .save-prompt{
+        position: absolute;
+        right: 0;
+        color: white;
+    }
+    .save-prompt:hover{
+        color:#6B8282;
+        cursor: pointer;
+    }
 </style>
 {% endblock style %}
 {% block content %}
 <a href="/" class="back">
+    
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px">
         <g id="SVGRepo_bgCarrier" stroke-width="0"></g> 
         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -166,14 +198,28 @@
     <div class="card-footer">
         <textarea name="" id="questionTxt" placeholder="Escribe una pregunta...">Haz un resumen de está conversación:</textarea>
         <a class="send" href="#" id="sendGPT">
-            <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="25" height="24" viewBox="0 0 25 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="gpt-send" >
                 <mask id="mask0_38_875" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="24">
-                <rect x="0.984375" width="24" height="24" fill="#D9D9D9"/>
+                <rect x="0.984375" width="24" height="24" fill="currentColor"/>
                 </mask>
                 <g mask="url(#mask0_38_875)">
-                <path d="M3.48437 4.5L4.48438 3.5L22.4844 11.5L4.48437 19.5L3.48437 18.5L6.48437 11.5L3.48437 4.5ZM6.58437 6.6L8.68437 11.5L6.58437 16.4L17.5844 11.5L6.58437 6.6Z" fill="#6B8282"/>
+                <path d="M3.48437 4.5L4.48438 3.5L22.4844 11.5L4.48437 19.5L3.48437 18.5L6.48437 11.5L3.48437 4.5ZM6.58437 6.6L8.68437 11.5L6.58437 16.4L17.5844 11.5L6.58437 6.6Z" fill="currentColor"/>
                 </g>
             </svg> 
+            <svg width="36" height="36" fill="#fff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="gpt-spinner hide">
+                <style>
+                    .spinner_P7sC{
+                        transform-origin:center;
+                        animation:spinner_svv2 .75s infinite 
+                    }
+                    @keyframes spinner_svv2{
+                        100%{
+                            transform:rotate(360deg)
+                        }
+                    }
+                </style>
+                <path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" class="spinner_P7sC"/>
+            </svg>
         </a>
     </div>
 </div>
@@ -193,19 +239,19 @@
     let gptResponse,
         with_speakers = false;
 
-
-    sendGPT.onclick = () => { 
+    function start_chat(){
         socket.emit('startChat', {
             conversation: transcript_content.innerText,
             question: questionTxt.value,
             audio_name: audio
         });
         writeSpeaker("Tú", questionTxt.value, "gpt-content")
-        sendGPT.style.display = "none"
         gptResponse = writeSpeaker("ChatGPT", "", "gpt-content")
-        set_spinner(document.querySelector(".card-body"))
+        document.querySelector(".gpt-send").classList.add("hide");
+        document.querySelector(".gpt-spinner").classList.remove("hide");
+        sendGPT.onclick = ()=>{return void(0)};
     }
-
+    sendGPT.onclick = start_chat
 
     socket.on('chatResponse', msg => {
         gptResponse.innerText += msg
@@ -213,17 +259,18 @@
 
 
     socket.on('chatEnd', () => {
-        sendGPT.style.display = "block";
-        document.querySelector(".spinner").remove();
+        document.querySelector(".gpt-spinner").classList.add("hide");
+        document.querySelector(".gpt-send").classList.remove("hide");
+        sendGPT.onclick = start_chat;
     })
 
 
     function start_transcript(speaker=false){
-        socket.connect()
-        with_speakers = speaker
-        transcript_content.innerText = ""
-        set_spinner(transcript_content)
-        let model
+        socket.connect();
+        with_speakers = speaker;
+        transcript_content.innerText = "";
+        set_spinner(transcript_content);
+        let model;
         if(speaker===true){
             model = "speaker"
             startSpeakerBtn.innerText = "Cargando..."
@@ -240,7 +287,7 @@
     }
     
     
-    startBtn.addEventListener("click", start_transcript)
+    startBtn.addEventListener("click", ()=>start_transcript(false))
     startSpeakerBtn.addEventListener("click", ()=>start_transcript(true))
 
 
@@ -257,21 +304,27 @@
     function processTxtSpeaker(msg){
         let messages = msg.split("\n\n")
         for(message of  messages){
-            let result = extractTxtSpeaker(message)
-            writeSpeaker(result[0], result[1], "transcript-content")
+            extractTxtSpeaker(message)
         }
     }
 
 
     function extractTxtSpeaker(txt=""){
-        let speaker = txt.split("[")[0]
-        let message = txt.split("]")
-        message.shift()
-        let text = message.join("]")
-        return [speaker, text]
+        let txt_splitted = txt.split("[");
+        console.log(txt_splitted)
+        if (txt_splitted.length === 1) return ;
+        txt = txt_splitted[1];
+        txt_splitted = txt.split("]");
+        let speaker = txt_splitted[0];
+        let message = txt_splitted[1];
+        writeSpeaker(speaker, message, "transcript-content");
     }
 
-
+    /**
+    @param {string} speaker speaker's name
+    @param {string} msg speaker's message
+    @param {string} node_id HTML Element ID
+    */
     function writeSpeaker(speaker, msg, node_id){
         let span = document.createElement("span");
         span.innerText = speaker;
@@ -282,14 +335,33 @@
         div.appendChild(p);
         div.classList.add("txt-speaker");
         document.getElementById(node_id).appendChild(div);
+        // {% if session.user == 'prueba' %}
+        if (speaker !== "Tú") return
+        p.innerHTML += `
+            <svg width="20px" height="20px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" class="save-prompt">
+                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                    <g id="Icon-Set" sketch:type="MSLayerGroup" transform="translate(-152.000000, -515.000000)" fill="currentColor">
+                        <path d="M171,525 C171.552,525 172,524.553 172,524 L172,520 C172,519.447 171.552,519 171,519 C170.448,519 170,519.447 170,520 L170,524 C170,524.553 170.448,525 171,525 L171,525 Z M182,543 C182,544.104 181.104,545 180,545 L156,545 C154.896,545 154,544.104 154,543 L154,519 C154,517.896 154.896,517 156,517 L158,517 L158,527 C158,528.104 158.896,529 160,529 L176,529 C177.104,529 178,528.104 178,527 L178,517 L180,517 C181.104,517 182,517.896 182,519 L182,543 L182,543 Z M160,517 L176,517 L176,526 C176,526.553 175.552,527 175,527 L161,527 C160.448,527 160,526.553 160,526 L160,517 L160,517 Z M180,515 L156,515 C153.791,515 152,516.791 152,519 L152,543 C152,545.209 153.791,547 156,547 L180,547 C182.209,547 184,545.209 184,543 L184,519 C184,516.791 182.209,515 180,515 L180,515 Z" id="save-floppy" sketch:type="MSShapeGroup">
+                        </path>
+                    </g>
+                </g>
+            </svg>
+        `
+        // {% endif %}
         return p
+    }
+
+
+    function save_prompt(){
+        
     }
 
     async function loadData(){
         const response = await fetch(`/get_prompts?filename=${audio}`)
+        if(!response.ok) return
         const audio_txt = await response.json()
         const audio_data = JSON.parse(audio_txt)
-        if(audio_data.conversation.includes("SPEAKER_00")){
+        if(has_speakers(audio_data.conversation)){
             processTxtSpeaker(audio_data.conversation)
         }else{
             transcript_content.innerText = audio_data.conversation
@@ -299,6 +371,12 @@
             writeSpeaker(msg_speaker, msg, "gpt-content")
             msg_speaker = msg_speaker == "Tú" ? "ChatGPT" : "Tú"
         }
+    }
+
+
+    function has_speakers(text=''){
+        if (text.includes("SPEAKER_00") || text.includes("Speaker_0")) return true
+        return false
     }
 
     socket.on('end',()=>{

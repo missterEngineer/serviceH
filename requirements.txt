@@ -7,3 +7,5 @@ gradio_client
 tiktoken
 gevent
 gevent-websocket
+requests
+requests_toolbelt

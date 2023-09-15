@@ -45,6 +45,10 @@ Grabar
     .modal-btn-box{
         margin-top: 20px;
     }
+    #exit .btn{
+        margin: 10px;
+        width: 200px;
+    }
     dialog .btn{
         color: #ACE5C6;
     }
@@ -88,7 +92,7 @@ Grabar
             <button class="btn" onclick="cancel()">
                 <img src="/static/images/cancel.svg" alt="cancelar">
             </button>
-            <button class="btn" onclick="stop_record()">
+            <button class="btn" onclick="stop_record()" id="pause">
                 <img src="/static/images/pause.svg" alt="pausar">
             </button>
             <button class="btn" onclick="stop_record()">
@@ -147,7 +151,7 @@ Grabar
 <script src="/static/js/socket.io.js"></script>
 <script src="/static/js/socket.config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js" integrity="sha512-xT0S/xXvkrfkRXGBPlzZPCAncnMK5c1N7slRkToUbv8Z901aUEuKO84tLy8dWU+3ew4InFEN7TebPaVMy2npZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="/static/js/recordv.0.0.4.js"></script>
+<script src="/static/js/recordv.0.0.5.js"></script>
 <script>
     let mediaRecorder,
         micRecorder,
@@ -201,8 +205,16 @@ Grabar
             if(seconds < 10){
                 seconds = "0" + seconds.toString()
             }
+            if(minutes < 10){
+                minutes = "0" + minutes.toString()
+            }
             document.querySelector(".timer").innerText = `${minutes}:${seconds}:${milliseconds}`;
         },100)
+    }
+
+
+    function stopInterval(){
+        clearInterval(interval)
     }
 
     function cancel_audio(){
@@ -224,7 +236,8 @@ Grabar
     function stop_record(){
         stopRecord(mediaRecorder)
         stopRecord(micRecorder)
-        open_modal()
+        open_modal();
+        stopInterval();
     }
 
     function save_file(){

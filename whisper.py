@@ -59,7 +59,7 @@ def transcribe(path:str, sid:str, user:str, speaker:bool=False):
             segments.append(new_path)
     else:
         segments.append(path)
-    print("init diarization")
+    print("init transcribe")
     final_text = ''
     for file_path in segments:
         audio_file= open(file_path, "rb")
@@ -76,6 +76,7 @@ def transcribe(path:str, sid:str, user:str, speaker:bool=False):
             time.sleep(20)
     audio_name = path.split("/")[-1]
     saveResponse(audio_name, final_text, user=user)
+    print("end transcribe")
 
 
 def speaker_detect(audio_file_path):

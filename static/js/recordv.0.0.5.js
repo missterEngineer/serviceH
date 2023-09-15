@@ -29,6 +29,7 @@ async function recordMic() {
  * @param {'record'|'recordMic'} socket_endpoint
  */
 function createRecorder(stream, socket_endpoint) {
+    const stopBtn = document.getElementById("pause");
     const mediaRecorder = new MediaRecorder(stream);
     stream_data[socket_endpoint] = []
     /** @type {Blob[]} */
@@ -108,7 +109,8 @@ function stopStream(stream) {
     });
 }
 
-/** 
+
+/** Extract audio from video and send this AudioBuffer to audioToWav function
  * @param {File} video_file 
  * @returns {Promise<Blob>}
  * */
@@ -133,9 +135,7 @@ async function convert2audio(video_file) {
             soundSource.buffer = myBuffer;
             soundSource.connect(offlineAudioContext.destination);
             soundSource.start();
-    
             compressor = offlineAudioContext.createDynamicsCompressor();
-    
             compressor.threshold.setValueAtTime(-20, offlineAudioContext.currentTime);
             compressor.knee.setValueAtTime(30, offlineAudioContext.currentTime);
             compressor.ratio.setValueAtTime(5, offlineAudioContext.currentTime);
@@ -145,11 +145,10 @@ async function convert2audio(video_file) {
             soundSource.connect(compressor);
             compressor.connect(offlineAudioContext.destination);
             let renderedBuffer = await offlineAudioContext.startRendering()
-            new_file = bufferToWave(renderedBuffer,offlineAudioContext.length)
-            resolve(new_file)
-             //make_download(renderedBuffer, offlineAudioContext.length);
+            new_file = bufferToWave(renderedBuffer, offlineAudioContext.length)
+            resolve(new_file);
         };
-        reader.readAsArrayBuffer(video_file); // video file
+        reader.readAsArrayBuffer(video_file); 
     })
 }
 

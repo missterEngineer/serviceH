@@ -51,7 +51,14 @@ def player():
 @app.route("/player/<audio>")
 @login_required
 def player_audio(audio:str):
-    return render_template("new_template/transcript.html", audio=audio)
+    with open("prompts.json", "r", encoding="utf-8") as file:
+        prompts = json.loads(file.read())
+    context = {
+        "prompts":prompts,
+        "audio":audio
+    }
+    print(context)
+    return render_template("new_template/transcript.html", **context)
 
 
 @app.route("/transcript")
@@ -203,6 +210,23 @@ def save_error():
     error = request.form.get("error")
     error_log(user, f"front-{page} {error}")
     return {'success':'success'}
+
+
+@app.route("/save_prompt", methods=["POST"])    
+@login_required
+@admin_required
+def save_prompt():
+    title = request.form.get("title")
+    prompt = request.form.get("prompt")
+    with open("prompts.json", "r", encoding="utf-8") as file:
+        prompts = json.loads(file.read())
+    prompts.append({
+        "title":title,
+        "prompt":prompt
+    })
+    with open("prompts.json", "w", encoding="utf-8") as file:
+        file.write(json.dumps(prompts))
+    return {"success": "success"}
 
 
 @sock.on('testSock')

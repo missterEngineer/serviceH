@@ -62,6 +62,8 @@ def login_required(func):
 
 def admin_required(func):
     def main_func(*args, **kwargs):
+        if "user" not in session:
+            return redirect(url_for("login"))
         if session['user'].lower() == 'prueba':
             return func(*args, **kwargs)
         else:

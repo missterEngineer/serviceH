@@ -7,9 +7,10 @@ from user_manager import admin_required, authenticated_only, create_user, login_
 from dotenv import load_dotenv
 from whisper import resume, saveResponse, transcription, real_time, whisper_models
 from werkzeug.utils import secure_filename
-from utils import allowed_file, check_filename, scan_audios, valid_audio_file, valid_mic_file, error_log
+from utils import allowed_file, check_filename, load_prompts, save_prompts, scan_audios, valid_audio_file, valid_mic_file, error_log
 import threading
 from datetime import datetime
+import uuid
 
 load_dotenv()
 app = Flask(__name__)
@@ -35,17 +36,6 @@ def index():
 def recorder():
     return render_template("new_template/recorder.html")
 
-
-@app.route("/player")
-@login_required
-def player():
-    user = session['user']
-    audios = os.listdir(f'./audio/final/{user}')
-    context={
-        "whisper_models":whisper_models,
-        "audios":audios
-    }
-    return render_template("player.html",**context)
 
 
 @app.route("/player/<audio>")
@@ -135,7 +125,6 @@ def get_prompts():
 
 
 @app.route('/create_user', methods=["GET","POST"])
-@login_required
 @admin_required
 def create_user_view():
     if request.method == "POST":
@@ -213,19 +202,38 @@ def save_error():
 
 
 @app.route("/save_prompt", methods=["POST"])    
-@login_required
 @admin_required
 def save_prompt():
     title = request.form.get("title")
     prompt = request.form.get("prompt")
-    with open("prompts.json", "r", encoding="utf-8") as file:
-        prompts = json.loads(file.read())
+    prompts = load_prompts()
     prompts.append({
+        "id": str(uuid.uuid1()),
         "title":title,
         "prompt":prompt
     })
-    with open("prompts.json", "w", encoding="utf-8") as file:
-        file.write(json.dumps(prompts))
+    save_prompts(prompts)
+    return {"success": "success"}
+
+
+@app.route("/edit_prompt", methods=["POST"])    
+@admin_required
+def edit_prompt():
+    title = request.form.get("title")
+    prompt_id = request.form.get("id")
+    prompts = load_prompts()
+    prompts[int(prompt_id)]['title'] = title
+    save_prompts(prompts)
+    return {"success": "success"}
+
+
+@app.route("/del_prompt", methods=["POST"])    
+@admin_required
+def del_prompt():
+    prompt_id = request.form.get("id")
+    prompts = load_prompts()
+    prompts.pop(int(prompt_id))
+    save_prompts(prompts)
     return {"success": "success"}
 
 
@@ -289,28 +297,7 @@ def handle_chat(data:dict):
     question = data["question"]
     answer = resume(conversation, question)
     if audio_name:
-        saveResponse(audio_name, conversation, question, answer)
-        
-
-class RealTime():
-    def __init__(self) -> None:
-        self.running  = True
-
-    def __bool__(self):
-        return self.running
-    
-    def stop(self):
-        self.running = False
-    
-    __nonzero__ = __bool__
-
-
-@sock.on("startRealTime")
-@authenticated_only
-def handle_real_time():
-    session['realTime'] = RealTime()
-    trans = threading.Thread(target=real_time, args=([],[], request.sid, app, session['realTime']))
-    trans.start()
+        saveResponse(audio_name, conversation, question, answer)      
 
 
 @sock.on('disconnect')

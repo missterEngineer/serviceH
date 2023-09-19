@@ -153,8 +153,7 @@ Transcribir
             grid-template-columns: 1fr 140px 30px;
         }
     }
-</style>
-<style>
+
     .gpt-send {
         color: rgb(107, 130, 130);
     }
@@ -351,17 +350,19 @@ Transcribir
         </a>
         <h2>Prompts Guardados</h2>
         {% for prompt in prompts  %}
-        <div class="prompt">
+        <div class="prompt" data-id="{{ loop.index0 }}">
             <a href="#" class="prompt-content" onclick="show_prompt(this)">
                 <p class="prompt-title">{{ prompt.title }}</p>
                 <p class="prompt-description">{{ prompt.prompt }}</p>
             </a>
-            <a href="#" class="ico-link">
+           {% if session.user == 'prueba' %} 
+            <a href="#" class="ico-link" onclick="edit_prompt(this)">
                 <img src="/static/images/edit.svg" alt="editar">
             </a>
-            <a href="#" class="ico-link" onclick="del_file(`{{audio.name}}`, `{{loop.index}}`)">
+            <a href="#" class="ico-link" onclick="del_prompt(this)">
                 <img src="/static/images/delete.svg" alt="eliminar">
             </a>
+            {% endif %}
         </div>
         {% endfor %}
 
@@ -400,6 +401,58 @@ Transcribir
         close_modal("modal-prompts")
     }
 
+    //{% if session.user == 'prueba' %} 
+    /** @param {HTMLElement} editBtn */
+    function edit_prompt(editBtn){
+        let element = editBtn.previousElementSibling;
+        let title = element.firstElementChild
+        let input = document.createElement("input");
+        input.value = title.textContent
+        title.hidden = true;
+        element.insertBefore(input, element.firstChild);
+        element.onclick = ()=> void(0);
+        editBtn.firstElementChild.src = "/static/images/saving.svg" //img tag
+        editBtn.onclick = () => save_edit_prompt(editBtn);
+    }
+
+
+    /** @param {HTMLElement} saveBtn */
+    function save_edit_prompt(saveBtn){
+        let element = saveBtn.previousElementSibling;
+        const body = new FormData();
+        const prompt_id = saveBtn.parentElement.dataset.id;
+        const new_name = element.firstElementChild.value;
+        body.append("id", prompt_id)
+        body.append("name", new_name)
+        fetch("/edit_prompt",{
+            method:"POST",
+            body:body
+        }).then(response=>{
+            if (!response.ok) alert("Error al editar")
+        })
+        ;
+        element.firstElementChild.remove();
+        let title = element.firstElementChild;
+        title.hidden = false;
+        title.textContent = new_name;
+        saveBtn.firstElementChild.src = "/static/images/edit.svg" //img tag
+        saveBtn.onclick = () => edit_prompt(saveBtn);
+    }
+
+
+    /** @param {HTMLElement} delBtn */
+    function del_prompt(delBtn){
+        const body = new FormData();
+        const prompt_id = delBtn.parentElement.dataset.id;
+        body.append("id", prompt_id)
+        fetch("/del_prompt",{
+            method: "POST",
+            body:body
+        });
+        delBtn.parentElement.remove();
+    }
+    //{% endif %}
+
 
     function start_chat() {
         socket.emit('startChat', {
@@ -407,8 +460,8 @@ Transcribir
             question: questionTxt.value,
             audio_name: audio
         });
-        writeSpeaker("Tú", questionTxt.value, "gpt-content")
-        gptResponse = writeSpeaker("ChatGPT", "", "gpt-content")
+        writeSpeaker("Tú", questionTxt.value, "gpt-content");
+        gptResponse = writeSpeaker("ChatGPT", "", "gpt-content");
         document.querySelector(".gpt-send").classList.add("hide");
         document.querySelector(".gpt-spinner").classList.remove("hide");
         sendGPT.onclick = () => {
@@ -500,7 +553,7 @@ Transcribir
         div.classList.add("txt-speaker");
         document.getElementById(node_id).appendChild(div);
         // {% if session.user == 'prueba' %}
-        if (speaker !== "Tú") return
+        if (speaker !== "Tú") return p;
         let svg = `
             <svg width="20px" height="20px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" class="save-prompt" onclick="save_dialog_prompt(this)">
                 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
@@ -531,7 +584,7 @@ Transcribir
             body:data
         }).then(response=>{
             if(response.ok){
-                close_modal()
+                close_modal("modal-save")
             }else{
                 alert("Ha ocurrido un error, intente de nuevo")
             }

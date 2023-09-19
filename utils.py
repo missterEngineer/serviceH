@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 from dotenv import load_dotenv
@@ -98,3 +99,17 @@ def gladia(audio_path):
     for f in range(10):
         data = data.replace(f"{f}: ", f"[Speaker_{f}]")
     return data
+
+
+def load_prompts() -> list:
+    prompts = []
+    with open("prompts.json", "r", encoding="utf-8") as file:
+        prompts = json.loads(file.read())
+    return prompts
+
+
+def save_prompts(prompts):
+    with open("prompts.json", "w", encoding="utf-8") as file:
+        file.write(json.dumps(prompts))
+
+        

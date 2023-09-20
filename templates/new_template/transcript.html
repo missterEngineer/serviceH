@@ -350,7 +350,7 @@ Transcribir
         </a>
         <h2>Prompts Guardados</h2>
         {% for prompt in prompts  %}
-        <div class="prompt" data-id="{{ loop.index0 }}">
+        <div class="prompt" data-id="{{ prompt.id }}">
             <a href="#" class="prompt-content" onclick="show_prompt(this)">
                 <p class="prompt-title">{{ prompt.title }}</p>
                 <p class="prompt-description">{{ prompt.prompt }}</p>
@@ -384,12 +384,12 @@ Transcribir
     let gptResponse,
         with_speakers = false;
     
-
+    /** @param {string} id */
     function close_modal(id){
         document.querySelector(`dialog#${id}`).close();
     }
 
-
+    /** @param {string} id */
     function open_modal(id){
         document.querySelector(`dialog#${id}`).showModal();
     }
@@ -471,7 +471,7 @@ Transcribir
     sendGPT.onclick = start_chat
 
     socket.on('chatResponse', msg => {
-        gptResponse.innerText += msg
+        gptResponse.innerText += msg;
     })
 
 

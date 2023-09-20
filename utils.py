@@ -112,4 +112,8 @@ def save_prompts(prompts):
     with open("prompts.json", "w", encoding="utf-8") as file:
         file.write(json.dumps(prompts))
 
-        
+
+def get_prompt_by_id(prompt_id:str, prompts:list):
+    for prompt in prompts:
+        if prompt['id'] == prompt_id:
+            return prompt

@@ -7,7 +7,7 @@ from user_manager import admin_required, authenticated_only, create_user, login_
 from dotenv import load_dotenv
 from whisper import resume, saveResponse, transcription, real_time, whisper_models
 from werkzeug.utils import secure_filename
-from utils import allowed_file, check_filename, load_prompts, save_prompts, scan_audios, valid_audio_file, valid_mic_file, error_log
+from utils import allowed_file, check_filename, get_prompt_by_id, load_prompts, save_prompts, scan_audios, valid_audio_file, valid_mic_file, error_log
 import threading
 from datetime import datetime
 import uuid
@@ -222,7 +222,8 @@ def edit_prompt():
     title = request.form.get("title")
     prompt_id = request.form.get("id")
     prompts = load_prompts()
-    prompts[int(prompt_id)]['title'] = title
+    prompt = get_prompt_by_id(prompt_id, prompts)
+    prompt['title'] = title
     save_prompts(prompts)
     return {"success": "success"}
 
@@ -232,7 +233,8 @@ def edit_prompt():
 def del_prompt():
     prompt_id = request.form.get("id")
     prompts = load_prompts()
-    prompts.pop(int(prompt_id))
+    prompt = get_prompt_by_id(prompt_id, prompts)
+    prompts.remove(prompt)
     save_prompts(prompts)
     return {"success": "success"}
 

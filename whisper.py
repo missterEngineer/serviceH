@@ -13,6 +13,7 @@ old_chunks = {}
 from gradio_client import Client
 import time
 from pydub import AudioSegment
+import uuid
 
 client = Client("https://sanchit-gandhi-whisper-jax-diarization.hf.space/")
 
@@ -50,13 +51,17 @@ def transcribe(path:str, sid:str, user:str, speaker:bool=False):
     segments = []
     if size >= 24 * 1e+6: #Greater than 24 megabytes (whisper api limit)
         minutes = 20 * 60 * 1000
-        mp3 = AudioSegment.from_mp3(path)
+        format = path.split(".")[-1]
+        mp3 = AudioSegment.from_file(path, format)
         length = len(mp3)
         for f in range(int(length/minutes)): 
-            new_data = mp3[minutes*f:minutes*(f+1)]
-            new_path = f"{path}.{f}.mp3"
-            new_data.export(new_path,format='mp3')
+            new_data = mp3[minutes * f : minutes * (f+1)]
+            random_name = str(uuid.uuid1()).replace('-', '')
+            new_path = f"./audio/tmp/{random_name}.mp3"
+            new_data.export(new_path, format='mp3')
             segments.append(new_path)
+            del new_data
+        del mp3
     else:
         segments.append(path)
     print("init transcribe")

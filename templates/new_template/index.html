@@ -377,7 +377,7 @@ Inicio
 
    /* AJAX */
     function uploadFile(file){
-        if (!checkFile()) {
+        if (!checkFile(file)) {
             text_element.innerText = "El archivo subido está en un formato no aceptado, intenta nuevamente";
             text_element.style.color =  "#D34D4D"; 
             dropzone.classList.add("error")
@@ -407,9 +407,9 @@ Inicio
         ajax.send(data);
     }
 
-    function checkFile() {
+    function checkFile(file) {
         const audio_formats = ['MP3', 'WAV', 'AAC', 'FLAC', 'OGG', 'WMA', 'ALAC', 'AIFF', 'M4A', 'AC3'];
-        let ext = input_file.files[0].name.split('.');
+        let ext = file.name.split('.');
         ext = ext[ext.length - 1];
         return audio_formats.includes(ext.toUpperCase())
     }

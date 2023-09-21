@@ -218,7 +218,8 @@ anterioridad y me hayas dado el feedback, necesito que me preguntes si quiero re
 dificultad en las preguntas y respuestas. En caso que que te diga que no, das por terminada la entrevista; Pero si te \
 digo que si, volvemos a empezar con el proceso de entrevista, pero esta vez las preguntas serán mas mucho mas complejas\
 ya que serán mas largas y el entrevistado se tendrá que poner en  contexto a la pregunta para dar la respuesta correcta. \
-Tienes que hablar como un entrevistador profesional, y simula que estás empezando la conversación tú"""
+Tienes que hablar como un entrevistador profesional, y simula que estás empezando la conversación tú, recuerda, el feedback me \
+lo das junto a la siguiente pregunta"""
 
 
 def answer_interview(answer:str):

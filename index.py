@@ -5,7 +5,7 @@ from flask_socketio import SocketIO
 from audio import save_record
 from user_manager import admin_required, authenticated_only, create_user, login_user, login_required, change_password
 from dotenv import load_dotenv
-from whisper import resume, saveResponse, transcription, real_time, whisper_models
+from whisper import answer_interview, resume, saveResponse, start_interview, transcription
 from werkzeug.utils import secure_filename
 from utils import allowed_file, check_filename, get_prompt_by_id, load_prompts, save_prompts, scan_audios, valid_audio_file, valid_mic_file, error_log
 import threading
@@ -37,6 +37,27 @@ def recorder():
     return render_template("new_template/recorder.html")
 
 
+@app.route("/interview", methods=["GET", "POST"])
+@login_required
+def interview():
+    return render_template("interview.html")
+
+
+@sock.on('start_interview')
+@authenticated_only
+def start_interview_handler(values:dict):
+    skills = values.get("skills")
+    position = values.get("position")
+    xp_years = values.get("xp_years")
+    start_interview(position, xp_years, skills)
+
+
+@sock.on('answer_interview')
+@authenticated_only
+def answer_interview_handler(answer:str):
+    answer_interview(answer)
+
+
 
 @app.route("/player/<audio>")
 @login_required
@@ -49,15 +70,6 @@ def player_audio(audio:str):
     }
     print(context)
     return render_template("new_template/transcript.html", **context)
-
-
-@app.route("/transcript")
-@login_required
-def transcript():
-    context={
-        "whisper_models":whisper_models
-    }
-    return render_template("transcript.html", **context)
 
 
 @app.route("/login", methods=["GET", "POST"])

@@ -14,17 +14,10 @@ from gradio_client import Client
 import time
 from pydub import AudioSegment
 import uuid
+import tiktoken
 
-client = Client("https://sanchit-gandhi-whisper-jax-diarization.hf.space/")
-
-whisper_models = [
-    "tiny",
-    "base",
-    "small",
-    "medium",
-    "large-v1",
-    "large-v2"
-]
+openai.organization = os.getenv("OPENAI_ORG")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 FORBIDDEN_PROMPTS = [
     "¡Suscríbete a ti donde llevaré!",
@@ -44,9 +37,7 @@ def check_prompt(text):
     return False
 
 
-def transcribe(path:str, sid:str, user:str, speaker:bool=False):
-    openai.organization = os.getenv("OPENAI_ORG")
-    openai.api_key = os.getenv("OPENAI_API_KEY")
+def transcribe(path:str, sid:str, user:str, speaker:bool=False):   
     size = os.path.getsize(path)
     segments = []
     if size >= 24 * 1e+6: #Greater than 24 megabytes (whisper api limit)
@@ -93,7 +84,6 @@ def speaker_detect(audio_file_path):
     )
 
 
-
 def transcription(model, audio, user, sid, app):
     app.app_context().push()
     try:
@@ -114,8 +104,6 @@ def resume(conversation, question):
     response = "¡Por supuesto! Por favor, proporciona la conversación"
     messages.append({"role": "assistant", "content": response})
     messages.append({"role":"user", "content": question + conversation})
-    openai.organization = os.getenv("OPENAI_ORG")
-    openai.api_key = os.getenv("OPENAI_API_KEY")
     tokens = num_tokens_from_string((question*2) + conversation + response, "gpt-3.5-turbo")
     if tokens <= 4000:
         model = "gpt-3.5-turbo"
@@ -124,33 +112,11 @@ def resume(conversation, question):
     else:
         emit('chatResponse', "La conversación es demasiada larga", to=request.sid) 
         return
-    final_response = ""
-    print("prompt send")
-    try:
-        completion = openai.ChatCompletion.create(
-            model=model,
-            messages = messages,
-            stream = True
-        )
-        for obj in completion:
-            chunk = obj["choices"][0]
-            if chunk["finish_reason"] != "stop":
-                msg = chunk["delta"]["content"]
-                final_response += msg
-                emit('chatResponse', msg, to=request.sid)  
-    except RateLimitError: 
-        time.sleep(25)
-        return resume(conversation, question)
-    except Exception as e:
-        print(e)
-        emit('chatResponse', "Ha ocurrido un error, espere unos segundos e intente de nuevo", to=request.sid)
-        error_log(session['user'], f"resume: {e}") 
-    print("prompt received")
-    emit('chatEnd', to=request.sid)
+    final_response = send_to_GPT(messages, model)
     return final_response
 
 
-def saveResponse(audio_name:str, conversation:str, question:str ='', answer:str ='', user=''):
+def saveResponse(audio_name:str, conversation:str, question:str ='', answer:str ='', user:str=''):
     if user == '':
         user = session['user']
     user_dir = "prompts/" + user
@@ -196,10 +162,76 @@ def real_time(record_chunks, mic_chunks, sid, app, realTime):
         os.remove(audio)
     #delTrash(sid)
 
-import tiktoken
 
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
     encoding = tiktoken.encoding_for_model(encoding_name)
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
+
+def start_interview(position:str, xp_years:str, skills:str) -> None:
+    initial_prompt = interview_prompt(position, xp_years, skills)
+    messages = []
+    messages.append({"role": "user", "content": initial_prompt})
+    model = "gpt-3.5-turbo"
+    response = send_to_GPT(messages, model)
+    save_interview(messages, response)
+    
+
+def send_to_GPT(messages:list, model:str) -> str:
+    final_response = ""
+    print("prompt send")
+    try:
+        completion = openai.ChatCompletion.create(
+            model=model,
+            messages = messages,
+            stream = True
+        )
+        for obj in completion:
+            chunk = obj["choices"][0]
+            if chunk["finish_reason"] != "stop":
+                msg = chunk["delta"]["content"]
+                final_response += msg
+                emit('chatResponse', msg, to=request.sid)  
+    except Exception as e:
+        print(e)
+        emit('chatResponse', "Ha ocurrido un error, espere unos segundos e intente de nuevo", to=request.sid)
+        error_log(session['user'], f"resume: {e}") 
+    print("prompt received")
+    emit('chatEnd', to=request.sid)
+    return final_response
+    
+
+def interview_prompt(position:str, xp_years:str, skills:str):
+    return f"""Soy un {position} , tengo {xp_years} años de experiencia y mis habilidades principales son \
+{skills} . En estos momentos estoy sin trabajo y necesito prepararme para las entrevista que tendré la \
+semana que viene. Quiero que te conviertas en un entrevistador profesional y que me pongas a prueba realizándome \
+tu la entrevista. Ten en cuanta los años de experiencia a la hora de la dificultad de las preguntas que me vas a \
+realizar. La entrevista sera de 10 preguntas en formato test con 3 posibles respuestas, de las \
+cuales solo 1 será la respuesta correcta . Las preguntas me las harás de una en una y yo te diré la respuesta poniéndote \
+un comentario si es a, b o c. Si me equivoco con la respuesta me dirás cual es la correcta y porque. \
+En caso contrario, si acierto la respuesta me felicitaras sin darme explicación. Una vez acierte y me felicites \
+o falle y me digas cual es la correcta y porque , pasaremos a la siguiente pregunta. Así será el proceso hasta realizar \
+las 10 preguntas y cuando se finalicen esas 10 preguntas me darás un feedback de como he echo la entrevista y me darás \
+consejos para que tenga mas éxito en futuras entrevista de trabajo. Cuando este terminado todo lo que hemos dicho con \
+anterioridad y me hayas dado el feedback, necesito que me preguntes si quiero realizar otra entrevista con una mayor \
+dificultad en las preguntas y respuestas. En caso que que te diga que no, das por terminada la entrevista; Pero si te \
+digo que si, volvemos a empezar con el proceso de entrevista, pero esta vez las preguntas serán mas mucho mas complejas\
+ya que serán mas largas y el entrevistado se tendrá que poner en  contexto a la pregunta para dar la respuesta correcta. \
+Tienes que hablar como un entrevistador profesional, y simula que estás empezando la conversación tú"""
+
+
+def answer_interview(answer:str):
+    with open(f"./prompts/{request.sid}.json", encoding="utf-8") as file:
+        data = file.read()
+        messages:list = json.loads(data)
+    messages.append({"role": "user", "content": answer})
+    model = "gpt-3.5-turbo"
+    response = send_to_GPT(messages, model)
+    save_interview(messages, response)
+
+
+def save_interview(messages:list, response:str):
+    messages.append({"role": "assistant", "content": response})
+    with open(f"./prompts/{request.sid}.json", "w", encoding="utf-8") as file:
+        file.write(json.dumps(messages))

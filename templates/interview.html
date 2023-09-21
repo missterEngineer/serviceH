@@ -129,8 +129,8 @@
         </form>
         <div id="historyContent"></div>
         <div class="card-footer" hidden>
-            <textarea id="questionGPT"></textarea>
-            <a class="send" href="#" id="sendGPT" onclick="answerGPT()">
+            <textarea id="questionGPT" hidden></textarea>
+            <a class="send" href="#" id="sendGPT" onclick="answerGPT()" hidden>
                 <svg width="25" height="24" viewBox="0 0 25 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
                     class="gpt-send">
                     <mask id="mask0_38_875" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25"
@@ -189,7 +189,47 @@
 
     socket.on('chatEnd', () => {
         document.getElementById("generando").remove();
+        convert2hyperlink();
     })
+
+
+    function convert2hyperlink(){
+        let textList = current_msg.innerText.split("\n");
+        let pass_number = false;
+        for(let f=0; f < textList.length-1; f++){
+            if(has_number(textList[f])  && !pass_number){
+                pass_number =  true;
+                continue
+            }
+            if(!pass_number) continue
+            if(is_item_list(textList[f])){
+                textList[f] = "<a href='#' onclick='choose(this)'>" + textList[f] + "</a><br>";
+            }
+        }
+        current_msg.innerHTML = textList.join('<br>');
+    }
+
+    /** @param {HTMLAnchorElement} anchor */
+    function choose(anchor){
+        document.getElementById("questionGPT").value = anchor.innerText;
+        current_msg.querySelectorAll("a").forEach(inner_anchor=>{
+            inner_anchor.removeAttribute("href");
+        })
+        answerGPT();
+    }
+
+    function has_number(str){
+        return /\d/.test(str)
+    }
+
+    /** @param {string} text */
+    function is_item_list(text){
+        if(text.includes("a)")) return true;
+        if(text.includes("b)")) return true;
+        if(text.includes("c)")) return true;
+        return false;
+    }
+
 
     function createMsg(msg_num, msg=""){
         const div = document.createElement("div");

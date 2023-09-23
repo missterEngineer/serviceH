@@ -3,14 +3,13 @@ import os
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO
 from audio import save_record
+from prompts import append_prompt, remove_prompt, start_interview, update_prompt
 from user_manager import admin_required, authenticated_only, create_user, login_user, login_required, change_password
 from dotenv import load_dotenv
-from whisper import answer_interview, resume, saveResponse, start_interview, transcription
+from whisper import resume, saveResponse,  transcription
 from werkzeug.utils import secure_filename
-from utils import allowed_file, check_filename, get_prompt_by_id, load_prompts, save_prompts, scan_audios, valid_audio_file, valid_mic_file, error_log
+from utils import allowed_file, check_filename,    scan_audios, valid_audio_file, valid_mic_file, error_log
 import threading
-from datetime import datetime
-import uuid
 
 load_dotenv()
 app = Flask(__name__)
@@ -31,16 +30,45 @@ def index():
     return render_template("new_template/index.html", audios=audios)
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        user = request.form["user"]
+        password = request.form["password"]
+        if login_user(user, password):
+            return redirect(url_for("index"))
+        flash("Usuario o contraseña inválido")
+        return redirect(url_for('login'))
+    return render_template("new_template/login.html")
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+
 @app.route("/recorder")
 @login_required
 def recorder():
     return render_template("new_template/recorder.html")
 
 
+@app.route('/create_user', methods=["GET","POST"])
+@admin_required
+def create_user_view():
+    if request.method == "POST":
+        user = request.form['user']
+        password = request.form['password']
+        return create_user(user, password)
+    return render_template("new_template/add_user.html")
+
+
 @app.route("/interview", methods=["GET", "POST"])
 @login_required
 def interview():
-    return render_template("interview.html")
+    return render_template("new_template/interview.html")
 
 
 @sock.on('start_interview')
@@ -50,13 +78,6 @@ def start_interview_handler(values:dict):
     position = values.get("position")
     xp_years = values.get("xp_years")
     start_interview(position, xp_years, skills)
-
-
-@sock.on('answer_interview')
-@authenticated_only
-def answer_interview_handler(answer:str):
-    answer_interview(answer)
-
 
 
 @app.route("/player/<audio>")
@@ -72,35 +93,11 @@ def player_audio(audio:str):
     return render_template("new_template/transcript.html", **context)
 
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        user = request.form["user"]
-        password = request.form["password"]
-        if login_user(user, password):
-            carpet = f"./audio/final/{user}"
-            if not os.path.exists(carpet):
-                os.mkdir(carpet)
-            return redirect(url_for("index"))
-        flash("Usuario o contraseña inválido")
-        return redirect(url_for('login'))
-    return render_template("new_template/login.html")
-
-
-@app.route('/logout')
-@login_required
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
-
-
 @app.route('/download/<filename>')
 @login_required
 def downloadFile(filename):
     user = session['user']
-    file = filename
     file = secure_filename(filename)
-    print(file)
     audio_dir = f'./audio/final/{user}'
     return send_from_directory(audio_dir, file, as_attachment=True)
 
@@ -136,37 +133,23 @@ def get_prompts():
     abort(400)
 
 
-@app.route('/create_user', methods=["GET","POST"])
-@admin_required
-def create_user_view():
-    if request.method == "POST":
-        user = request.form['user']
-        password = request.form['password']
-        return create_user(user, password)
-    return render_template("new_template/add_user.html")
-
 
 @app.route('/upload_file', methods=["GET","POST"])
 @login_required
 def upload_file():
     if request.method == "POST":
         file = request.files.get('audio')
-        if file is None :
-            print("is none")
-            return abort(400)
+        if file is None : return abort(400)
         filename = file.filename
-        if filename == "":
-            print("is empty")
-            return abort(400)
-        if allowed_file(filename):
-            filename = secure_filename(file.filename)
-            folder = f"audio/final/{session['user']}/"
-            path = os.path.join(folder, filename)
-            path = check_filename(path)
-            file.save(path)
-            return {"success":"success"}
-        print("is not valid")
-        return abort(400)
+        if filename == "": return abort(400)
+        if not allowed_file(filename): return abort(400)
+
+        filename = secure_filename(file.filename)
+        folder = f"audio/final/{session['user']}/"
+        path = os.path.join(folder, filename)
+        path = check_filename(path)
+        file.save(path)
+        return {"success":"success"}
     return render_template("upload_file.html")
 
 
@@ -217,14 +200,8 @@ def save_error():
 @admin_required
 def save_prompt():
     title = request.form.get("title")
-    prompt = request.form.get("prompt")
-    prompts = load_prompts()
-    prompts.append({
-        "id": str(uuid.uuid1()),
-        "title":title,
-        "prompt":prompt
-    })
-    save_prompts(prompts)
+    question = request.form.get("prompt")
+    append_prompt(title, question)
     return {"success": "success"}
 
 
@@ -233,10 +210,7 @@ def save_prompt():
 def edit_prompt():
     title = request.form.get("title")
     prompt_id = request.form.get("id")
-    prompts = load_prompts()
-    prompt = get_prompt_by_id(prompt_id, prompts)
-    prompt['title'] = title
-    save_prompts(prompts)
+    update_prompt(title, prompt_id)
     return {"success": "success"}
 
 
@@ -244,17 +218,8 @@ def edit_prompt():
 @admin_required
 def del_prompt():
     prompt_id = request.form.get("id")
-    prompts = load_prompts()
-    prompt = get_prompt_by_id(prompt_id, prompts)
-    prompts.remove(prompt)
-    save_prompts(prompts)
+    remove_prompt(prompt_id)
     return {"success": "success"}
-
-
-@sock.on('testSock')
-@authenticated_only
-def testSock(buffer):
-    print(type(buffer))
 
 
 @sock.on("record")
@@ -275,13 +240,6 @@ def handle_record_mic(data: bytes):
     file = open(video_path, "ab")
     file.write(data)
     file.close()
-
-
-@sock.on("message")
-@authenticated_only
-def handle_message(msg: str):
-    if msg == "stopRealTime":
-        session['realTime'].stop()
     
 
 @sock.on("stopRecord")
@@ -310,14 +268,9 @@ def handle_chat(data:dict):
     conversation = data["conversation"]
     question = data["question"]
     answer = resume(conversation, question)
+    user = session['user']
     if audio_name:
-        saveResponse(audio_name, conversation, question, answer)      
-
-
-@sock.on('disconnect')
-def handle_disconnect():
-    if 'realTime' in session:
-        session['realTime'].stop()
+        saveResponse(audio_name, conversation, question, answer, user)      
     
 
 if __name__ == "__main__":

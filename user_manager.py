@@ -1,19 +1,26 @@
+from dataclasses import dataclass
 import functools
 import json
+import os
 from flask import session, redirect, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_socketio import disconnect
-
 from utils import validate_string
 
 
-def get_users():
+@dataclass
+class User:
+    user:str
+    password: str
+
+
+def get_users() -> list:
     with open("users.json", "r", encoding="utf-8") as file:
         users = json.loads(file.read())
     return users
 
 
-def login_user(user,password):
+def login_user(user:str, password:str) -> bool:
     users = get_users()
     for item in users:
         if item['user'] == user:
@@ -25,7 +32,7 @@ def login_user(user,password):
     return False
 
 
-def create_user(user:str, password:str):
+def create_user(user:str, password:str) -> dict:
     users = get_users()
     for item in users:
         if item['user'] == user or user == 'final':
@@ -39,10 +46,12 @@ def create_user(user:str, password:str):
     users.append(new_user)
     with open("users.json", "w", encoding="utf-8") as file:
         file.write(json.dumps(users))
+    carpet = f"./audio/final/{user}"
+    os.mkdir(carpet)
     return {"success":"success"}
 
 
-def change_password(user:str, password:str):
+def change_password(user:str, password:str) -> None:
     users = get_users()
     for item in users:
         if item['user'] == user :
@@ -59,6 +68,7 @@ def login_required(func):
             return redirect(url_for("login"))
     main_func.__name__ = func.__name__
     return main_func
+
 
 def admin_required(func):
     def main_func(*args, **kwargs):

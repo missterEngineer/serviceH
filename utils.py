@@ -1,24 +1,18 @@
-import json
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-import shutil
-
+import re 
 import requests
 from requests_toolbelt import MultipartEncoder
-
 load_dotenv()
 
-audio_formats = ['MP3', 'WAV', 'AAC', 'FLAC', 'OGG', 'WMA', 'ALAC', 'AIFF', 'M4A', 'AC3']
+
+def allowed_file(filename) -> bool:
+    AUDIOS_ALLOWED = ['MP3', 'WAV', 'AAC', 'FLAC', 'OGG', 'WMA', 'ALAC', 'AIFF', 'M4A', 'AC3']
+    return '.' in filename and filename.rsplit('.', 1)[1].upper() in AUDIOS_ALLOWED
 
 
-def allowed_file(filename):
-    print(filename.rsplit('.', 1)[1].upper())
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].upper() in audio_formats
-
-
-def check_filename(path:str):
+def check_filename(path:str) -> str:
     cont = 2
     file_parts = path.split(".")
     ext = file_parts.pop()
@@ -27,38 +21,39 @@ def check_filename(path:str):
         path = f"{filepath}_{cont}.{ext}"
         cont += 1
     return path
-    
 
-import re 
-regex = re.compile(r'^[a-zA-Z0-9_]+$') 
-def validate_string(string): 
+
+def validate_string(string) -> bool: 
+    regex = re.compile(r'^[a-zA-Z0-9_]+$') 
     if regex.match(string): 
         return True 
     else: 
         return False 
     
-def valid_audio_file(filename:str):
+
+def valid_audio_file(filename:str) -> bool:
     splits = filename.split(".")
     if (splits[-1] == "mp3" and  splits[-2] == "computer"):
         return True
     return False
 
 
-def valid_mic_file(filename:str):
+def valid_mic_file(filename:str) -> bool:
     splits = filename.split(".")
     if (splits[-1] == "webm" and  splits[-2] == "mic"):
         return True
     return False
 
 
-def error_log(user, reason):
+def error_log(user:str, reason:str) -> None:
+    print(reason)
+    date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log = f"{date} {user} {reason}\n"
     with open("errors.txt","a") as file:
-        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        log = f"{date} {user} {reason}\n"
         file.write(log)
 
 
-def scan_audios(user:str)->dict:
+def scan_audios(user:str) -> dict:
     audios = []
     with os.scandir(f'./audio/final/{user}') as folder_items:
         for item in folder_items:
@@ -72,11 +67,9 @@ def scan_audios(user:str)->dict:
     return audios
 
 
-def gladia(audio_path):
+def gladia(audio_path:str) -> str:
     filename = os.path.basename(audio_path)
-    
     file = (filename, open(audio_path, "rb"), "mp3")
-
     files = {
         'audio': file,
         'language_behaviour': (None, 'manual'),
@@ -101,22 +94,5 @@ def gladia(audio_path):
     return data
 
 
-def load_prompts() -> list:
-    prompts = []
-    with open("prompts.json", "r", encoding="utf-8") as file:
-        prompts = json.loads(file.read())
-    return prompts
-
-
-def save_prompts(prompts):
-    with open("prompts.json", "w", encoding="utf-8") as file:
-        file.write(json.dumps(prompts))
-
-
-def get_prompt_by_id(prompt_id:str, prompts:list):
-    for prompt in prompts:
-        if prompt['id'] == prompt_id:
-            return prompt
-        
 
 

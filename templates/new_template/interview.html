@@ -125,6 +125,9 @@
             transform: translateY(-50%);
             right: 15px;
         }
+        .msg a{
+            color: #00FFA1;
+        }
     </style>
 
 {% endblock style %}
@@ -260,9 +263,9 @@
 
     /** @param {string} text */
     function is_item_list(text){
-        if(text.includes("a)")) return true;
-        if(text.includes("b)")) return true;
-        if(text.includes("c)")) return true;
+        if(text.toLowerCase().includes("a)")) return true;
+        if(text.toLowerCase().includes("b)")) return true;
+        if(text.toLowerCase().includes("c)")) return true;
         return false;
     }
 

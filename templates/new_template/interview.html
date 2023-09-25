@@ -4,13 +4,10 @@
 {% endblock title %}
 {% block style %}
     <style>
-        .title{
-            text-align: center;
+        .btn{
+            color:white
         }
         form{
-            margin: 0 auto;
-        }
-        .login{
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -21,9 +18,13 @@
             padding-bottom: 20px;
             width: 500px;
             background: #002424;
+            margin: 0 auto;
         }
         input{
             margin: 10px 0 20px 0;
+        }
+        label{
+            display: block;
         }
         @media (min-width:480px) and (max-width:700px) {
             input{
@@ -33,9 +34,98 @@
             margin: 0
             }
         }
+        #historyContent{
+            display: block;
+            width: 700px;
+            max-width: 90vw;
+            margin: 10px auto;
+        }
+        button{
+            padding: 10px;
+            background-color: blueviolet;
+            border: 0;
+            border-radius: 5px;
+            color: white;
+            font-weight: 700;
+        }
+        button:hover{
+            cursor: pointer;
+            background-color: rgb(167, 104, 226);
+        }
 
+        .msg1, .msg2{
+            width: 100%;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            padding: 10px 0px;
+        }
+        .msg1{
+            justify-content: end;
+        }
+        .msg2{
+            justify-content: initial;
+        }
+        span.msg{
+            position: relative;
+            border-radius: 15px;
+            padding: 10px;
+            max-width: 80%;
+        }
+        .msg1 span{
+            background-color: #3f6382;
+            text-align: right;
+            border-bottom-right-radius: 1px;
+        }
+        .msg2 span{
+            background-color: rgba(172, 229, 198, 0.20);
+            text-align: left;
+            border-bottom-left-radius: 1px;
+        }
+    
+        span.msg::after {
+            width: 0;
+            position: absolute;
+            display: block;
+            content: '\00a0';
+            bottom: 0;
+            border: 8px solid transparent;
+            height: 0;
+        }
+        .msg1 span::after{
+            right: -16px;
+            border-left-color: #3f6382;
+        }
+        .msg2 span::after{
+            left: -16px;
+            border-right-color: rgba(172, 229, 198, 0.20);
+        }
+        .msg2 a:visited{
+            color: #68b9ff;
+        }
+        textarea {
+            width: calc(100% - 45px);
+            resize: none;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid  #B5C9C9;
+            background: #ffffff77;
+            height: 90px;
+            padding: 10px;
+            color: black;
+            font-size: 18px;
+            padding-right: 35px;
+        }
+        .card-footer {
+            position: relative;
+        }
+        .send {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 15px;
+        }
     </style>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
 {% endblock style %}
 {% block content %}
@@ -43,48 +133,158 @@
     <img src="/static/images/back.svg" alt="volver">
     <span>Volver</span>
 </a>
-<form action="" class="card login" id="new_user_form">
-    <h1 class="title">Añadir usuario</h1>
-    <label for="user">Usuario</label>
-    <input name="user" class="styled" type="text" id="user" placeholder="Ingresa un nombre de usuario">
-    <label for="password">Contraseña</label>
-    <input name="password" class="styled" type="password" id="password" placeholder="Ingresa una contraseña fuerte">
-    <button type="button" id="submit" class="btn success">Guardar</button>
-</form>
+<div class="card">
+    <h1 class="title">Entrevistador</h1>
+    <form action="">
+        <div class="form-control">
+            <label for="position">Cargo</label>
+            <input type="text" class="styled" name="position" id="position" placeholder="Ej: Gerente de Ventas">
+        </div>
+        <div class="form-control">
+            <label for="xp_years">Años de experiencia</label>
+            <input type="text" class="styled" name="xp_years" id="xp_years" placeholder="Ej: 10">
+        </div >
+        <div class="form-control">
+            <label for="skills">Habilidades principales</label>
+            <input type="text" class="styled" name="skills" id="skills" placeholder="Ej: Ventas b2b">
+        </div>
+        
+        <button class="btn" type="button" onclick="init_interview()">Enviar</button>
+    </form>
+    <div id="historyContent"></div>
+    <div class="card-footer" hidden>
+        <textarea id="questionGPT" hidden></textarea>
+        <a class="send" href="#" id="sendGPT" onclick="answerGPT()" hidden>
+            <svg width="25" height="24" viewBox="0 0 25 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
+                class="gpt-send">
+                <mask id="mask0_38_875" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25"
+                    height="24">
+                    <rect x="0.984375" width="24" height="24" fill="currentColor" />
+                </mask>
+                <g mask="url(#mask0_38_875)">
+                    <path
+                        d="M3.48437 4.5L4.48438 3.5L22.4844 11.5L4.48437 19.5L3.48437 18.5L6.48437 11.5L3.48437 4.5ZM6.58437 6.6L8.68437 11.5L6.58437 16.4L17.5844 11.5L6.58437 6.6Z"
+                        fill="currentColor" />
+                </g>
+            </svg>
+        </a>
+    </div>
+</div>
 {% endblock content %}
 {% block script %}
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="/static/js/socket.io.js"></script>
+<script src="/static/js/socket.config.js"></script>
 
 <script>
-    function toast(text, color) {
-        Toastify({
-            text: text,
-            duration: 5000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            stopOnFocus: true,
-            style: {
-                background: color
-            },
-            onClick: function () {} // Callback after click
-        }).showToast();
+    const historyContent = document.getElementById("historyContent");
+    /** @type {HTMLElement} */
+    let current_msg; 
+
+    function init_interview(){
+        const form = document.forms[0];
+        const body = new FormData(form);
+        add_loader();
+        const data = Object.fromEntries(body.entries());
+        current_msg = createMsg(2);
+        document.querySelector(".card-footer").hidden = false;
+        form.style.display = "none"
+        socket.emit("start_interview", data);
     }
 
-    document.getElementById("submit").onclick = async ()=>{
-        const new_user_form = document.getElementById("new_user_form")
-        const data = new FormData(new_user_form)
-        const response = await fetch("/create_user",{
-            method: "POST",
-            body: data
+    function add_loader(){
+        const p = document.createElement("p");
+        p.id = "generando";;
+        p.textContent = "Generando...";
+        historyContent.appendChild(p);
+    }
+
+    function answerGPT(){
+        let msg = document.querySelector("textarea").value;
+        createMsg("1", msg);
+        scroll2Bottom();
+        current_msg = createMsg(2);
+        add_loader();
+        socket.emit("answer_interview", msg)
+    }
+    
+    socket.on('chatResponse', msg => {
+        current_msg.innerText += msg;
+        scroll2Bottom();
+    })
+
+    socket.on('chatEnd', () => {
+        document.getElementById("generando").remove();
+        convert2hyperlink();
+    })
+
+
+    function convert2hyperlink(){
+        let textList = current_msg.innerText.split("\n");
+        let loop_times = 0;
+        let pass_number = false;
+        for(let f=0; f < textList.length; f++){
+            console.log(textList[f])
+            if(has_number(textList[f])  && !pass_number){
+                pass_number =  true;
+                console.log("1st conditional")
+                continue
+            }
+            if(!pass_number) {
+                console.log("2nd conditional")
+                continue
+            }
+            if(is_item_list(textList[f])){
+                if(loop_times < 3){
+                    loop_times++;
+                }else{
+                    break
+                }
+                textList[f] = "<a href='#' onclick='choose(this)'>" + textList[f] + "</a><br>";
+            }
+        }
+        current_msg.innerHTML = textList.join('<br>');
+    }
+
+    /** @param {HTMLAnchorElement} anchor */
+    function choose(anchor){
+        document.getElementById("questionGPT").value = anchor.innerText;
+        current_msg.querySelectorAll("a").forEach(inner_anchor=>{
+            inner_anchor.removeAttribute("href");
         })
-        const result = await response.json();
-        if('error' in result){
-            toast(result['error'], "#592323")
-        }else{
-            toast("Usuario creado exitosamente", "#0e8843")
+        answerGPT();
+    }
+
+    function has_number(str){
+        return /\d/.test(str)
+    }
+
+    /** @param {string} text */
+    function is_item_list(text){
+        if(text.includes("a)")) return true;
+        if(text.includes("b)")) return true;
+        if(text.includes("c)")) return true;
+        return false;
+    }
+
+
+    function createMsg(msg_num, msg=""){
+        const div = document.createElement("div");
+        div.classList.add(`msg${msg_num}`);
+        const span = document.createElement("span");
+        span.classList.add("msg");
+        span.innerText = msg;
+        div.appendChild(span);
+        historyContent.appendChild(div);
+        return span
+    }
+
+
+    function scroll2Bottom(){
+        if(document.body.scrollTop !== document.body.scrollHeight){
+            document.body.scrollTop = document.body.scrollHeight
         }
     }
+
 </script>
 
 {% endblock script %}

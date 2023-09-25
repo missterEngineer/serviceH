@@ -31,12 +31,12 @@ class MessageGPT:
     """
     role:str
     content:str
+    num:int = 1
 
     def __dict__(self):
         return {
-            "id": self.id,
-            "title": self.title,
-            "prompt": self.prompt,
+            "role": self.role,
+            "content": self.content
         }
 
 
@@ -61,7 +61,7 @@ def append_prompt(title:str, question:str) -> str:
     prompts = load_prompts()
     prompt_id = str(uuid.uuid1())
     prompt = Prompt(prompt_id, title, question)
-    prompts.append(dict(prompt))
+    prompts.append(prompt.__dict__())
     save_prompts(prompts)
     return prompt_id
 
@@ -84,7 +84,7 @@ def start_interview(position:str, xp_years:str, skills:str) -> None:
     initial_prompt = interview_prompt(position, xp_years, skills)
     messages = []
     message = MessageGPT("user", initial_prompt)
-    messages.append(dict(message))
+    messages.append(message.__dict__())
     response = send_to_GPT(messages)
     save_interview(messages, response)
     
@@ -147,7 +147,7 @@ def answer_interview(answer:str) -> str:
         data = file.read()
         messages:list = json.loads(data)
     message = MessageGPT("user", answer)
-    messages.append(dict(message))
+    messages.append(message.__dict__())
     model = "gpt-3.5-turbo"
     response = send_to_GPT(messages, model)
     save_interview(messages, response)

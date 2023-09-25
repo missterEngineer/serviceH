@@ -19,11 +19,12 @@ def transcribe(path:str, sid:str, user:str, speaker:bool=False) -> None:
     print("init transcribe")
     final_text = ''
     for file_path in segments:
-        audio_file= open(file_path, "rb")
+        
         if speaker:
             text = gladia(file_path)
         else:
-            transcript = openai.Audio.transcribe("whisper-1", audio_file, language="es")
+            with open(file_path, "rb") as audio_file:
+                transcript = openai.Audio.transcribe("whisper-1", audio_file, language="es")
             text = transcript.text
         final_text += text
         emit('response', text, to=sid, namespace="/")
@@ -38,7 +39,7 @@ def divide_audio(path:str) -> list:
     MAX_BYTES = 24 * 1e+6 #24 megabytes (whisper api limit)
     size = os.path.getsize(path)
     if size < MAX_BYTES:
-        return list(path)
+        return [path]
     segments = []
     MAX_MILLISECONDS = 20 * 60 * 1000 #20 min
     format = path.split(".")[-1]
@@ -58,7 +59,7 @@ def divide_audio(path:str) -> list:
 def transcription(model:str, audio:str, user:str, sid:str, app:Flask) -> None:
     app.app_context().push()
     path = f"./audio/final/{user}/{audio}"
-    transcript_args = list(path, sid, user)
+    transcript_args = [path, sid, user]
     if model == "speaker":
         transcript_args.append(True)
     try:
@@ -80,10 +81,10 @@ def resume(conversation:str, question:str) -> str:
         model = "gpt-3.5-turbo-16k"
     else:
          model = "gpt-3.5-turbo"
-    msg1 = MessageGPT("user", question)
-    msg2 = MessageGPT("assistant", response)
-    msg3 = MessageGPT("assistant", conversation)
-    messages = list(dict(msg1), dict(msg2), dict(msg3))
+    msg1 = MessageGPT("user", question).__dict__()
+    msg2 = MessageGPT("assistant", response).__dict__()
+    msg3 = MessageGPT("assistant", conversation).__dict__()
+    messages = [msg1, msg2, msg3]
     final_response = send_to_GPT(messages, model)
     return final_response
 

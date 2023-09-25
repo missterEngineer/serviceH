@@ -3,7 +3,7 @@ import os
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO
 from audio import save_record
-from prompts import append_prompt, remove_prompt, start_interview, update_prompt
+from prompts import answer_interview, append_prompt, remove_prompt, start_interview, update_prompt
 from user_manager import admin_required, authenticated_only, create_user, login_user, login_required, change_password
 from dotenv import load_dotenv
 from whisper import resume, saveResponse,  transcription
@@ -272,6 +272,11 @@ def handle_chat(data:dict):
     if audio_name:
         saveResponse(audio_name, conversation, question, answer, user)      
     
+
+@sock.on('answer_interview')
+@authenticated_only
+def answer_interview_handler(answer:str):
+    answer_interview(answer)
 
 if __name__ == "__main__":
     sock.run(

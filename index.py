@@ -65,10 +65,16 @@ def create_user_view():
     return render_template("new_template/add_user.html")
 
 
-@app.route("/interview", methods=["GET", "POST"])
+@app.route("/interview")
 @login_required
 def interview():
     return render_template("new_template/interview.html")
+
+
+@app.route("/chat")
+@login_required
+def chat_test():
+    return render_template("new_template/chat.html")
 
 
 @sock.on('start_interview')

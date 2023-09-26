@@ -5,7 +5,7 @@ from flask import request, session
 from flask_socketio import emit
 from utils import error_log
 from dataclasses import dataclass
-
+import os
 
 @dataclass
 class Prompt:
@@ -143,7 +143,11 @@ me das la siguiente pregunta"
 
 
 def answer_interview(answer:str) -> str:
-    with open(f"./prompts/{request.sid}.json", encoding="utf-8") as file:
+    filepath = f"./prompts/{request.sid}.json"
+    if not os.path.isfile(filepath):
+        with open(filepath, "w") as file:
+            file.write(json.dumps([]))
+    with open(filepath, encoding="utf-8") as file:
         data = file.read()
         messages:list = json.loads(data)
     message = MessageGPT("user", answer)

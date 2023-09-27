@@ -112,6 +112,7 @@
             color: black;
             font-size: 18px;
             padding-right: 35px;
+            color: white;
         }
         .card-footer {
             position: relative;
@@ -203,12 +204,14 @@
     }
 
     function answerGPT(){
-        let msg = document.querySelector("textarea").value;
+        const textarea = document.querySelector("textarea")
+        let msg = textarea.value;
         createMsg("1", msg);
         scroll2Bottom();
         current_msg = createMsg(2);
         add_loader();
         socket.emit("answer_interview", msg)
+        setTimeout(()=> textarea.value = "", 100)
     }
     
     socket.on('chatResponse', msg => {

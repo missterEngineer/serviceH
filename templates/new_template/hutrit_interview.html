@@ -265,6 +265,7 @@
 
     /** @param {string} text */
     function is_item_list(text){
+        if(text.toLowerCase().includes("a, b, c)")) return false;
         if(text.toLowerCase().includes("a)")) return true;
         if(text.toLowerCase().includes("b)")) return true;
         if(text.toLowerCase().includes("c)")) return true;

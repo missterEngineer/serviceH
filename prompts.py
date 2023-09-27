@@ -87,6 +87,15 @@ def start_interview(position:str, xp_years:str, skills:str) -> None:
     messages.append(message.__dict__())
     response = send_to_GPT(messages)
     save_interview(messages, response)
+
+
+def start_interview_2(name:str, xp_years:str, skills:str) -> None:
+    initial_prompt = interview_prompt_2(name, skills, xp_years)
+    messages = []
+    message = MessageGPT("user", initial_prompt)
+    messages.append(message.__dict__())
+    response = send_to_GPT(messages)
+    save_interview(messages, response)
     
 
 def send_to_GPT(messages:list, model:str = "gpt-3.5-turbo") -> str:
@@ -140,6 +149,32 @@ ya que serán mas largas y el entrevistado se tendrá que poner en  contexto a l
 Tienes que hablar como un entrevistador profesional, me tienes que dar la primera pregunta en el siguiente mensaje \
 y simula que estás empezando la conversación tú. Cuando yo te de la respuesta me das el feedback y en el mismo mensaje \
 me das la siguiente pregunta"
+
+
+def interview_prompt_2(name:str, skills:str, xp_years:str):
+    return f"Quiero que te conviertas en un experto analista de \"softskill \" , llevas muchos años de experiencia \
+    analizando y evaluando las habilidades de las personas. Lo haces a través de preguntas tipo test. El \
+    nombre del evaluado , sus años de experiencia y las  habilidades te las doy yo . También las instrucciones \
+    necesarias para que podamos evaluar a la persona. La persona que tenemos que evaluar se llama {name} y sus \
+    habilidades son en {skills} . tiene {xp_years}  y quiero que las tengas en cuenta ala \
+    hora de la dificultad de las preguntas. La evaluación sera de 10 preguntas en formato test con 3 posibles respuestas, \
+    de las cuales solo 1 será la respuesta correcta. Las preguntas me las harás de una en una y yo te diré la respuesta \
+    poniéndote un comentario si es a, b o c. También le daremos una opción D, que será un comodín que le ayudara con la \
+    respuesta correcta y que podrá utilizar solo 3 veces durante todo el proceso de evaluación. Si me equivoco con la \
+    respuesta me dirás cual es la correcta y por que. En caso contrario, si acierto la respuesta me felicitaras. una vez \
+    acierte y me felicites o falle y me digas cual es la correcta y porque , pasaremos a la siguiente pregunta. Así \
+    será el proceso hasta realizar las 10 preguntas y cuando se finalicen esas 10 preguntas me darás un feedback \
+    de como he echo la evaluación y me darás consejos para que tenga mas éxito en futuras evaluaciones. Quiero que el \
+    proceso de evaluación sea divertido y para ello  tendrás que contar un chiste o decirle al evaluado algo divertido \
+    cada 4 preguntas, para que se le haga lo mas ameno la evaluación. Cuando este terminado todo lo que hemos dicho con \
+    anterioridad y me hayas dado el feedback , necesito que me preguntes si quiero realizar otra evaluación con una mayor \
+    dificultad en las preguntas. En caso que que te diga que si volvemos a empezar con el procesos de evaluación pero \
+    esta vez las preguntas serán mas mucho mas complicadas ya que serán mas largas y elaboradas se tendrá que poner en \
+    contexto a la pregunta para dar la respuesta correcta. Para que sea aun mas complicado también las respuestas serán \
+    mas largas y para que el entrevistado tenga que leerlas varias veces y le generen confusión. Este proceso tendrá 4 \
+    niveles de dificultad. Como cada nivel tiene 10 preguntas en el momento que se hagan un total de 40 , la evaluación \
+    sera finalizada. Cuando leas este prompt empieza la evaluación dándole una pequeña explicación del proceso y acto \
+    seguido le haces la primera pregunta"
 
 
 def answer_interview(answer:str) -> str:

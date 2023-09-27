@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 from dotenv import load_dotenv
@@ -94,5 +95,7 @@ def gladia(audio_path:str) -> str:
     return data
 
 
-
-
+def get_json_api(link:str) -> dict:
+    response = requests.get(link)
+    data = response.content
+    return json.loads(data)

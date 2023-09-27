@@ -2,13 +2,14 @@ import json
 import os
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO
+import requests
 from audio import save_record
-from prompts import answer_interview, append_prompt, remove_prompt, start_interview, update_prompt
+from prompts import answer_interview, append_prompt, remove_prompt, start_interview, start_interview_2, update_prompt
 from user_manager import admin_required, authenticated_only, create_user, login_user, login_required, change_password
 from dotenv import load_dotenv
 from whisper import resume, saveResponse,  transcription
 from werkzeug.utils import secure_filename
-from utils import allowed_file, check_filename,    scan_audios, valid_audio_file, valid_mic_file, error_log
+from utils import allowed_file, check_filename, get_json_api,    scan_audios, valid_audio_file, valid_mic_file, error_log
 import threading
 
 load_dotenv()
@@ -71,6 +72,24 @@ def interview():
     return render_template("new_template/interview.html")
 
 
+@app.route("/hutrit/list")
+@login_required
+def hutrit_list():
+    api_link = "https://servidor-production.up.railway.app/hutritBack/public/getListTalents"
+    talents = get_json_api(api_link)['listTalents']
+    return render_template("new_template/hutrit_list.html", talents=talents)
+
+
+@app.route("/hutrit/talent/<talent_id>")
+@login_required
+def hutrit_talent(talent_id):
+    api_link = f"https://servidor-production.up.railway.app/hutritBack/public/getProfileProfessionalTalent?idTalent={talent_id}"
+    talent = get_json_api(api_link)['talentInfo']
+    skills_list = [skill['skills_categori']["skill"]["name"] for skill in talent['talen_skills']]
+    skills = ", ".join(skills_list) 
+    return render_template("new_template/hutrit_interview.html", talent=talent, skills=skills)
+
+
 @app.route("/chat")
 @login_required
 def chat_test():
@@ -83,7 +102,11 @@ def start_interview_handler(values:dict):
     skills = values.get("skills")
     position = values.get("position")
     xp_years = values.get("xp_years")
-    start_interview(position, xp_years, skills)
+    name = values.get("name")
+    if name:
+        start_interview_2(name, xp_years, skills)
+    else:
+        start_interview(position, xp_years, skills)
 
 
 @app.route("/player/<audio>")

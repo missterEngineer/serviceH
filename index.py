@@ -215,6 +215,12 @@ def change_pass():
     return render_template("new_template/change_password.html")
 
 
+@app.route("/english")
+@login_required
+def english():
+    return render_template("new_template/english.html")
+
+
 @app.route("/save_error", methods=["POST"])    
 @login_required
 def save_error():

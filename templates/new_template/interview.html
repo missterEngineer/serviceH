@@ -154,7 +154,7 @@
     <div id="historyContent"></div>
     <div class="card-footer" hidden>
         <textarea id="questionGPT" hidden></textarea>
-        <a class="send" href="#" id="sendGPT" onclick="answerGPT()" hidden>
+        <a class="send" href='javascript:void(0)' id="sendGPT" onclick="answerGPT()" hidden>
             <svg width="25" height="24" viewBox="0 0 25 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
                 class="gpt-send">
                 <mask id="mask0_38_875" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25"
@@ -239,7 +239,7 @@
                 }else{
                     break
                 }
-                textList[f] = "<a href='#' onclick='choose(this)'>" + textList[f] + "</a><br>";
+                textList[f] = "<a href='javascript:void(0)' onclick='choose(this)'>" + textList[f] + "</a><br>";
             }
         }
         current_msg.innerHTML = textList.join('<br>');

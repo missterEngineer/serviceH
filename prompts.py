@@ -1,4 +1,5 @@
 import uuid
+from anyio import sleep
 import openai
 import json
 from flask import request, session
@@ -90,9 +91,13 @@ def start_interview(position:str, xp_years:str, skills:str) -> None:
 
 
 def start_interview_2(name:str, xp_years:str, skills:str) -> None:
+    msg = f"Hola {name} , soy una analista profesional de habilidades y me llamo Kari . Para evaluar tus habilidades te hare 10 preguntas tipo test y solo tendrás que clicar encima de la respuesta correcta , una vez terminado esas 10 preguntas pasaremos al nivel 2 que tendrá otras 10 preguntas. al finalizar te dare la puntuación de tus respuesta . ¡¡¡Comencemos!!!\n\n"
+    x = 0
+    emit('chatResponse', msg , to=request.sid)  
+
     initial_prompt = interview_prompt_2(name, skills, xp_years)
     messages = []
-    message = MessageGPT("user", initial_prompt)
+    message = MessageGPT("system", initial_prompt)
     messages.append(message.__dict__())
     response = send_to_GPT(messages)
     save_interview(messages, response)
@@ -152,29 +157,8 @@ me das la siguiente pregunta"
 
 
 def interview_prompt_2(name:str, skills:str, xp_years:str):
-    return f"Quiero que te conviertas en un experto analista de \"softskill \" , llevas muchos años de experiencia \
-    analizando y evaluando las habilidades de las personas. Lo haces a través de preguntas tipo test. El \
-    nombre del evaluado , sus años de experiencia y las  habilidades te las doy yo . También las instrucciones \
-    necesarias para que podamos evaluar a la persona. La persona que tenemos que evaluar se llama {name} y sus \
-    habilidades son en {skills} . tiene {xp_years}  y quiero que las tengas en cuenta ala \
-    hora de la dificultad de las preguntas. La evaluación sera de 10 preguntas en formato test con 3 posibles respuestas, \
-    de las cuales solo 1 será la respuesta correcta. Las preguntas me las harás de una en una y yo te diré la respuesta \
-    poniéndote un comentario si es a, b o c. También le daremos una opción D, que será un comodín que le ayudara con la \
-    respuesta correcta y que podrá utilizar solo 3 veces durante todo el proceso de evaluación. Si me equivoco con la \
-    respuesta me dirás cual es la correcta y por que. En caso contrario, si acierto la respuesta me felicitaras. una vez \
-    acierte y me felicites o falle y me digas cual es la correcta y porque , pasaremos a la siguiente pregunta. Así \
-    será el proceso hasta realizar las 10 preguntas y cuando se finalicen esas 10 preguntas me darás un feedback \
-    de como he echo la evaluación y me darás consejos para que tenga mas éxito en futuras evaluaciones. Quiero que el \
-    proceso de evaluación sea divertido y para ello  tendrás que contar un chiste o decirle al evaluado algo divertido \
-    cada 4 preguntas, para que se le haga lo mas ameno la evaluación. Cuando este terminado todo lo que hemos dicho con \
-    anterioridad y me hayas dado el feedback , necesito que me preguntes si quiero realizar otra evaluación con una mayor \
-    dificultad en las preguntas. En caso que que te diga que si volvemos a empezar con el procesos de evaluación pero \
-    esta vez las preguntas serán mas mucho mas complicadas ya que serán mas largas y elaboradas se tendrá que poner en \
-    contexto a la pregunta para dar la respuesta correcta. Para que sea aun mas complicado también las respuestas serán \
-    mas largas y para que el entrevistado tenga que leerlas varias veces y le generen confusión. Este proceso tendrá 4 \
-    niveles de dificultad. Como cada nivel tiene 10 preguntas en el momento que se hagan un total de 40 , la evaluación \
-    sera finalizada. Cuando leas este prompt empieza la evaluación dándole una pequeña explicación del proceso y acto \
-    seguido le haces la primera pregunta"
+    prompt =  f"""Tu nombre es Kari, eres un trabajador de recursos humanos. Tu trabajo es entrevistar a las personas evaluando sus habilidades en formato test de 10 preguntas con 3 posibles respuestas (solo 1 es correcta), le dirás al entrevistado que cliquee en la respuesta que crea correcta (a, b, o c). Vas a comenzar haciéndole la pregunta 1, recibirás la respuesta del entrevistado y a eso le dirás si su respuesta es correcta o no e inmediatamente le dirás la siguiente pregunta. Al finalizar las 10 preguntas preguntarás si quiere hacer el test nivel 2. Hoy examinaras a {name} tienes que hacerle un test en base a sus habilidades que son {skills} {xp_years}. Di la primera pregunta de una vez sin presentarte ni nada"""
+    return prompt
 
 
 def answer_interview(answer:str) -> str:

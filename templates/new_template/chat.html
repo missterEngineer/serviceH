@@ -181,7 +181,8 @@
         scroll2Bottom();
         current_msg = createMsg(2);
         add_loader();
-        socket.emit("answer_interview", msg)
+        socket.emit("answer_interview", msg);
+        setTimeout(()=> textarea.value = "", 100);
     }
     
     socket.on('chatResponse', msg => {

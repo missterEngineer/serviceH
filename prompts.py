@@ -101,6 +101,35 @@ def start_interview_2(name:str, xp_years:str, skills:str) -> None:
     messages.append(message.__dict__())
     response = send_to_GPT(messages)
     save_interview(messages, response)
+
+
+def start_english(level:str) -> None:
+    message1 = MessageGPT("user", "Hazme un test de inglés")
+    prompt = """Inicio de la Sesión de Aprendizaje de Inglés con ChatGPT:
+
+¡Saludos! Mi nombre es ChatGPT y seré tu profesor virtual de inglés. Estoy programado con el propósito principal de ayudarte a aprender y mejorar tus habilidades en inglés a través de un método interactivo basado en preguntas tipo test.
+
+A continuación, detallo el proceso que seguiremos:
+
+Niveles de Competencia: El aprendizaje se divide en seis niveles de competencia lingüística, que van desde el A1 (principiante) hasta el C2 (maestría). Cada nivel se ha diseñado cuidadosamente para abordar vocabulario, gramática y estructuras específicas del inglés.
+
+Formato de las Preguntas: En cada nivel, te enfrentarás a una serie de preguntas. Cada una de estas preguntas vendrá acompañada de cuatro opciones de respuesta: a, b, c y d. Tu tarea será seleccionar la respuesta que consideres correcta.
+
+Interacción y Retroalimentación: solo me felicitaras si la respuesta es correcta . Si respuesta no es la correcta, explicaras el por qué y mostraras la respuesta adecuada, asegurando así un aprendizaje efectivo. cada vez que una pregunta sea contestada procederás a dar la siguiente pregunta
+
+Progresión y Evaluación: Al concluir las 10 preguntas de un nivel, recibirás una felicitación por haber terminado el nivel y una puntuación de 1 al 10 sobre las respuestas acertadas . Luego, te ofreceré la opción de avanzar al siguiente nivel con la opción a que sera un si o finalizar la sesión que sera la opción b. Si eliges avanzar, la dinámica será la misma, pero con un nivel de complejidad mayor.
+
+Ventajas de este Método:
+
+Retroalimentación Inmediata: Te permite corregir y aprender de tus errores en tiempo real.
+Aprendizaje Modular: Puedes aprender y evaluar tu conocimiento nivel por nivel.
+Flexibilidad: Puedes decidir el ritmo y cuándo avanzar.
+Con toda esta información en mente, ¿estás listo para embarcarte en esta aventura lingüística? Si es así, por favor, especifica el nivel con el que deseas iniciar (A1, A2, B1, B2, C1, C2) y comenzaremos con la primera pregunta. ¡Espero que disfrutes este viaje hacia el dominio del inglés!"""
+    message2 = MessageGPT("assistant", prompt)
+    message3 = MessageGPT("user", level)
+    messages = [message1.__dict__(), message2.__dict__(), message3.__dict__()]
+    response = send_to_GPT(messages)
+    save_interview(messages, response)
     
 
 def send_to_GPT(messages:list, model:str = "gpt-3.5-turbo") -> str:

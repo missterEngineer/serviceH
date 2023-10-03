@@ -104,6 +104,8 @@ def start_interview_2(name:str, xp_years:str, skills:str) -> None:
 
 
 def start_english(level:str) -> None:
+    rules = "Cuando verifiques la respuesta por favor NO repitas la pregunta, NO la repitas; Y cuando digas las opciones por favor añade un salto de línea entre las mismas, especialmente cuando preguntas si quiere continuar al siguiente nivel. Cuando te den la respuesta de una pregunta automáticamente tienes que dar la siguiente pregunta"
+    message0 = MessageGPT("system", rules)
     message1 = MessageGPT("user", "Hazme un test de inglés")
     prompt = """Inicio de la Sesión de Aprendizaje de Inglés con ChatGPT:
 
@@ -127,7 +129,15 @@ Flexibilidad: Puedes decidir el ritmo y cuándo avanzar.
 Con toda esta información en mente, ¿estás listo para embarcarte en esta aventura lingüística? Si es así, por favor, especifica el nivel con el que deseas iniciar (A1, A2, B1, B2, C1, C2) y comenzaremos con la primera pregunta. ¡Espero que disfrutes este viaje hacia el dominio del inglés!"""
     message2 = MessageGPT("assistant", prompt)
     message3 = MessageGPT("user", level)
-    messages = [message1.__dict__(), message2.__dict__(), message3.__dict__()]
+    messages = [message0.__dict__(), message1.__dict__(), message2.__dict__(), message3.__dict__()]
+    response = send_to_GPT(messages)
+    save_interview(messages, response)
+
+
+def start_business(category):
+    prompt = business_prompt(category)
+    msg = MessageGPT("user", prompt)
+    messages = [msg.__dict__()]
     response = send_to_GPT(messages)
     save_interview(messages, response)
     
@@ -184,6 +194,10 @@ Tienes que hablar como un entrevistador profesional, me tienes que dar la primer
 y simula que estás empezando la conversación tú. Cuando yo te de la respuesta me das el feedback y en el mismo mensaje \
 me das la siguiente pregunta"
 
+
+def business_prompt(category):
+    prompt = f"""Me vas a hacer un test sobre {category}. La evaluación será de 10 preguntas en formato test con 4 posibles respuestas, de las cuales solo 1 será la respuesta correcta. Las preguntas me las harás de una en una y te daré la respuesta haciendo clic en las opciones a, b o c. Hasta que no conteste la pregunta no me harás la siguiente pregunta, si me equivoco con la respuesta me dirás cuál es la correcta y por qué. En caso contrario, si acierto la respuesta, me felicitarás. Una vez acierte y me felicites o falle y me digas cuál es la correcta y porque, pasaremos a la siguiente pregunta. Así será el proceso hasta realizar 10 preguntas y cuando se finalicen esas 10 preguntas felicitarás por haber terminado el nivel 1 y continuaremos con la primera pregunta del nivel 2 que tendrá otras 10 preguntas. Cuando se hayan respondido las preguntas del nivel 2 volverás a felicitar por haber terminado la evaluación y tendrás que dar una puntuación profesional con base en las preguntas acertadas o no acertadas"""
+    return prompt
 
 def interview_prompt_2(name:str, skills:str, xp_years:str):
     prompt =  f"""Tu nombre es Kari, eres un trabajador de recursos humanos. Tu trabajo es entrevistar a las personas evaluando sus habilidades en formato test de 10 preguntas con 3 posibles respuestas (solo 1 es correcta), le dirás al entrevistado que cliquee en la respuesta que crea correcta (a, b, o c). Vas a comenzar haciéndole la pregunta 1, recibirás la respuesta del entrevistado y a eso le dirás si su respuesta es correcta o no e inmediatamente le dirás la siguiente pregunta. Al finalizar las 10 preguntas preguntarás si quiere hacer el test nivel 2. Hoy examinaras a {name} tienes que hacerle un test en base a sus habilidades que son {skills} {xp_years}. Di la primera pregunta de una vez sin presentarte ni nada"""

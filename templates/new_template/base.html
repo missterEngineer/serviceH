@@ -13,6 +13,16 @@
             justify-content: center;
             gap: 20px;
         }
+        #dialog-logout h2{
+            font-size: 24px;
+        }
+        #dialog-logout p{
+            font-size: 16px; 
+            margin-bottom: 25px;
+        }
+        #dialog-logout img{
+            margin-top: 20px;
+        }
     </style>
     {% block style %}{% endblock style %}
 </head>
@@ -93,6 +103,9 @@
                         </g>
                     </svg>
                 </a>
+                <a href="/business" class="profile-icon" title="Negocios">
+                    <svg width="20" height="20" viewBox="0 0 1024 1024" class="icon"  version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M326.5625 301.0625l-1.21875-93.28125c-0.1875-14.25 11.34375-25.875 25.59375-25.875h322.125c14.15625 0 25.59375 11.4375 25.59375 25.59375v93.1875h-65.625v-53.15625H391.53125l0.65625 52.78125-65.625 0.75z" fill="#8E6620" /><path d="M404.09375 335.75h-91.59375c-1.59375 0-3-1.3125-3-3v-30.1875c0-1.59375 1.3125-3 3-3h91.59375c1.59375 0 3 1.3125 3 3v30.1875c0 1.6875-1.40625 3-3 3zM711.40625 335.75h-91.125c-1.78125 0-3.1875-1.40625-3.1875-3.1875V302.9375c0-1.78125 1.40625-3.1875 3.1875-3.1875h91.125c1.78125 0 3.1875 1.40625 3.1875 3.1875v29.625c0.09375 1.78125-1.40625 3.1875-3.1875 3.1875z" fill="#FFB000" /><path d="M862.90625 932.1875H162.96875c-38.71875 0-70.125-31.40625-70.125-70.125V402.3125c0-38.71875 31.40625-70.125 70.125-70.125h699.84375c38.71875 0 70.125 31.40625 70.125 70.125v459.75c0.09375 38.71875-31.3125 70.125-70.03125 70.125z" fill="#8E6620" /><path d="M234.575 332.298125l75-0.215625 1.726875 599.34375-75 0.215625zM714.670625 332.298125l75-0.215625 1.726875 599.34375-75 0.215625z" fill="#FFB000" /></svg>
+                </a>
                 <a href="/interview" class="profile-icon" title="Entrevista">
                     <svg width="25" height="25" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_38_897" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="17">
@@ -124,7 +137,7 @@
                     </svg>
                 </a>
                 {% endif %}
-                <a href="/logout" class="profile-icon" title="Cerrar sesión">
+                <a href="javascript:void(0)" onclick="confirm_logout()" class="profile-icon" title="Cerrar sesión">
                     <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <mask id="mask0_38_581" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="25">
                         <rect x="0.242188" y="0.5" width="24" height="24" fill="#D9D9D9"/>
@@ -141,7 +154,23 @@
         </section>
     </main>
     {% block modal %}{% endblock modal %}
+    <dialog id="dialog-logout">
+        <img src="/static/images/logout_circle.svg" alt="logout">
+        <h2>Estás a punto de salir</h2>
+        <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
+        <button class="btn" onclick="cancel_logout()">Cancelar</button>
+        <button class="btn success" onclick="logout()">Cerrar sesión</button>
+    </dialog>
     <script>
+        function confirm_logout(){
+            document.getElementById("dialog-logout").showModal();
+        }
+        function logout(){
+            location.href = "/logout";
+        }
+        function cancel_logout(){
+            document.getElementById("dialog-logout").close();
+        }
         function save_error(page, msg){
             const data = new FormData()
             data.append("page",page)

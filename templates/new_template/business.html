@@ -1,6 +1,6 @@
 {% extends "new_template/base.html" %}
 {% block title %}
-  Aprende inglés
+  Negocio
 {% endblock title %}
 {% block style %}
     <style>
@@ -137,7 +137,7 @@
             background-color: transparent;
             padding: 10px 5px;
             margin: 20px 0;
-            width: 100px;
+            width: 200px;
             border-radius: 10px;
             border: 1px solid #00CF83;
         }
@@ -159,28 +159,28 @@
     <span>Volver</span>
 </a>
 <div class="card">
-    <h1 class="title">Aprende Inglés</h1>
+    <h1 class="title">Categoría</h1>
     <form action="">
         <div class="form-control">
             <label for="name">Nivel de dificultad</label>
             <select name="level" id="level" >
-                <option>A1</option>
-                <option>A2</option>
-                <option>B1</option>
-                <option>B2</option>
-                <option>C1</option>
-                <option>C2</option>
+                <option>Trabajo en equipo</option>
+                <option>Pensamiento crítico</option>
+                <option>Habilidades interpersonales</option>
+                <option >Ética laboral</option>
+                <option >Autoconciencia y autogestión</option>
+                <option >Aprendizaje continuo</option>
+                <option >Liderazgo</option>
+                <option >Gestión del tiempo</option>
+                <option >Atención al cliente</option>
+                <option >Cultura organizacional</option>
+                <option >Desarrollo personal </option>
             </select>
         </div>
         
         <button class="btn" type="button" onclick="init_interview()">Enviar</button>
     </form>
     <div id="historyContent" >
-        <div class="msg2">
-            <span class="msg">
-                Soy ChatGPT tu profesor virtual de inglés . Te ofrezco un aprendizaje interactivo mediante preguntas tipo test. Cada pregunta tiene cuatro opciones de respuesta.  Tras 10 preguntas, recibirás una puntuación y puedes optar por avanzar al siguiente nivel o finalizar la sesión. Este método proporciona retroalimentación inmediata, aprendizaje modular y flexibilidad en el ritmo de aprendizaje.
-            </span>
-        </div>
     </div>
     <div class="card-footer" hidden>
         <textarea id="questionGPT" hidden></textarea>
@@ -223,7 +223,7 @@
         current_msg = createMsg(2);
         document.querySelector(".card-footer").hidden = false;
         form.style.display = "none"
-        socket.emit("start_english", data);
+        socket.emit("start_business", data);
         document.getElementById("historyContent").style.display = "block"
     }
 

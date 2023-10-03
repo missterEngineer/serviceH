@@ -2,9 +2,8 @@ import json
 import os
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO
-import requests
 from audio import save_record
-from prompts import answer_interview, append_prompt, remove_prompt, start_english, start_interview, start_interview_2, update_prompt
+from prompts import answer_interview, append_prompt, remove_prompt, start_business, start_english, start_interview, start_interview_2, update_prompt
 from user_manager import admin_required, authenticated_only, create_user, login_user, login_required, change_password
 from dotenv import load_dotenv
 from whisper import resume, saveResponse,  transcription
@@ -115,6 +114,12 @@ def start_interview_handler(values:dict):
     level = values.get("level")
     start_english(level)
 
+
+@sock.on('start_business')
+@authenticated_only
+def start_business_handler(values:dict):
+    level = values.get("level")
+    start_business(level)
 
 
 @app.route("/player/<audio>")
@@ -227,6 +232,11 @@ def change_pass():
 @login_required
 def english():
     return render_template("new_template/english.html")
+
+@app.route("/business")
+@login_required
+def business():
+    return render_template("new_template/business.html")
 
 
 @app.route("/save_error", methods=["POST"])    

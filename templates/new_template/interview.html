@@ -174,12 +174,9 @@
 {% block script %}
 <script src="/static/js/socket.io.js"></script>
 <script src="/static/js/socket.config.js"></script>
+<script src="/static/js/gptChat.js"></script>
 
 <script>
-    const historyContent = document.getElementById("historyContent");
-    /** @type {HTMLElement} */
-    let current_msg; 
-
     function init_interview(){
         const form = document.forms[0];
         const body = new FormData(form);
@@ -191,101 +188,10 @@
         socket.emit("start_interview", data);
     }
 
-    function add_loader(){
-        const p = document.createElement("p");
-        p.id = "generando";;
-        p.textContent = "Generando...";
-        historyContent.appendChild(p);
-    }
-
-    function answerGPT(){
-        let msg = document.querySelector("textarea").value;
-        createMsg("1", msg);
-        scroll2Bottom();
-        current_msg = createMsg(2);
-        add_loader();
-        socket.emit("answer_interview", msg)
-    }
-    
-    socket.on('chatResponse', msg => {
-        current_msg.innerText += msg;
-        scroll2Bottom();
-    })
-
     socket.on('chatEnd', () => {
         document.getElementById("generando").remove();
         convert2hyperlink();
     })
-
-
-    function convert2hyperlink(){
-        let textList = current_msg.innerText.split("\n");
-        let loop_times = 0;
-        let pass_number = false;
-        for(let f=0; f < textList.length; f++){
-            console.log(textList[f])
-            if(has_number(textList[f])  && !pass_number){
-                pass_number =  true;
-                console.log("1st conditional")
-                continue
-            }
-            if(!pass_number) {
-                console.log("2nd conditional")
-                continue
-            }
-            if(is_item_list(textList[f])){
-                if(loop_times < 3){
-                    loop_times++;
-                }else{
-                    break
-                }
-                textList[f] = "<a href='javascript:void(0)' onclick='choose(this)'>" + textList[f] + "</a><br>";
-            }
-        }
-        current_msg.innerHTML = textList.join('<br>');
-    }
-
-    /** @param {HTMLAnchorElement} anchor */
-    function choose(anchor){
-        document.getElementById("questionGPT").value = anchor.innerText;
-        current_msg.querySelectorAll("a").forEach(inner_anchor=>{
-            inner_anchor.removeAttribute("href");
-            inner_anchor.onclick = void(0);
-        })
-        answerGPT();
-    }
-
-    function has_number(str){
-        return /\d/.test(str)
-    }
-
-    /** @param {string} text */
-    function is_item_list(text){
-        if(text.toLowerCase().includes("a)")) return true;
-        if(text.toLowerCase().includes("b)")) return true;
-        if(text.toLowerCase().includes("c)")) return true;
-        return false;
-    }
-
-
-    function createMsg(msg_num, msg=""){
-        const div = document.createElement("div");
-        div.classList.add(`msg${msg_num}`);
-        const span = document.createElement("span");
-        span.classList.add("msg");
-        span.innerText = msg;
-        div.appendChild(span);
-        historyContent.appendChild(div);
-        return span
-    }
-
-
-    function scroll2Bottom(){
-        if(document.body.scrollTop !== document.body.scrollHeight){
-            document.body.scrollTop = document.body.scrollHeight
-        }
-    }
-
 </script>
 
 {% endblock script %}

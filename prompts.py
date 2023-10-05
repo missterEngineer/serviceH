@@ -1,5 +1,4 @@
 import uuid
-from anyio import sleep
 import openai
 import json
 from flask import request, session
@@ -168,6 +167,7 @@ def send_to_GPT(messages:list, model:str = "gpt-3.5-turbo") -> str:
     except Exception as e:
         print(e)
         emit('chatResponse', "Ha ocurrido un error, espere unos segundos e intente de nuevo", to=request.sid)
+        emit('chatError', to=request.sid)
         error_log(session['user'], f"resume: {e}") 
     print("prompt received")
     emit('chatEnd', to=request.sid)
@@ -196,12 +196,20 @@ me das la siguiente pregunta"
 
 
 def business_prompt(category):
-    prompt = f"""Me vas a hacer un test sobre {category}. La evaluación será de 10 preguntas en formato test con 4 posibles respuestas, de las cuales solo 1 será la respuesta correcta. Las preguntas me las harás de una en una y te daré la respuesta haciendo clic en las opciones a, b o c. Hasta que no conteste la pregunta no me harás la siguiente pregunta, si me equivoco con la respuesta me dirás cuál es la correcta y por qué. En caso contrario, si acierto la respuesta, me felicitarás. Una vez acierte y me felicites o falle y me digas cuál es la correcta y porque, pasaremos a la siguiente pregunta. Así será el proceso hasta realizar 10 preguntas y cuando se finalicen esas 10 preguntas felicitarás por haber terminado el nivel 1 y continuaremos con la primera pregunta del nivel 2 que tendrá otras 10 preguntas. Cuando se hayan respondido las preguntas del nivel 2 volverás a felicitar por haber terminado la evaluación y tendrás que dar una puntuación profesional con base en las preguntas acertadas o no acertadas"""
+    prompt = f"""Me vas a hacer un test sobre {category}. La evaluación será de 10 preguntas en formato test con 4 posibles respuestas, de las cuales solo 1 será la respuesta correcta. Las preguntas me las harás de una en una y te daré la respuesta haciendo clic en las opciones a, b o c. Hasta que no conteste la pregunta no me harás la siguiente pregunta, si me equivoco con la respuesta me dirás cuál es la correcta y por qué. En caso contrario, si acierto la respuesta, me felicitarás. Una vez acierte y me felicites o falle y me digas cuál es la correcta y porque, pasaremos a la siguiente pregunta. Así será el proceso hasta realizar 10 preguntas y cuando se finalicen esas 10 preguntas felicitarás por haber terminado el nivel 1 y continuaremos con la primera pregunta del nivel 2 que tendrá otras 10 preguntas. Cuando se hayan respondido las preguntas del nivel 2 volverás a felicitar por haber terminado la evaluación y tendrás que dar una puntuación profesional con base en las preguntas acertadas o no acertadas, Empieza de una vez diciendo la primera pregunta"""
     return prompt
+
 
 def interview_prompt_2(name:str, skills:str, xp_years:str):
     prompt =  f"""Tu nombre es Kari, eres un trabajador de recursos humanos. Tu trabajo es entrevistar a las personas evaluando sus habilidades en formato test de 10 preguntas con 3 posibles respuestas (solo 1 es correcta), le dirás al entrevistado que cliquee en la respuesta que crea correcta (a, b, o c). Vas a comenzar haciéndole la pregunta 1, recibirás la respuesta del entrevistado y a eso le dirás si su respuesta es correcta o no e inmediatamente le dirás la siguiente pregunta. Al finalizar las 10 preguntas preguntarás si quiere hacer el test nivel 2. Hoy examinaras a {name} tienes que hacerle un test en base a sus habilidades que son {skills} {xp_years}. Di la primera pregunta de una vez sin presentarte ni nada"""
     return prompt
+
+
+def load_prompts(filepath) -> list:
+    with open(filepath, encoding="utf-8") as file:
+        data = file.read()
+        messages:list = json.loads(data)
+        return messages
 
 
 def answer_interview(answer:str) -> str:
@@ -209,13 +217,17 @@ def answer_interview(answer:str) -> str:
     if not os.path.isfile(filepath):
         with open(filepath, "w") as file:
             file.write(json.dumps([]))
-    with open(filepath, encoding="utf-8") as file:
-        data = file.read()
-        messages:list = json.loads(data)
+    messages = load_prompts(filepath)
     message = MessageGPT("user", answer)
     messages.append(message.__dict__())
-    model = "gpt-3.5-turbo"
-    response = send_to_GPT(messages, model)
+    response = send_to_GPT(messages)
+    save_interview(messages, response)
+
+
+def resend_msg():
+    filepath = f"./prompts/{request.sid}.json"
+    messages = load_prompts(filepath)
+    response = send_to_GPT(messages)
     save_interview(messages, response)
 
 

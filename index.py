@@ -3,7 +3,7 @@ import os
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO
 from audio import save_record
-from prompts import answer_interview, append_prompt, remove_prompt, start_business, start_english, start_interview, start_interview_2, update_prompt
+from prompts import answer_interview, append_prompt, remove_prompt, resend_msg, start_business, start_english, start_interview, start_interview_2, update_prompt
 from user_manager import admin_required, authenticated_only, create_user, login_user, login_required, change_password
 from dotenv import load_dotenv
 from whisper import resume, saveResponse,  transcription
@@ -330,6 +330,13 @@ def handle_chat(data:dict):
 @authenticated_only
 def answer_interview_handler(answer:str):
     answer_interview(answer)
+
+
+@sock.on('chatTryAgain')
+@authenticated_only
+def chat_try_again_handler():
+    resend_msg()
+    
 
 if __name__ == "__main__":
     sock.run(

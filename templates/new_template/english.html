@@ -152,6 +152,23 @@
             height: 100%;
         }
     </style>
+    <style>
+        .card{
+            position: relative;
+        }
+        #timer{
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            background-color:#00FFA1;
+            bottom:0;
+            right: 0;
+            color: black;
+            font-weight: 900;
+            line-height: 50px;
+        }
+    </style>
 {% endblock style %}
 {% block content %}
 <a href="/hutrit/list" class="back">
@@ -199,19 +216,18 @@
             </svg>
         </a>
     </div>
+    <div id="timer" hidden>25</div>
 </div>
 {% endblock content %}
 {% block script %}
 <script src="/static/js/socket.io.js"></script>
 <script src="/static/js/socket.config.js"></script>
+<script src="/static/js/gptChat.js"></script>
 
 <script>
-    const historyContent = document.getElementById("historyContent");
-    /** @type {HTMLElement} */
-    let current_msg; 
+    
     /** @type {number} */
     let contador;
-    let counting = true;
 
     function init_interview(){
         contador = 0;
@@ -222,132 +238,23 @@
         createMsg("1", data.level);
         current_msg = createMsg(2);
         document.querySelector(".card-footer").hidden = false;
-        form.style.display = "none"
+        form.style.display = "none";
         socket.emit("start_english", data);
-        document.getElementById("historyContent").style.display = "block"
-    }
-
-    function add_loader(){
-        const p = document.createElement("p");
-        p.id = "generando";
-        p.textContent = "Generando...";
-        historyContent.appendChild(p);
-    }
-
-    function answerGPT(){
-        const textarea = document.querySelector("textarea")
-        let msg = textarea.value;
-        createMsg("1", msg);
-        scroll2Bottom();
-        current_msg = createMsg(2);
-        add_loader();
-        socket.emit("answer_interview", msg)
-        setTimeout(()=> textarea.value = "", 100)
+        document.getElementById("historyContent").style.display = "block";
+        document.getElementById("timer").hidden = false;
     }
     
-    socket.on('chatResponse', msg => {
-        current_msg.innerText += msg;
-        scroll2Bottom();
-    })
 
     socket.on('chatEnd', () => {
         document.getElementById("generando").remove();
         convert2hyperlink();
-        if(contador % 10 === 0 && counting){
-            check_hyperlink_final();
-            if(counting) {
-                counting = false;
-                return
-            }else{
-                counting = true
-            }
-        }
         contador++;
+        if(contador % 10 === 0 && contador !== 0){
+            check_hyperlink_final();
+        }
         scroll2Bottom();
+        startTimer();
     })
-
-    function check_hyperlink_final(){
-        if(current_msg.querySelectorAll("a").length < 2){
-            end_questions();
-        }
-    }
-
-    function end_questions(){
-        current_msg.innerText += "\n\n a) ¡Si! Quiero avanzar al siguiente nivel \n\n b)¡No! Quiero finalizar el test"
-        convert2hyperlink();
-    }
-
-
-    function convert2hyperlink(){
-        let textList = current_msg.innerText.split("\n");
-        let loop_times = 0;
-        let pass_number = false;
-        for(let f=0; f < textList.length; f++){
-            console.log(textList[f])
-            if(has_number(textList[f])  && !pass_number){
-                pass_number =  true;
-                console.log("1st conditional")
-                continue
-            }
-            if(!pass_number) {
-                console.log("2nd conditional")
-                continue
-            }
-            if(is_item_list(textList[f], loop_times)){
-                if(loop_times < 4){
-                    loop_times++;
-                }else{
-                    break
-                }
-                textList[f] = "<a href='#' onclick='choose(this)'>" + textList[f] + "</a><br>";
-            }
-        }
-        current_msg.innerHTML = textList.join('<br>');
-    }
-
-    /** @param {HTMLAnchorElement} anchor */
-    function choose(anchor){
-        document.getElementById("questionGPT").value = anchor.innerText;
-        current_msg.querySelectorAll("a").forEach(inner_anchor=>{
-            inner_anchor.removeAttribute("href");
-            inner_anchor.onclick = void(0);
-        })
-        answerGPT();
-    }
-
-    function has_number(str){
-        return /\d/.test(str)
-    }
-
-    /** @param {string} text */
-    function is_item_list(text, loop_time){
-        console.log(loop_time)
-        if(text.toLowerCase().includes("a, b, c")) return false;
-        if(text.toLowerCase().includes("a)") && loop_time === 0)  return true;
-        if(text.toLowerCase().includes("b)") && loop_time === 1) return true;
-        if(text.toLowerCase().includes("c)") && loop_time === 2) return true;
-        if(text.toLowerCase().includes("d)") && loop_time === 3) return true;
-        return false;
-    }
-
-
-    function createMsg(msg_num, msg=""){
-        const div = document.createElement("div");
-        div.classList.add(`msg${msg_num}`);
-        const span = document.createElement("span");
-        span.classList.add("msg");
-        span.innerText = msg;
-        div.appendChild(span);
-        historyContent.appendChild(div);
-        return span
-    }
-
-
-    function scroll2Bottom(){
-        if(document.body.scrollTop !== document.body.scrollHeight){
-            document.body.scrollTo(0, document.body.scrollHeight);
-        }
-    }
 
 </script>
 

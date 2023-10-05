@@ -1,6 +1,6 @@
 {% extends "new_template/base.html" %}
 {% block title %}
-  Crear Usuario
+Medidor de BurnOut
 {% endblock title %}
 {% block style %}
     <style>
@@ -106,12 +106,13 @@
             overflow-y: auto;
             border-radius: 8px;
             border: 1px solid  #B5C9C9;
-            background: #ffffff77;
+            background: #001919;
             height: 90px;
             padding: 10px;
             color: black;
             font-size: 18px;
             padding-right: 35px;
+            color: white;
         }
         .card-footer {
             position: relative;
@@ -121,44 +122,48 @@
             top: 50%;
             transform: translateY(-50%);
             right: 15px;
+            color: white;
+        }
+        .send:hover{
+            color: rgba(255, 255, 255, 0.37);
         }
         .msg a{
             color: #00FFA1;
+        }
+    </style>
+    <style>
+        select{
+            color: white;
+            background-color: transparent;
+            padding: 10px 5px;
+            margin: 20px 0;
+            width: 100px;
+            border-radius: 10px;
+            border: 1px solid #00CF83;
+        }
+        option{
+            color: black;
+        }
+        #historyContent{
+            display: none;
         }
         html, body{
             overflow: auto;
             height: 100%;
         }
     </style>
-
 {% endblock style %}
 {% block content %}
-<a href="/" class="back">
+<a href="/hutrit/list" class="back">
     <img src="/static/images/back.svg" alt="volver">
     <span>Volver</span>
 </a>
 <div class="card">
-    <h1 class="title">Entrevistador</h1>
-    <form action="">
-        <div class="form-control">
-            <label for="position">Cargo</label>
-            <input type="text" class="styled" name="position" id="position" placeholder="Ej: Gerente de Ventas">
-        </div>
-        <div class="form-control">
-            <label for="xp_years">Años de experiencia</label>
-            <input type="text" class="styled" name="xp_years" id="xp_years" placeholder="Ej: 10">
-        </div >
-        <div class="form-control">
-            <label for="skills">Habilidades principales</label>
-            <input type="text" class="styled" name="skills" id="skills" placeholder="Ej: Ventas b2b">
-        </div>
-        
-        <button class="btn" type="button" onclick="init_interview()">Enviar</button>
-    </form>
+    <h1 class="title">Medidor de BurnOut</h1>
     <div id="historyContent"></div>
     <div class="card-footer" hidden>
         <textarea id="questionGPT" hidden></textarea>
-        <a class="send" href='javascript:void(0)' id="sendGPT" onclick="answerGPT()" hidden>
+        <a class="send" href="#" id="sendGPT" onclick="answerGPT()" hidden>
             <svg width="25" height="24" viewBox="0 0 25 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
                 class="gpt-send">
                 <mask id="mask0_38_875" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25"
@@ -181,21 +186,31 @@
 <script src="/static/js/gptChat.js"></script>
 
 <script>
+    
+    /** @type {number} */
+    let contador;
+
     function init_interview(){
-        const form = document.forms[0];
-        const body = new FormData(form);
+        contador = 0;
         add_loader();
-        const data = Object.fromEntries(body.entries());
         current_msg = createMsg(2);
         document.querySelector(".card-footer").hidden = false;
-        form.style.display = "none"
-        socket.emit("start_interview", data);
+        socket.emit("start_burnout");
+        document.getElementById("historyContent").style.display = "block";
     }
+    
 
     socket.on('chatEnd', () => {
         document.getElementById("generando").remove();
         convert2hyperlink();
+        contador++;
+        if(contador % 10 === 0 && contador !== 0){
+            check_hyperlink_final();
+        }
+        scroll2Bottom();
     })
+    init_interview();
+
 </script>
 
 {% endblock script %}

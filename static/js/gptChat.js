@@ -24,9 +24,7 @@ function createMsg(msg_num, msg=""){
 
 
 function scroll2Bottom(){
-    if(document.body.scrollTop !== document.body.scrollHeight){
-        document.body.scrollTo(0, document.body.scrollHeight);
-    }
+    document.body.scrollTo(0, document.body.scrollHeight);
 }
 
 

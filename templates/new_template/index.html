@@ -387,7 +387,7 @@ Inicio
         hyperlink.onclick = () => save_audio_name(hyperlink);
         const main_anchor = hyperlink.previousElementSibling;
         main_anchor.firstElementChild.hidden = true;
-        main_anchor.href = "#"
+        main_anchor.removeAttribute("href");
         const input = document.createElement("input");
         input.type = "text";
         input.classList.add("filename");
@@ -399,9 +399,13 @@ Inicio
 
 
     /** @param {HTMLAnchorElement} hyperlink */
-    function save_audio_name(hyperlink){
+    async function save_audio_name(hyperlink){
         const main_anchor = hyperlink.previousElementSibling;
         const value =  main_anchor.firstElementChild.value;
+        const new_value = main_anchor.querySelector("input").value;
+        if (!await update_audio(value, new_value)){
+            return
+        }
         const edit_img =  hyperlink.firstElementChild;
         edit_img.src = "/static/images/edit.svg";
         const del_hyper = hyperlink.nextElementSibling;
@@ -410,8 +414,26 @@ Inicio
         main_anchor.firstElementChild.remove();
         main_anchor.firstElementChild.innerText = value;
         main_anchor.firstElementChild.hidden = false;
-        main_anchor.href = `/player/${value}`;
+        main_anchor.setAttribute("href", `/player/${value}`);
         main_anchor.parentElement.classList.remove("focus")
+    }
+
+
+    /**
+    @param {string} old_value
+    @param {string} new_value
+    */
+    async function update_audio(old_value, new_value){
+        const data = new FormData();
+        data.append("old", old_value);
+        data.append("new", new_value);
+        const response = await fetch("update_audio_name",{
+            body:data,
+            method:"POST"
+        });
+        const result = await response.json();
+        console.log(result)
+        return false
     }
     
     

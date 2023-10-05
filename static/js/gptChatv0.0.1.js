@@ -4,6 +4,8 @@ const historyContent = document.getElementById("historyContent");
 let current_msg; 
 /** @type {number}*/
 let timer;
+/** @type {number}*/
+let timer_interval;
 
 
 /** Create div and span for message and put inside historyContent div
@@ -44,6 +46,9 @@ function answerGPT(){
     add_loader();
     scroll2Bottom();
     socket.emit("answer_interview", msg);
+    if(timer_interval){
+        resetTimer();
+    }
     setTimeout(()=> textarea.value = "", 100);
 }
 
@@ -126,14 +131,15 @@ function tryAgain(){
 function startTimer(){
     timer = 25;
     updateTimer();
-    let interval = setInterval(()=>{
+    timer_interval = setInterval(()=>{
         if(timer > 0){
             timer--;
             updateTimer();
         }else{
-            stopTimer(interval)
+            stopTimer()
         }
     }, 1000)
+
 }
 
 
@@ -142,11 +148,17 @@ function updateTimer(){
 }
 
 
-function stopTimer(interval){
-    clearInterval(interval);
+function stopTimer(){
+    clearInterval(timer_interval);
     let timeout_text = "Se me ha acabado el tiempo, vamos con la siguiente pregunta"
     document.getElementById("questionGPT").value = timeout_text;
     answerGPT();
+}
+
+function resetTimer(){
+    clearInterval(timer_interval);
+    timer = 25;
+    updateTimer();
 }
 
 socket.on('chatResponse', msg => {

@@ -3,8 +3,9 @@ from pydub import AudioSegment
 import time
 from flask import session, request
 import os
-from utils import allowed_file, check_filename, error_log
+from utils import check_filename, error_log
 from flask_socketio import emit
+from werkzeug.utils import secure_filename
 
 
 def saveAudio(record_chunks, sid=None):
@@ -97,3 +98,19 @@ def save_record(record_name, sid, username, app, save_audio=True):
     except Exception as e:
         error_log(username, f"save_record: {e}")
         emit('error_saving', to=sid, namespace="/")
+
+
+def update_file_name(user:str, old_filename:str, new_filename:str) -> dict:
+    old_filename = secure_filename(old_filename).replace(" ", "_")
+    new_filename = secure_filename(new_filename).replace(" ", "_")
+    audios_dir = f'./audio/final/{user}'
+    filepath = os.path.join(audios_dir, old_filename)
+    if not os.path.isfile(filepath):
+        return {"status":400, "message":"Archivo no encontrado"}
+    new_filepath = os.path.join(audios_dir, new_filename)
+    if os.path.isfile(new_filepath):
+        return {"status":400, "message":"Nombre de archivo ya existe"}
+    if new_filename.split(".")[-1] != old_filename.split(".")[-1]:
+        return {"status":400, "message":"Formato de archivo no valido"}
+    os.rename(filepath, new_filepath)
+    return {"status":200, "message":"Nombre de archivo actualizado"}

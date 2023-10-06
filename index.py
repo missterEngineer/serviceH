@@ -96,7 +96,6 @@ def chat_test():
 
 
 @sock.on('start_interview')
-@authenticated_only
 def start_interview_handler(values:dict):
     skills = values.get("skills")
     position = values.get("position")
@@ -364,7 +363,6 @@ def answer_interview_handler(answer:str):
 
 
 @sock.on('chatTryAgain')
-@authenticated_only
 def chat_try_again_handler():
     resend_msg()
 

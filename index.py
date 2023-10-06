@@ -3,7 +3,7 @@ import os
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO
 from audio import save_record, update_file_name
-from prompts import answer_interview, append_prompt, remove_prompt, resend_msg, start_burnout, start_business, start_english, start_interview, start_interview_2, update_prompt
+from prompts import answer_interview, append_prompt, remove_prompt, resend_msg, start_burnout, start_business, start_english, start_interview, start_interview_2, start_pray, update_prompt
 from user_manager import admin_required, authenticated_only, create_user, login_user, login_required, change_password
 from dotenv import load_dotenv
 from whisper import resume, saveResponse,  transcription
@@ -128,6 +128,12 @@ def start_burnout_handler():
     start_burnout()
 
 
+@sock.on('start_pray')
+@authenticated_only
+def start_pray_handler():
+    start_pray()
+
+
 @app.route("/player/<audio>")
 @login_required
 def player_audio(audio:str):
@@ -154,7 +160,6 @@ def downloadFile(filename):
 @login_required
 def update_audio_name():
     old_filename = request.form["old"]
-    old_filename = secure_filename(old_filename).replace(" ", "_")
     new_filename = request.form["new"]
     user = session['user']
     return update_file_name(user, old_filename, new_filename)
@@ -247,6 +252,12 @@ def change_pass():
 @login_required
 def english():
     return render_template("new_template/english.html")
+
+
+@app.route("/pray")
+@login_required
+def pray():
+    return render_template("new_template/versiculo.html")
 
 
 @app.route("/burnout")

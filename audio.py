@@ -103,7 +103,7 @@ def save_record(record_name, sid, username, app, save_audio=True):
 def update_file_name(user:str, old_filename:str, new_filename:str) -> dict:
     old_filename = secure_filename(old_filename).replace(" ", "_")
     new_filename = secure_filename(new_filename).replace(" ", "_")
-    audios_dir = f'./audio/final/{user}'
+    audios_dir = f'./audio/final/{user}/'
     filepath = os.path.join(audios_dir, old_filename)
     if not os.path.isfile(filepath):
         return {"status":400, "message":"Archivo no encontrado"}

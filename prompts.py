@@ -147,6 +147,14 @@ def start_burnout():
     messages = [msg.__dict__()]
     response = send_to_GPT(messages)
     save_interview(messages, response)
+
+
+def start_pray():
+    prompt = pray_prompt()
+    msg = MessageGPT("user", prompt)
+    messages = [msg.__dict__()]
+    response = send_to_GPT(messages)
+    save_interview(messages, response)
     
 
 def send_to_GPT(messages:list, model:str = "gpt-3.5-turbo") -> str:
@@ -202,6 +210,12 @@ Tienes que hablar como un entrevistador profesional, me tienes que dar la primer
 y simula que estás empezando la conversación tú. Cuando yo te de la respuesta me das el feedback y en el mismo mensaje \
 me das la siguiente pregunta"
 
+
+def pray_prompt():
+    prompt = """Quiero jugar 'Guía Diaria del Versículo'. Guíame a través de 3 preguntas para encontrar un versículo bíblico para hoy.
+
+*las preguntas serán tipo test y el usuario tendrá que elegir a, b , c ,d o e . Hasta que no responda la primera pregunta , no se le hará la segunda pregunta. Basado en las respuestas, ChatGPT proporcionará un versículo bíblico relevante. Inicial el juego ahora !!"""
+    return prompt
 
 def burnout_prompt():
     prompt = "Teniendo en cuenta estos dos cuestionarios validados, como el Maslach Burnout Inventory (MBI) o el Copenhagen Burnout Inventory (CBI), que han sido desarrollados específicamente para evaluar el burnout. quiero que me haga un juego tipo test para evaluar el burnout y que funcione de la siguiente manera : la evaluación sera de 10 preguntas en formato test con 4 posibles respuestas, de las cuales solo 1 será la respuesta correcta . las preguntas me las harás de una en una y te daré la respuesta dando click en a, b , c o d . hasta que no conteste la pregunta no me harás la siguiente pregunta . así será el proceso hasta realizar 10 preguntas y cuando se finalicen continuaremos con la primera pregunta del nivel 2 que tendrá otras 10 preguntas. cuando se hayan respondido las preguntas del nivel 2 volverás a felicitar por haber terminado la evaluación. Tendrás que dar una valoración profesional del nivel de burnout, teniendo en cuenta la puntuación total que sera la suma de todas las respuestas y me darás el resultado total cuando se termine el nivel 2. Empieza de una vez con la primera pregunta"

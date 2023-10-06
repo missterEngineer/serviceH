@@ -236,6 +236,15 @@ Transcribir
         color:#6B8282;
     }
 </style>
+<style>
+    #modal-loader{
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
 {% endblock style %}
 {% block content %}
 <a href="/" class="back">
@@ -367,6 +376,12 @@ Transcribir
         {% endfor %}
 
 </dialog>
+<dialog id="modal-loader">
+    <div class="loader-box">
+        <span class="loader"></span>
+    </div>
+    <h2>Transcribiendo audio</h2>
+</dialog>   
 {% endblock %}
 
 {% block script %}
@@ -486,7 +501,6 @@ Transcribir
         socket.connect();
         with_speakers = speaker;
         transcript_content.innerText = "";
-        set_spinner(transcript_content);
         let model;
         if (speaker === true) {
             model = "speaker"
@@ -495,6 +509,7 @@ Transcribir
             model = "normal"
             startBtn.innerText = "Cargando..."
         }
+        document.getElementById("modal-loader").showModal();
         socket.emit('startTranscript', {
             model: model,
             audio: audio
@@ -514,7 +529,6 @@ Transcribir
         } else {
             transcript_content.innerText += msg + "\n"
         }
-        document.querySelector(".spinner").remove()
     });
 
 
@@ -616,11 +630,11 @@ Transcribir
     }
 
     socket.on('end', () => {
+        document.getElementById("modal-loader").close();
         startBtn.disabled = false
         startBtn.innerText = "Transcribir"
         startSpeakerBtn.disabled = false
         startSpeakerBtn.innerText = "Transcribir(P)"
-        socket.close()
     })
 
     function del_file() {

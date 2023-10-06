@@ -66,7 +66,7 @@ function convert2hyperlink(){
             continue
         }
         if(is_item_list(textList[f], loop_times)){
-            if(loop_times < 4){
+            if(loop_times < 5){
                 loop_times++;
             }else{
                 break
@@ -105,6 +105,7 @@ function is_item_list(text, loop_time){
     if(text.toLowerCase().includes("b)") && loop_time === 1) return true;
     if(text.toLowerCase().includes("c)") && loop_time === 2) return true;
     if(text.toLowerCase().includes("d)") && loop_time === 3) return true;
+    if(text.toLowerCase().includes("e)") && loop_time === 4) return true;
     return false;
 }
 

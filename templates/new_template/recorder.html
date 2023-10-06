@@ -107,7 +107,7 @@ Grabar
 <dialog>
     <div class="wrap">
 
-        <div id="filename-content" >
+        <div id="filename-content" hidden>
             <img src="/static/images/save.svg" alt="guardar">
             <h2>Guarda tu grabación</h2>
             <label for="filename">Nombre de la grabación</label>
@@ -118,8 +118,10 @@ Grabar
             </div>
         </div>
 
-        <div id="processing-content" hidden>
-            <img src="/static/images/processing.svg" alt="guardar">
+        <div id="processing-content" >
+            <div class="loader-box">
+                <span class="loader"></span>
+            </div>
             <h2>Procesando audio</h2>
         </div>
 

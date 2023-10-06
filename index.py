@@ -129,7 +129,6 @@ def start_burnout_handler():
 
 
 @sock.on('start_pray')
-@authenticated_only
 def start_pray_handler():
     start_pray()
 
@@ -255,7 +254,6 @@ def english():
 
 
 @app.route("/pray")
-@login_required
 def pray():
     return render_template("new_template/versiculo.html")
 

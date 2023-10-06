@@ -183,6 +183,9 @@
             overflow: auto;
             height: 100%;
         }
+        .card{
+            padding-bottom: 20px;
+        }
     </style>
 </head>
 
@@ -191,6 +194,7 @@
         <section>
             <div class="card">
                 <h1 class="title">Guía Diaria del Versículo</h1>
+                <button class="btn" onclick="init_interview()">Empezar</button>
                 <div id="historyContent"></div>
                 <div class="card-footer" hidden>
                     <textarea id="questionGPT" hidden></textarea>
@@ -221,6 +225,7 @@
         let contador;
 
         function init_interview() {
+            document.getElementById("historyContent").innerText = "";
             contador = 0;
             add_loader();
             current_msg = createMsg(2);
@@ -239,7 +244,6 @@
             }
             scroll2Bottom();
         })
-        init_interview();
     </script>
 </body>
 

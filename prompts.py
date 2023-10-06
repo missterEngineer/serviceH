@@ -214,7 +214,7 @@ me das la siguiente pregunta"
 def pray_prompt():
     prompt = """Quiero jugar 'Guía Diaria del Versículo'. Guíame a través de 3 preguntas para encontrar un versículo bíblico para hoy.
 
-*las preguntas serán tipo test y el usuario tendrá que elegir a, b , c ,d o e . Hasta que no responda la primera pregunta , no se le hará la segunda pregunta. Basado en las respuestas, ChatGPT proporcionará un versículo bíblico relevante. Inicial el juego ahora !!"""
+*las preguntas serán tipo test (tienes que mencionar el numero de pregunta) y el usuario tendrá que elegir a, b , c ,d o e . Hasta que no responda la primera pregunta , no se le hará la segunda pregunta. Basado en las respuestas, ChatGPT proporcionará un versículo bíblico relevante. Inicial el juego ahora !!"""
     return prompt
 
 def burnout_prompt():

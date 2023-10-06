@@ -357,7 +357,6 @@ def handle_chat(data:dict):
     
 
 @sock.on('answer_interview')
-@authenticated_only
 def answer_interview_handler(answer:str):
     answer_interview(answer)
 

@@ -232,7 +232,7 @@ def interview_prompt_2(name:str, skills:str, xp_years:str):
     return prompt
 
 
-def load_prompts(filepath) -> list:
+def load_file_prompts(filepath) -> list:
     with open(filepath, encoding="utf-8") as file:
         data = file.read()
         messages:list = json.loads(data)
@@ -244,7 +244,7 @@ def answer_interview(answer:str) -> str:
     if not os.path.isfile(filepath):
         with open(filepath, "w") as file:
             file.write(json.dumps([]))
-    messages = load_prompts(filepath)
+    messages = load_file_prompts(filepath)
     message = MessageGPT("user", answer)
     messages.append(message.__dict__())
     response = send_to_GPT(messages)
@@ -253,7 +253,7 @@ def answer_interview(answer:str) -> str:
 
 def resend_msg():
     filepath = f"./prompts/{request.sid}.json"
-    messages = load_prompts(filepath)
+    messages = load_file_prompts(filepath)
     response = send_to_GPT(messages)
     save_interview(messages, response)
 

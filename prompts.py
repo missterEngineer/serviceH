@@ -172,7 +172,7 @@ def start_pray():
     save_interview(messages, response)
     
 
-def send_to_GPT(messages:list, model:str = "gpt-3.5-turbo") -> str:
+def send_to_GPT(messages:list, model:str = "gpt-3.5-turbo-16k") -> str:
     """
     Send message to chatGPT, emit stream to client with socketio, and return full text when finish
     

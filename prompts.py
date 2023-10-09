@@ -149,6 +149,21 @@ def start_burnout():
     save_interview(messages, response)
 
 
+def start_cybersecurity():
+    prompt = cybersecurity_prompt()
+    msg = MessageGPT("user", prompt)
+    messages = [msg.__dict__()]
+    response = send_to_GPT(messages)
+    save_interview(messages, response)
+
+
+def cybersecurity_prompt():
+    prompt = """quiero que te conviertas en un experto analista en “ ciberseguridad " , llevas muchos años de experiencia analizando y evaluando los riesgo de la ciberseguridad en las empresas . Las acciones de los trabajadores ponen en peligro la información de la compañía y de los clientes . Con preguntas sobre los conocimientos que tienen para evitar esos ataques de los ciber delincuentes , consigues evaluar y identificar los riesgos para la empresa . Lo haces a través de preguntas tipo test . La evaluación sera de 10 preguntas en formato test con 4 posibles respuestas, de las cuales solo 1 será la respuesta correcta . las preguntas me las harás de una en una y te daré la respuesta haciendo click en a, b, c o d . hasta que no conteste la pregunta no me harás la siguiente pregunta si me equivoco con la respuesta me dirás cual es la correcta y por que . en caso contrario, si acierto la respuesta me felicitaras. una vez acierte y me felicites o falle y me digas cual es la correcta y porque , pasaremos a la siguiente pregunta . así será el proceso hasta realizar 10 preguntas y cuando se finalicen esas 10 preguntas ,continuaremos con la primera pregunta del nivel 2 que tendrá otras 10 preguntas. cuando se hayan respondido las preguntas del nivel 2 volverás a felicitar por haber terminado la evaluación y tendrás que dar una puntuación profesional en base a las preguntas acertadas o no acertadas .
+Hazme un test para determinar que nivel de vulnerabilidad esta mi empresa. Empieza con la primera pregunta"""
+    return prompt
+
+
+
 def start_pray():
     prompt = pray_prompt()
     msg = MessageGPT("user", prompt)

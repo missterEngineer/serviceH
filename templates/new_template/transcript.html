@@ -3,252 +3,11 @@
 Transcribir
 {% endblock title %}
 {% block style %}
-<style>
-    .btn {
-        color: white;
-        padding: 10px 20px;
-        margin: auto 5px;
-        background: #001C1C;
-    }
-
-    .delete {
-        height: 25px;
-        margin: auto 0;
-    }
-
-    .card-head {
-        display: grid;
-        grid-template-columns: 1fr 250px 30px;
-        gap: 10px;
-        border-bottom: 1px solid #B5C9C9;
-    }
-
-    .audio-txt {
-        margin: 15px 0;
-        text-align: left;
-        padding: 0 20px;
-    }
-
-    .audio-txt a {
-        color: #6B8282;
-        text-decoration: none;
-    }
-
-    .card-head>div {
-        display: flex;
-    }
-
-    .card-footer {
-        background: #002424;
-        padding: 5px 10px;
-        position: relative;
-        text-align: right;
-    }
-
-    .card-footer::before {
-        content: "Pregunta a ChatGPT";
-        position: absolute;
-        background: #002424;
-        top: -26px;
-        color: rgba(255, 255, 255, 0.75);
-        z-index: 1;
-        font-size: 16px;
-        font-weight: 400;
-        border-radius: 12px 12px 0px 0px;
-        padding: 4px 10px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    .card {
-        background: #002E2E;
-    }
-
-    .card-body {
-        height: 400px;
-        padding: 0 20px 30px 20px;
-        text-align: left;
-        overflow-y: auto;
-    }
-
-    textarea {
-        width: calc(100% - 45px);
-        resize: none;
-        overflow-y: auto;
-        border-radius: 8px;
-        border: 1px solid var(--bg-on-bg-tertiary, #B5C9C9);
-        background: #001919;
-        height: 90px;
-        padding: 10px;
-        color: white;
-        font-size: 18px;
-        padding-right: 35px;
-    }
-
-    .send {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        right: 15px;
-    }
-
-    .txt-speaker {
-        margin: 10px 0;
-        gap: 15px;
-        display: grid;
-        grid-template-columns: 90px 1fr;
-    }
-
-    .txt-speaker span {
-        color: #6B8282;
-    }
-
-    .txt-speaker p {
-        margin: 0;
-        text-wrap: balance;
-        position: relative;
-    }
-
-    .gpt-divider {
-        position: relative;
-        text-align: center;
-    }
-
-    .gpt-divider div {
-        height: 2px;
-        width: 100%;
-        position: absolute;
-        display: block;
-        z-index: 0;
-        background-color: #6B8282;
-        top: 50%;
-    }
-
-    .gpt-divider span {
-        color: #B5C9C9;
-        background: #002E2E;
-        z-index: 1;
-        position: relative;
-        padding: 0 5px;
-    }
-
-    #transcript-content {
-        margin-top: 10px;
-    }
-
-    .spinner {
-        width: 100%;
-        text-align: center;
-        display: block;
-    }
-
-    @media screen and (max-width:480px) {
-        .card-head>div {
-            flex-direction: column;
-            margin: 10px 0;
-            gap: 10px;
-        }
-
-        .card-head {
-            grid-template-columns: 1fr 140px 30px;
-        }
-    }
-
-    .gpt-send {
-        color: rgb(107, 130, 130);
-    }
-
-    .gpt-send:hover {
-        color: white
-    }
-
-    .hide {
-        display: none;
-    }
-
-    .save-prompt {
-        position: absolute;
-        right: 0;
-        color: white;
-    }
-
-    .save-prompt:hover {
-        color: #6B8282;
-        cursor: pointer;
-    }
-    dialog label{
-        display: block;
-        margin: 5px 0;
-    }
-    dialog textarea{
-        max-width: 80%;
-        margin: 10px 0;
-    }
-    dialog input{
-        margin: 10px 0;
-    }
-    .prompts{
-        overflow-y: auto;
-        width: 800px;
-        max-width: 90vw;
-        height: 500px;
-        max-height: 90vh;
-    }
-    .prompt{
-        position: relative;
-        border-radius: 8px;
-        background: #002E2E;
-        margin: 5px;
-        padding: 5px 10px;
-        display: grid;
-        gap: 10px;
-        grid-template-columns: 1fr 25px 25px;
-        color: white;
-    }
-    .prompt-content{
-        color: white;
-        text-decoration: none;
-        text-align: left;
-        padding: 0 5px;
-    }
-    .prompt-title{
-        font-size: 18px;
-        margin: 5px 0;
-    }
-    .prompt-description{
-        font-size: 12px;
-        margin:0
-    }
-    .close-modal{
-        top: 5px;
-        left:5px;
-        position: absolute;
-    }
-    .ico-link {
-        height: 25px;
-    }
-    .saved-prompts{
-        color: white;
-        text-decoration: none;
-        font-size: 14px;
-    }
-    .saved-prompts:hover{
-        color:#6B8282;
-    }
-</style>
-<style>
-    #modal-loader{
-        height: 200px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-</style>
+<link rel="stylesheet" href="/static/css/transcript.css">
+<link rel="stylesheet" href="/static/css/loader.css">
 {% endblock style %}
 {% block content %}
 <a href="/" class="back">
-
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px">
         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -264,8 +23,8 @@ Transcribir
     <div class="card-head">
         <p class="audio-txt">Audio grabado: <a id="audio-link" href="/download/{{audio}}" download>{{audio}}</a></p>
         <div>
-            <button class="btn" id="startBtn">Transcribir</button>
-            <button class="btn" id="startSpeakerBtn">Transcribir(P)</button>
+            <button class="btn" id="startBtn" hidden onclick="start_transcript(false)">Transcribir</button>
+            <button class="btn" id="startSpeakerBtn" hidden onclick="start_transcript(true)">Transcribir(P)</button>
         </div>
         <div>
             <a href="#" class="delete" onclick="del_file()">
@@ -284,18 +43,40 @@ Transcribir
         </div>
     </div>
     <div class="card-body">
+        <div id="empty">
+            <img src="/static/images/transcript_empty.svg" alt="Avatar persona">
+            <p>Para aprovechar al máximo la IA, transcribe primero tu audio antes de crear tu prompt</p>
+            <button class="btn" onclick="start_transcript(false)">Transcribir</button>
+            <a onclick="start_transcript(true)">Transcribir con participantes</a>
+        </div>
+        <h4 id="transcript-title">Transcripción</h4>
         <div id="transcript-content">
         </div>
-        <div class="gpt-divider">
-            <div class="line"></div>
-            <span>Comienzo de respuesta ChatGPT</span>
+        <div class="gpt-divider" hidden>
+            <div class="line" ></div>
+            <span>Finaliza Transcripción, Ahora pregúntale a chatGPT</span>
         </div>
         <div id="gpt-content">
         </div>
     </div>
-    <div class="card-footer">
+    <div class="card-footer blocked">
+        <div id="othersBtn">
+            <a class="saved-prompts">Seleccionar prompt</a> &nbsp; | &nbsp; 
+            <a class="saving-prompts">
+                Guardar
+                <svg width="20" height="20" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <mask id="mask0_245_3433" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="16">
+                    <rect width="16" height="16" fill="currentColor"/>
+                    </mask>
+                    <g mask="url(#mask0_245_3433)">
+                    <path d="M14 4.66667V12.6667C14 13.0333 13.8694 13.3472 13.6083 13.6083C13.3472 13.8694 13.0333 14 12.6667 14H3.33333C2.96667 14 2.65278 13.8694 2.39167 13.6083C2.13056 13.3472 2 13.0333 2 12.6667V3.33333C2 2.96667 2.13056 2.65278 2.39167 2.39167C2.65278 2.13056 2.96667 2 3.33333 2H11.3333L14 4.66667ZM12.6667 5.23333L10.7667 3.33333H3.33333V12.6667H12.6667V5.23333ZM8 12C8.55556 12 9.02778 11.8056 9.41667 11.4167C9.80556 11.0278 10 10.5556 10 10C10 9.44444 9.80556 8.97222 9.41667 8.58333C9.02778 8.19444 8.55556 8 8 8C7.44444 8 6.97222 8.19444 6.58333 8.58333C6.19444 8.97222 6 9.44444 6 10C6 10.5556 6.19444 11.0278 6.58333 11.4167C6.97222 11.8056 7.44444 12 8 12ZM4 6.66667H10V4H4V6.66667Z" fill="currentColor"/>
+                    </g>
+                </svg> 
+            </a>
+            
+        </div>
         <textarea name="" id="questionTxt"
-            placeholder="Escribe una pregunta...">Haz un resumen de está conversación:</textarea>
+            placeholder="Escribe una pregunta..." disabled>Haz un resumen de está conversación:</textarea>
         <a class="send" href="#" id="sendGPT">
             <svg width="25" height="24" viewBox="0 0 25 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
                 class="gpt-send">
@@ -328,7 +109,6 @@ Transcribir
                     class="spinner_P7sC" />
             </svg>
         </a>
-        <a href="#" class="saved-prompts" onclick="open_modal('modal-prompts')">Prompts Predeterminados</a>
     </div>
 </div>
 {% endblock content %}
@@ -377,284 +157,17 @@ Transcribir
 
 </dialog>
 <dialog id="modal-loader">
-    <div class="loader-box">
-        <span class="loader"></span>
+    <div>
+        <div class="loader-box">
+            <span class="loader"></span>
+        </div>
+        <h2>Transcribiendo audio</h2>
     </div>
-    <h2>Transcribiendo audio</h2>
 </dialog>   
 {% endblock %}
 
 {% block script %}
 <script src="/static/js/socket.io.js"></script>
 <script src="/static/js/socket.config.js"></script>
-<script>
-    const startBtn = document.getElementById("startBtn"),
-        startSpeakerBtn = document.getElementById("startSpeakerBtn"),
-        transcript_content = document.getElementById("transcript-content"),
-        audio = document.getElementById("audio-link").innerText,
-        questionTxt = document.getElementById("questionTxt"),
-        sendGPT = document.getElementById("sendGPT");
-
-
-    let gptResponse,
-        with_speakers = false;
-    
-    /** @param {string} id */
-    function close_modal(id){
-        document.querySelector(`dialog#${id}`).close();
-    }
-
-    /** @param {string} id */
-    function open_modal(id){
-        document.querySelector(`dialog#${id}`).showModal();
-    }
-
-    /** @param {HTMLElement} htmlElement */
-    function show_prompt(htmlElement){
-        let prompt = htmlElement.querySelector(".prompt-description").innerText;
-        questionTxt.value = prompt;
-        close_modal("modal-prompts")
-    }
-
-    //{% if session.user == 'prueba' %} 
-    /** @param {HTMLElement} editBtn */
-    function edit_prompt(editBtn){
-        let element = editBtn.previousElementSibling;
-        let title = element.firstElementChild
-        let input = document.createElement("input");
-        input.value = title.textContent
-        title.hidden = true;
-        element.insertBefore(input, element.firstChild);
-        element.onclick = ()=> void(0);
-        editBtn.firstElementChild.src = "/static/images/saving.svg" //img tag
-        editBtn.onclick = () => save_edit_prompt(editBtn);
-    }
-
-
-    /** @param {HTMLElement} saveBtn */
-    function save_edit_prompt(saveBtn){
-        let element = saveBtn.previousElementSibling;
-        const body = new FormData();
-        const prompt_id = saveBtn.parentElement.dataset.id;
-        const new_name = element.firstElementChild.value;
-        body.append("id", prompt_id)
-        body.append("name", new_name)
-        fetch("/edit_prompt",{
-            method:"POST",
-            body:body
-        }).then(response=>{
-            if (!response.ok) alert("Error al editar")
-        })
-        ;
-        element.firstElementChild.remove();
-        let title = element.firstElementChild;
-        title.hidden = false;
-        title.textContent = new_name;
-        saveBtn.firstElementChild.src = "/static/images/edit.svg" //img tag
-        saveBtn.onclick = () => edit_prompt(saveBtn);
-    }
-
-
-    /** @param {HTMLElement} delBtn */
-    function del_prompt(delBtn){
-        const body = new FormData();
-        const prompt_id = delBtn.parentElement.dataset.id;
-        body.append("id", prompt_id)
-        fetch("/del_prompt",{
-            method: "POST",
-            body:body
-        });
-        delBtn.parentElement.remove();
-    }
-    //{% endif %}
-
-
-    function start_chat() {
-        socket.emit('startChat', {
-            conversation: transcript_content.innerText,
-            question: questionTxt.value,
-            audio_name: audio
-        });
-        writeSpeaker("Tú", questionTxt.value, "gpt-content");
-        gptResponse = writeSpeaker("ChatGPT", "", "gpt-content");
-        document.querySelector(".gpt-send").classList.add("hide");
-        document.querySelector(".gpt-spinner").classList.remove("hide");
-        sendGPT.onclick = () => {
-            return void(0)
-        };
-    }
-    sendGPT.onclick = start_chat
-
-    socket.on('chatResponse', msg => {
-        gptResponse.innerText += msg;
-    })
-
-
-    socket.on('chatEnd', () => {
-        document.querySelector(".gpt-spinner").classList.add("hide");
-        document.querySelector(".gpt-send").classList.remove("hide");
-        sendGPT.onclick = start_chat;
-    })
-
-
-    function start_transcript(speaker = false) {
-        socket.connect();
-        with_speakers = speaker;
-        transcript_content.innerText = "";
-        let model;
-        if (speaker === true) {
-            model = "speaker"
-            startSpeakerBtn.innerText = "Cargando..."
-        } else {
-            model = "normal"
-            startBtn.innerText = "Cargando..."
-        }
-        document.getElementById("modal-loader").showModal();
-        socket.emit('startTranscript', {
-            model: model,
-            audio: audio
-        });
-        startBtn.disabled = true
-        startSpeakerBtn.disabled = true
-    }
-
-
-    startBtn.addEventListener("click", () => start_transcript(false))
-    startSpeakerBtn.addEventListener("click", () => start_transcript(true))
-
-
-    socket.on('response', msg => {
-        if (with_speakers) {
-            processTxtSpeaker(msg)
-        } else {
-            transcript_content.innerText += msg + "\n"
-        }
-    });
-
-
-    function processTxtSpeaker(msg) {
-        let messages = msg.split("\n\n")
-        for (message of messages) {
-            extractTxtSpeaker(message)
-        }
-    }
-
-
-    function extractTxtSpeaker(txt = "") {
-        let txt_splitted = txt.split("[");
-        console.log(txt_splitted)
-        if (txt_splitted.length === 1) return;
-        txt = txt_splitted[1];
-        txt_splitted = txt.split("]");
-        let speaker = txt_splitted[0];
-        let message = txt_splitted[1];
-        writeSpeaker(speaker, message, "transcript-content");
-    }
-
-    /**
-    @param {string} speaker speaker's name
-    @param {string} msg speaker's message
-    @param {string} node_id HTML Element ID
-    */
-    function writeSpeaker(speaker, msg, node_id) {
-        let span = document.createElement("span");
-        span.innerText = speaker;
-        let p = document.createElement("p");
-        p.innerText = msg;
-        let div = document.createElement("div");
-        div.appendChild(span);
-        div.appendChild(p);
-        div.classList.add("txt-speaker");
-        document.getElementById(node_id).appendChild(div);
-        // {% if session.user == 'prueba' %}
-        if (speaker !== "Tú") return p;
-        let svg = `
-            <svg width="20px" height="20px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" class="save-prompt" onclick="save_dialog_prompt(this)">
-                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-                    <g id="Icon-Set" sketch:type="MSLayerGroup" transform="translate(-152.000000, -515.000000)" fill="currentColor">
-                        <path d="M171,525 C171.552,525 172,524.553 172,524 L172,520 C172,519.447 171.552,519 171,519 C170.448,519 170,519.447 170,520 L170,524 C170,524.553 170.448,525 171,525 L171,525 Z M182,543 C182,544.104 181.104,545 180,545 L156,545 C154.896,545 154,544.104 154,543 L154,519 C154,517.896 154.896,517 156,517 L158,517 L158,527 C158,528.104 158.896,529 160,529 L176,529 C177.104,529 178,528.104 178,527 L178,517 L180,517 C181.104,517 182,517.896 182,519 L182,543 L182,543 Z M160,517 L176,517 L176,526 C176,526.553 175.552,527 175,527 L161,527 C160.448,527 160,526.553 160,526 L160,517 L160,517 Z M180,515 L156,515 C153.791,515 152,516.791 152,519 L152,543 C152,545.209 153.791,547 156,547 L180,547 C182.209,547 184,545.209 184,543 L184,519 C184,516.791 182.209,515 180,515 L180,515 Z" id="save-floppy" sketch:type="MSShapeGroup">
-                        </path>
-                    </g>
-                </g>
-            </svg>
-        `
-        p.insertAdjacentHTML("beforeend", svg)
-        // {% endif %}
-        return p
-    }
-
-
-    /** @param {HTMLElement} svg */
-    function save_dialog_prompt(svg) {
-        document.querySelector("dialog textarea").value = svg.parentNode.innerText;
-        open_modal("modal-save");
-    }
-
-
-    function save_prompt(){
-        const data = new FormData(document.querySelector("dialog form"));
-        fetch("/save_prompt", {
-            method:"POST",
-            body:data
-        }).then(response=>{
-            if(response.ok){
-                close_modal("modal-save")
-            }else{
-                alert("Ha ocurrido un error, intente de nuevo")
-            }
-        })
-    }
-
-
-    async function loadData() {
-        const response = await fetch(`/get_prompts?filename=${audio}`)
-        if (!response.ok) return
-        const audio_txt = await response.json()
-        const audio_data = JSON.parse(audio_txt)
-        if (has_speakers(audio_data.conversation)) {
-            processTxtSpeaker(audio_data.conversation)
-        } else {
-            transcript_content.innerText = audio_data.conversation
-        }
-        let msg_speaker = "Tú"
-        for (let msg of audio_data.messages) {
-            writeSpeaker(msg_speaker, msg, "gpt-content")
-            msg_speaker = msg_speaker == "Tú" ? "ChatGPT" : "Tú"
-        }
-    }
-
-
-    function has_speakers(text = '') {
-        if (text.includes("SPEAKER_00") || text.includes("Speaker_0")) return true
-        return false
-    }
-
-    socket.on('end', () => {
-        document.getElementById("modal-loader").close();
-        startBtn.disabled = false
-        startBtn.innerText = "Transcribir"
-        startSpeakerBtn.disabled = false
-        startSpeakerBtn.innerText = "Transcribir(P)"
-    })
-
-    function del_file() {
-        fetch(`/del_file?filename=${audio}`).then(() => {
-            location.href = "/"
-        }).catch(() => {
-            alert("No existe el archivo")
-        })
-    }
-    loadData()
-
-    /** @param {HTMLElement} parent */
-    function set_spinner(parent) {
-        const span = document.createElement("span"),
-            img = document.createElement("img");
-        span.classList.add("spinner");
-        img.src = "/static/images/spinner.svg"
-        img.alt = "Cargando..."
-        span.appendChild(img)
-        parent.appendChild(span)
-    }
-</script>
+<script src="/static/js/transcript.js"></script>
 {% endblock script %}

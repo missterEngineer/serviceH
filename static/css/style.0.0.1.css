@@ -2,31 +2,15 @@
     font-family: mulish;
     src: url('../fonts/Mulish/Mulish-VariableFont_wght.ttf');
   }
+body,html{
+    min-height: 100%;
+}
 body{
     background: #001C1C; 
     color: white;
     min-width: 100vw;
-    min-height: 100vh;
     margin: 0;
     font-family: Mulish; 
-}
-.logo-box{
-    display: flex;
-    align-items: center;
-    gap: 10px; 
-    width: fit-content;
-}
-.logo h1{
-    font-size: 32px;
-    margin: 0;
-    width: fit-content;
-    font-weight: 800; 
-}
-.logo h3{
-    font-size: 12px;
-    margin: 0;
-    font-weight: 300; 
-    text-align: center;
 }
 header{
     display: flex;

@@ -52,7 +52,7 @@ function createRecorder(stream, socket_endpoint) {
                 socket.emit(socket_endpoint, blob)
             }
             */
-            socket.emit(socket_endpoint, e.data)
+            //socket.emit(socket_endpoint, e.data)
             stream_d.push(e.data);
         }
     };

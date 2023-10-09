@@ -9,12 +9,28 @@
     <link rel="shortcut icon" href="/static/images/logo.svg" type="image/x-icon">
     <link rel="stylesheet" href="/static/css/toastify.min.css">
     <link rel="stylesheet" href="/static/css/login.css">
+    <link rel="stylesheet" href="/static/css/logo.css">
+    <style>
+        .logo-box{
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: none;
+        }
+        @media (max-width:480px) {
+            .logo-box{
+                display: flex;
+            }
+            
+        }
+    </style>
 </head>
 
 <body>
     <main>
         <img src="/static/images/login.webp" alt="login">
         <form class="login" method="post">
+            {% include "components/logo.html" %}
             <h1>Ingresa ahora</h1>
             <label for="user">Usuario</label>
             <input class="styled" type="text" id="user" name="user" placeholder="Ingresa tu usuario">

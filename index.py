@@ -3,7 +3,7 @@ import os
 from flask import Flask, abort, flash, redirect, render_template, request, session, url_for, send_from_directory
 from flask_socketio import SocketIO
 from audio import save_record, update_file_name
-from prompts import answer_interview, append_prompt, remove_prompt, resend_msg, start_burnout, start_business, start_english, start_interview, start_interview_2, start_pray, update_prompt
+from prompts import answer_interview, append_prompt, remove_prompt, resend_msg, start_burnout, start_business, start_cybersecurity, start_english, start_interview, start_interview_2, start_pray, update_prompt
 from user_manager import admin_required, authenticated_only, create_user, login_user, login_required, change_password
 from dotenv import load_dotenv
 from whisper import resume, saveResponse,  transcription
@@ -11,14 +11,15 @@ from werkzeug.utils import secure_filename
 from utils import allowed_file, check_filename, get_json_api, scan_audios, valid_audio_file, valid_mic_file, error_log
 import threading
 
+
 load_dotenv()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv('flask_secret_key') 
-app.config.update(
+"""app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
-)
+)"""
 sock = SocketIO(app, cors_allowed_origins="*")
 
 
@@ -33,6 +34,7 @@ def index():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
+        print(session)
         user = request.form["user"]
         password = request.form["password"]
         if login_user(user, password):
@@ -130,6 +132,10 @@ def start_burnout_handler():
 @sock.on('start_pray')
 def start_pray_handler():
     start_pray()
+
+@sock.on('start_cybersecurity')
+def start_cybersecurity_handler():
+    start_cybersecurity()
 
 
 @app.route("/player/<audio>")
@@ -250,6 +256,12 @@ def change_pass():
 @login_required
 def english():
     return render_template("new_template/english.html")
+
+
+@app.route("/cybersecurity")
+@login_required
+def cybersecurity():
+    return render_template("new_template/cybersecurity.html")
 
 
 @app.route("/pray")

@@ -7,6 +7,7 @@ Grabar
 
 
 {% block style %}
+<link rel="stylesheet" href="/static/css/loader.css">
 <style>
     .title{
         text-align: center;
@@ -242,11 +243,13 @@ Grabar
         stopInterval();
     }
 
-    function save_file(){
+    async function save_file(){
         let filename = document.getElementById("filename").value
-        socket.emit('stopRecord', filename)
+        //socket.emit('stopRecord', filename)
         document.getElementById("filename-content").hidden = true;
         document.getElementById("processing-content").hidden = false;
+        await saveFiles(filename);
+        await retryMedia();
     }
 
     socket.on('success_saving', () => {

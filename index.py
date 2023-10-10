@@ -34,8 +34,7 @@ def index():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        print(session)
-        user = request.form["user"]
+        user = request.form["user"].lower()
         password = request.form["password"]
         if login_user(user, password):
             return redirect(url_for("index"))

@@ -23,7 +23,7 @@ def get_users() -> list:
 def login_user(user:str, password:str) -> bool:
     users = get_users()
     for item in users:
-        if item['user'] == user:
+        if item['user'].lower() == user:
             print("usuario existe")
             print(check_password_hash(item['password'], password))
             if check_password_hash(item['password'], password):

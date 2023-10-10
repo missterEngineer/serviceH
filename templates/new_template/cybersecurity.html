@@ -180,6 +180,12 @@ Ciberseguridad
     .card{
         padding-bottom: 20px;
     }
+    .label-check input{
+        margin: 5px;
+    }
+    .label-check{
+        display: inline-block;;
+    }
 </style>
 {% endblock style %}
 {% block content %}
@@ -232,13 +238,45 @@ Ciberseguridad
 
     socket.on('chatEnd', () => {
         document.getElementById("generando").remove();
-        convert2hyperlink();
-        contador++;
-        if (contador % 10 === 0 && contador !== 0) {
-            check_hyperlink_final();
-        }
+        convert2select();
         scroll2Bottom();
     })
+
+    function convert2select(){
+        let textList = current_msg.innerText.split("\n");
+        let loop_times = 0;
+        let pass_number = false;
+        let question_number = 0;
+
+        for(let f=0; f < textList.length; f++){
+            console.log(has_number(textList[f]))
+            if(has_number(textList[f])  && !pass_number){
+                pass_number =  true;
+                continue
+            }
+            if(!pass_number) {
+                continue
+            }
+            if(is_item_list(textList[f], loop_times)){
+                if(loop_times < 4){
+                    loop_times++;
+                    textList[f] = `<label class='label-check'><input type='checkbox' name='${question_number}' onchange='validate_check(${question_number})'>${textList[f]}</label>`;
+                }
+            }
+            if(loop_times === 4){
+                pass_number = false;
+                loop_times = 0;
+            }
+        }
+        current_msg.innerHTML = textList.join('<br>');
+    }
+
+    /** @param {number} check_num */
+    function validate_check(check_num){
+        const check_num_str = check_num.toString();
+        const checked_ele = document.querySelector(`[name='${check_num_str}']:checked`);
+
+    }
 </script>
 
 {% endblock script %}

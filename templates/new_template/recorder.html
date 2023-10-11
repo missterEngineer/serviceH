@@ -154,7 +154,7 @@ Grabar
 <script src="/static/js/socket.io.js"></script>
 <script src="/static/js/socket.config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js" integrity="sha512-xT0S/xXvkrfkRXGBPlzZPCAncnMK5c1N7slRkToUbv8Z901aUEuKO84tLy8dWU+3ew4InFEN7TebPaVMy2npZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="/static/js/recordv.0.0.5.js"></script>
+<script src="/static/js/recordv.0.0.6.js"></script>
 <script>
     let mediaRecorder,
         micRecorder,
@@ -245,11 +245,11 @@ Grabar
 
     async function save_file(){
         let filename = document.getElementById("filename").value
-        //socket.emit('stopRecord', filename)
+        socket.emit('stopRecord', filename)
         document.getElementById("filename-content").hidden = true;
         document.getElementById("processing-content").hidden = false;
-        await saveFiles(filename);
-        await retryMedia();
+       // await saveFiles(filename);
+       // await retryMedia();
     }
 
     socket.on('success_saving', () => {

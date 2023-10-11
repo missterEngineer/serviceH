@@ -19,9 +19,10 @@ function open_modal(id){
     document.querySelector(`dialog#${id}`).showModal();
 }
 
-/** @param {HTMLElement} htmlElement */
-function show_prompt(htmlElement){
-    let prompt = htmlElement.querySelector(".prompt-description").innerText;
+/** @param {HTMLButtonElement} button */
+function show_prompt(button){
+    let prompt = button.parentElement.nextElementSibling.innerText;
+    prompt = prompt.replace("Prompt: ", "");
     questionTxt.value = prompt;
     close_modal("modal-prompts")
 }
@@ -68,13 +69,13 @@ function save_edit_prompt(saveBtn){
 /** @param {HTMLElement} delBtn */
 function del_prompt(delBtn){
     const body = new FormData();
-    const prompt_id = delBtn.parentElement.dataset.id;
+    const prompt_id = delBtn.parentElement.parentElement.parentElement.dataset.id;
     body.append("id", prompt_id)
     fetch("/del_prompt",{
         method: "POST",
         body:body
     });
-    delBtn.parentElement.remove();
+    delBtn.parentElement.parentElement.parentElement.remove();
 }
 //{% endif %}
 
@@ -168,12 +169,17 @@ function extractTxtSpeaker(txt = "") {
 @param {string} node_id HTML Element ID
 */
 function writeSpeaker(speaker, msg, node_id) {
-    let span = document.createElement("span");
-    span.innerText = speaker;
+    let img = document.createElement("img");
+    img.innerText = speaker;
+    if (speaker === "Tú"){
+        img.src = "/static/images/book_green.svg";
+    }else{
+        img.src = "/static/images/robot.svg";
+    }
     let p = document.createElement("p");
     p.innerText = msg;
     let div = document.createElement("div");
-    div.appendChild(span);
+    div.appendChild(img);
     div.appendChild(p);
     div.classList.add("txt-speaker");
     document.getElementById(node_id).appendChild(div);
@@ -246,6 +252,7 @@ function unlockGPT(){
     document.getElementById("startSpeakerBtn").hidden = false;
     document.getElementById("startBtn").hidden = false;
     document.getElementById("empty").style.display = "none";
+    document.getElementById("transcript-title").hidden = false;
 }
 
 

@@ -53,6 +53,7 @@ def save_prompts(prompts:list) -> None:
 
 def get_prompt_by_id(prompt_id:str, prompts:list) -> dict:
     for prompt in prompts:
+        print(prompt)
         if prompt['id'] == prompt_id:
             return prompt
 

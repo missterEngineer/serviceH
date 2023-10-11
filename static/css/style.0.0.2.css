@@ -8,7 +8,7 @@ body,html{
 body{
     background: #001C1C; 
     color: white;
-    min-width: 100vw;
+    min-width: 100%;
     margin: 0;
     font-family: Mulish; 
 }

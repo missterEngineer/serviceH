@@ -3,7 +3,7 @@
 Transcribir
 {% endblock title %}
 {% block style %}
-<link rel="stylesheet" href="/static/css/transcript.css">
+<link rel="stylesheet" href="/static/css/transcriptv0.0.1.css">
 <link rel="stylesheet" href="/static/css/loader.css">
 {% endblock style %}
 {% block content %}
@@ -49,7 +49,7 @@ Transcribir
             <button class="btn" onclick="start_transcript(false)">Transcribir</button>
             <a onclick="start_transcript(true)">Transcribir con participantes</a>
         </div>
-        <h4 id="transcript-title">Transcripción</h4>
+        <h4 id="transcript-title" hidden>Transcripción</h4>
         <div id="transcript-content">
         </div>
         <div class="gpt-divider" hidden>
@@ -62,7 +62,7 @@ Transcribir
     <div class="card-footer blocked">
         <div id="othersBtn">
             <a class="saved-prompts">Seleccionar prompt</a> &nbsp; | &nbsp; 
-            <a class="saving-prompts">
+            <a class="saving-prompts" onclick="save_current_prompt()">
                 Guardar
                 <svg width="20" height="20" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <mask id="mask0_245_3433" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="16">
@@ -73,6 +73,12 @@ Transcribir
                     </g>
                 </svg> 
             </a>
+            <script>
+                function save_current_prompt(){
+                    document.querySelector("dialog textarea").value = document.getElementById("questionTxt").value;
+                    open_modal("modal-save");
+                }
+            </script>
             
         </div>
         <textarea name="" id="questionTxt"
@@ -125,33 +131,136 @@ Transcribir
         <button type="button" class="btn success" onclick="save_prompt()">Guardar</button>
     </form>
 </dialog>
+<style>
+    #modal-prompts{
+        padding: 15px 10px;
+        background-color: #002E2E;
+    }
+    #modal-prompts h2{
+        margin: 0 0 20px 0;
+        font-size: 20px;
+        text-align: left;
+        padding-left: 10px;
+    }
+    .close-modal-prompt{
+        right: 10px;
+        top: 10px;
+        position: absolute;
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    .close-modal-prompt svg{
+        top: 4px;
+        position: relative;
+    }
+    .close-modal-prompt:hover{
+        color: rgba(255, 255, 255, 0.5);
+    }
+    summary {
+        list-style-type: none;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    summary::webkit-details-marker {
+        display: none 
+    }
+    summary h3{
+        font-size: 18px;
+        width: calc(100% - 160px);
+        display: inline-block;
+        
+    }
+    details{
+        max-width: 85vw;
+        width: 760px;
+        color: #FAFAFA;
+    }
+    summary button{
+        border-radius: 8px;
+        background: #001919;    
+        padding: 10px 15px; 
+        color: #FFF;
+        border: none;
+        font-size: 14px;
+        height: 34px;
+    }
+    summary button:hover{
+        cursor: pointer;
+        background: #00CF83; 
+        color: #004949;
+    }
+    .prompt{
+        border-radius: 8px;
+    background: rgba(0, 28, 28, 0.50); 
+    }
+    details[open] .prompt-arrow{
+        transform: rotate(180deg) ;
+    }
+
+    details p{
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.75); 
+    }
+    details span{
+        color: var(--cta-primary-bg-cta-primary, #00CF83); 
+    }
+    .send{
+        z-index: 3;
+    }
+    @media (max-width:480px) {
+        .gpt-divider span{
+            padding: 7px 5px;
+            font-size: 12px;
+        }
+        #othersBtn{
+            width: 260px;
+        }
+        textarea{
+            z-index: 2;
+            position: relative;
+        }
+    }
+</style>
 <dialog id="modal-prompts" class="prompts">
-        <a href="#" class="close-modal" onclick="close_modal('modal-prompts')">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20px" height="20px">
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                <g id="SVGRepo_iconCarrier">
-                    <path
-                        d="M16.1795 3.26875C15.7889 2.87823 15.1558 2.87823 14.7652 3.26875L8.12078 9.91322C6.94952 11.0845 6.94916 12.9833 8.11996 14.155L14.6903 20.7304C15.0808 21.121 15.714 21.121 16.1045 20.7304C16.495 20.3399 16.495 19.7067 16.1045 19.3162L9.53246 12.7442C9.14194 12.3536 9.14194 11.7205 9.53246 11.33L16.1795 4.68297C16.57 4.29244 16.57 3.65928 16.1795 3.26875Z"
-                        fill="#FFFFFF"></path>
+        
+        <a href="javascript:void(0)" class="close-modal-prompt" onclick="close_modal('modal-prompts')">
+            Cerrar
+            <svg width="18" height="18" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <mask id="mask0_299_682" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="16">
+                <rect width="16" height="16" fill="#D9D9D9"/>
+                </mask>
+                <g mask="url(#mask0_299_682)">
+                <path d="M4.26634 12.6668L3.33301 11.7335L7.06634 8.00016L3.33301 4.26683L4.26634 3.3335L7.99967 7.06683L11.733 3.3335L12.6663 4.26683L8.93301 8.00016L12.6663 11.7335L11.733 12.6668L7.99967 8.9335L4.26634 12.6668Z" fill="currentColor"/>
                 </g>
-            </svg>
-        </a>
-        <h2>Prompts Guardados</h2>
+            </svg> 
+        </a> 
+        <h2>Historial de prompts</h2>
         {% for prompt in prompts  %}
         <div class="prompt" data-id="{{ prompt.id }}">
-            <a href="#" class="prompt-content" onclick="show_prompt(this)">
-                <p class="prompt-title">{{ prompt.title }}</p>
-                <p class="prompt-description">{{ prompt.prompt }}</p>
+                <details class="prompt-content">
+                    <summary>
+                        <h3>{{ prompt.title }}</h3> 
+                        {% if session.user == 'prueba' %} 
+                        <a href="#" class="ico-link delete-prompt" onclick="del_prompt(this)">
+                            <img src="/static/images/delete.svg" alt="Lápiz">
+                        </a>
+                        {% endif %}
+                        <button onclick="show_prompt(this)">Usar prompt</button> 
+                        <img class="prompt-arrow" src="/static/images/arrow_up.svg" alt="Flecha hacia arriba">
+                    </summary>
+                    <p><span>Prompt: </span>{{ prompt.prompt }}</p> 
+                </details>      
+
+            
+           
+            <!-- 
+            <a href="#" class="ico-link " onclick="edit_prompt(this)">
+                <img src="/static/images/edit.svg" alt="Recipiente de basura">
             </a>
-           {% if session.user == 'prueba' %} 
-            <a href="#" class="ico-link" onclick="edit_prompt(this)">
-                <img src="/static/images/edit.svg" alt="editar">
-            </a>
-            <a href="#" class="ico-link" onclick="del_prompt(this)">
-                <img src="/static/images/delete.svg" alt="eliminar">
-            </a>
-            {% endif %}
+            -->
         </div>
         {% endfor %}
 
@@ -169,5 +278,5 @@ Transcribir
 {% block script %}
 <script src="/static/js/socket.io.js"></script>
 <script src="/static/js/socket.config.js"></script>
-<script src="/static/js/transcript.js"></script>
+<script src="/static/js/transcriptv0.0.1.js"></script>
 {% endblock script %}

@@ -158,7 +158,7 @@ def start_cybersecurity():
 
 
 def cybersecurity_prompt():
-    prompt = """Quiero que te conviertas en un experto analista en ciberseguridad, llevas muchos años de experiencia analizando y evaluando los riesgos de la ciberseguridad en las empresas. Las acciones de los trabajadores ponen en peligro la información de la compañía y de los clientes. Con preguntas sobre los conocimientos que tienen para evitar esos ataques de los ciber delincuentes, consigues evaluar e identificar los riesgos para la empresa. Lo haces a través de preguntas tipo test. La evaluación será de 3 preguntas en formato test con 4 posibles respuestas, de las cuales solo 1 será la respuesta correcta. Me darás todas las preguntas, y yo te enviare las respuestas de todas esas preguntas para que me indiques cuales son correctas y cuáles no. El test es para determinar qué nivel de vulnerabilidad tiene mi empresa."""
+    prompt = """Quiero que te conviertas en un experto analista en ciberseguridad, llevas muchos años de experiencia analizando y evaluando los riesgos de la ciberseguridad en las empresas. Las acciones de los trabajadores ponen en peligro la información de la compañía y de los clientes. Con preguntas sobre los conocimientos que tienen para evitar esos ataques de los ciber delincuentes, consigues evaluar e identificar los riesgos para la empresa. Lo haces a través de preguntas tipo test. La evaluación será de 10 preguntas en formato test con 4 posibles respuestas, de las cuales solo 1 será la respuesta correcta. Me darás todas las preguntas, y yo te enviare las respuestas de todas esas preguntas para que me indiques cuales son correctas y cuáles no. El test es para determinar qué nivel de vulnerabilidad tiene mi empresa."""
     return prompt
 
 

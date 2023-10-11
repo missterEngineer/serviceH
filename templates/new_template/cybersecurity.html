@@ -7,21 +7,6 @@ Ciberseguridad
     .btn {
         color: white
     }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        position: relative;
-        max-width: 90%;
-        padding-bottom: 20px;
-        width: 500px;
-        background: #002424;
-        margin: 0 auto;
-    }
-
     input {
         margin: 10px 0 20px 0;
     }
@@ -152,8 +137,6 @@ Ciberseguridad
     .msg a {
         color: #00FFA1;
     }
-</style>
-<style>
     select {
         color: white;
         background-color: transparent;
@@ -224,6 +207,7 @@ Ciberseguridad
 <script>
     /** @type {number} */
     let contador;
+    let first_msg = true;
 
     function init_interview() {
         document.getElementById("historyContent").innerText = "";
@@ -238,44 +222,87 @@ Ciberseguridad
 
     socket.on('chatEnd', () => {
         document.getElementById("generando").remove();
-        convert2select();
+        if(first_msg){
+            convert2select();
+            first_msg = false;
+        }
         scroll2Bottom();
     })
 
     function convert2select(){
-        let textList = current_msg.innerText.split("\n");
+        const textList = current_msg.innerText.split("\n");
         let loop_times = 0;
         let pass_number = false;
-        let question_number = 0;
+        let question_number = 1;
 
         for(let f=0; f < textList.length; f++){
-            console.log(has_number(textList[f]))
+            console.log(has_number(textList[f]));
             if(has_number(textList[f])  && !pass_number){
                 pass_number =  true;
-                continue
+                continue;
             }
             if(!pass_number) {
-                continue
+                continue;
             }
             if(is_item_list(textList[f], loop_times)){
                 if(loop_times < 4){
                     loop_times++;
-                    textList[f] = `<label class='label-check'><input type='checkbox' name='${question_number}' onchange='validate_check(${question_number})'>${textList[f]}</label>`;
+                    const letter = num2letter(loop_times);
+                    textList[f] = `<label class='label-check'><input value='${letter}' type='checkbox' name='Pregunta_${question_number}' onchange='validate_check(this)'>${textList[f]}</label>`;
                 }
             }
             if(loop_times === 4){
                 pass_number = false;
                 loop_times = 0;
+                question_number++;
             }
         }
+        textList.push("<button type='button' class='btn' onclick='sendResponse()'>Enviar respuesta</button>");
+        textList.unshift("<form id='questions'>");
         current_msg.innerHTML = textList.join('<br>');
+        textList.push("</form>");
     }
 
-    /** @param {number} check_num */
-    function validate_check(check_num){
-        const check_num_str = check_num.toString();
-        const checked_ele = document.querySelector(`[name='${check_num_str}']:checked`);
+    /** @param {HTMLInputElement} checkbox */
+    function validate_check(checkbox){
+        const check_name = checkbox.name;
+        const checkboxes = document.querySelectorAll(`input[name='${check_name}']:checked`);
+        for (check_element of checkboxes){
+            if (check_element === checkbox) continue;
+            check_element.checked = false;
+        }
+    }
 
+
+    function sendResponse(){
+        const checkboxes = document.querySelectorAll(`input[type='checkbox']:checked`);
+        if (checkboxes.length !== 3){
+            toast("Rellena todas las preguntas", "var(--error)");
+            return;
+        }
+        const form = document.querySelector('form#questions');
+        const body = new FormData(form);
+        const data = Object.fromEntries(body.entries());
+        let text = "";
+        for (index in data){
+            text += index.replace("_", " ") + " la respuesta es " + data[index] + ", ";
+        }
+        text += " Dame el feedback solamente de mis respuestas";
+        current_msg = createMsg(2);
+        add_loader();
+        scroll2Bottom();
+        socket.emit("answer_interview", text);
+    }
+
+
+    function num2letter(number){
+        const array = {
+            1:"a",
+            2:"b",
+            3:"c",
+            4:"d"
+        }
+        return array[number];
     }
 </script>
 

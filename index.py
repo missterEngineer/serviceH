@@ -96,6 +96,12 @@ def chat_test():
     return render_template("new_template/chat.html")
 
 
+@sock.on('check_answers')
+@authenticated_only
+def check_answers_handler(values:dict):
+    print(values)
+
+
 @sock.on('start_interview')
 def start_interview_handler(values:dict):
     skills = values.get("skills")

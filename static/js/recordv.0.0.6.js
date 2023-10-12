@@ -69,9 +69,7 @@ function createRecorder(stream, socket_endpoint) {
 
 /** @param {string} name */
 async function saveFiles(name){
-    let file = new File(stream_data["record"], "recorder.webm");
-    delete stream_data["record"];
-    stream_data["record"] = await convert2audio(file);
+    stream_data["record"] = await convert2audio(stream_data["record"]);
     delete file
     stream_data["audio_file"] = new File([stream_data["record"]], name + ".computer.mp3")      
     delete stream_data["record"];
@@ -112,7 +110,7 @@ function stopStream(stream) {
 
 
 /** Extract audio from video and send this AudioBuffer to audioToWav function
- * @param {File} video_file 
+ * @param {Blob} video_file 
  * @returns {Promise<Blob>}
  * */
 async function convert2audio(video_file) {

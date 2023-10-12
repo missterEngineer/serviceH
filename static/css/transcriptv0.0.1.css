@@ -90,7 +90,7 @@ textarea {
     margin: 10px 0;
     gap: 15px;
     display: grid;
-    grid-template-columns: 90px 1fr;
+    grid-template-columns: 35px 1fr;
 }
 
 .txt-speaker span {

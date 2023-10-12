@@ -93,6 +93,10 @@ textarea {
     grid-template-columns: 35px 1fr;
 }
 
+#transcript-content .txt-speaker {
+    grid-template-columns: 90px 1fr;
+}
+
 .txt-speaker span {
     color: #6B8282;
 }

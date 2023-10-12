@@ -169,17 +169,22 @@ function extractTxtSpeaker(txt = "") {
 @param {string} node_id HTML Element ID
 */
 function writeSpeaker(speaker, msg, node_id) {
-    let img = document.createElement("img");
-    img.innerText = speaker;
-    if (speaker === "Tú"){
-        img.src = "/static/images/book_green.svg";
+    let nested_element;
+    if (speaker.toLowerCase().includes('speaker')){
+        nested_element = document.createElement("span");
+        nested_element.innerText = speaker;
     }else{
-        img.src = "/static/images/robot.svg";
+        nested_element = document.createElement("img");
+        if (speaker === "Tú"){
+            nested_element.src = "/static/images/book_green.svg";
+        }else{
+            nested_element.src = "/static/images/robot.svg";
+        }
     }
     let p = document.createElement("p");
     p.innerText = msg;
     let div = document.createElement("div");
-    div.appendChild(img);
+    div.appendChild(nested_element);
     div.appendChild(p);
     div.classList.add("txt-speaker");
     document.getElementById(node_id).appendChild(div);
@@ -246,7 +251,8 @@ async function loadData() {
 function unlockGPT(){
     sendGPT.onclick = start_chat;
     document.querySelector("#questionTxt").disabled = false;
-    document.querySelector(".blocked").classList.remove("blocked");
+    const blocked_element = document.querySelector(".blocked")
+    if (blocked_element) blocked_element.classList.remove("blocked");
     document.querySelector(".saved-prompts").onclick = () => open_modal('modal-prompts');
     document.querySelector(".gpt-divider").hidden = false;
     document.getElementById("startSpeakerBtn").hidden = false;

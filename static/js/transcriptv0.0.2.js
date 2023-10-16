@@ -37,7 +37,7 @@ function edit_prompt(editBtn){
     title.hidden = true;
     element.insertBefore(input, element.firstChild);
     element.onclick = ()=> void(0);
-    editBtn.firstElementChild.src = "/static/images/saving.svg" //img tag
+    editBtn.firstElementChild.src = "static/images/saving.svg" //img tag
     editBtn.onclick = () => save_edit_prompt(editBtn);
 }
 
@@ -61,7 +61,7 @@ function save_edit_prompt(saveBtn){
     let title = element.firstElementChild;
     title.hidden = false;
     title.textContent = new_name;
-    saveBtn.firstElementChild.src = "/static/images/edit.svg" //img tag
+    saveBtn.firstElementChild.src = "static/images/edit.svg" //img tag
     saveBtn.onclick = () => edit_prompt(saveBtn);
 }
 
@@ -176,9 +176,9 @@ function writeSpeaker(speaker, msg, node_id) {
     }else{
         nested_element = document.createElement("img");
         if (speaker === "Tú"){
-            nested_element.src = "/static/images/book_green.svg";
+            nested_element.src = "static/images/book_green.svg";
         }else{
-            nested_element.src = "/static/images/robot.svg";
+            nested_element.src = "static/images/robot.svg";
         }
     }
     let p = document.createElement("p");
@@ -289,7 +289,7 @@ function set_spinner(parent) {
     const span = document.createElement("span"),
         img = document.createElement("img");
     span.classList.add("spinner");
-    img.src = "/static/images/spinner.svg"
+    img.src = "static/images/spinner.svg"
     img.alt = "Cargando..."
     span.appendChild(img)
     parent.appendChild(span)

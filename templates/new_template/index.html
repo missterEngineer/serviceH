@@ -3,7 +3,7 @@
 Inicio
 {% endblock title %}
 {% block style %}
-<link rel="stylesheet" href="/static/css/index.css">
+<link rel="stylesheet" href="static/css/index.css">
 <style>
     body,html{
         min-height: 100%;
@@ -14,88 +14,96 @@ Inicio
 </style>
 {% endblock style %}
 {% block content %}
-<div class="btn-box">
-    <a class="btn" href="/recorder">
-        <img src="/static/images/micro.svg" alt="micrófono">
-        Grabar audio
+<div class="profile-box">
+    <a href="/cybersecurity" title="Ciberseguridad">
+        <svg height="50" width="50" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+            viewBox="0 0 512 512"  xml:space="preserve">
+        <style type="text/css">
+            .st0{fill:#FFFF;}
+        </style>
+        <g>
+            <path class="st0" d="M256.001,0L29.89,130.537c0,47.476,4.506,88.936,12.057,125.463C88.61,481.721,256.001,512,256.001,512
+                s167.389-30.279,214.053-256c7.551-36.527,12.057-77.986,12.057-125.463L256.001,0z M256.118,466.723
+                c-0.035-0.012-0.082-0.028-0.117-0.039v-47.672V256H140.77H91.122c-6.67-29.738-11.109-63.506-12.394-101.93L255.999,51.728h0.002
+                v51.73V256h115.27h49.625C385.636,413.404,287.327,456.774,256.118,466.723z"/>
+        </g>
+        </svg>
     </a>
-    <a class="btn" href="#" onclick="open_modal()">
-        <img src="/static/images/cloud.svg" alt="">
-        Subir audio
+    <a href="/burnout" title="Medidor de burnout">
+        <svg fill="#FFFF" width="50" height="50" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <path d="M28.268 11.618c1.161 2.381 0.076 7.706-3.688 8.419 1.591-1.333 2.694-4.677 2.087-6.053-2.072 2.835-4.713 0.152-2.053-2.574 1.768-1.812 2.379-4.099 0.626-6.61 0.542 2.394-2.25 5.059-4.162 3.374-1.291-1.137-0.61-3.628 1.414-4.279-1.606-0.556-2.843 0.168-3.131 1.287-1.052-1.018-2.432-1.685-2.053-3.374l-0-0c-1.906 0.846-1.363 3.292-0.487 4.349 1.668 2.013-1.867 3.107-2.922-0.313-0.32 1.050-1.461 1.281-2.122 0.452-0.418-0.524-1.161-1.883-0.731-3.201-1.244 0.878-1.887 2.684-1.148 3.757 1.744 2.533-0.699 4.484-3.514 2.435 2.172 2.844 1.261 7.141-0.974 8.593 0.875-1.909 0.492-5.254-1.322-5.914 0.946 2.803-1.402 4.891-2.54 3.688v15.045h2.901c0.795-3.373 2.633-5.452 6.927-6.26-1.297-1.563-2.118-3.778-2.118-6.233 0-4.729 2.992-8.565 6.694-8.565s6.694 3.837 6.694 8.565c0 2.395-0.75 4.593-1.991 6.148 4.698 0.739 6.466 2.878 7.119 6.345h2.998v-13.688c-0.383-1.85-1.051-4.946-2.505-5.392zM5.058 7.486c-1.45-2.901 4.029-3.59 0.3-6.178-0.139 1.972-5.941 2.821-0.3 6.178z"></path>
+        </svg>
     </a>
-</div>
-<div class="card">
-    {% if audios %}
-    {% for audio in audios %}
-    <div class="audio-item" id="audio-{{loop.index}}">
-        <img src="/static/images/msg.svg">
-        <a href="/player/{{audio.name}}" class="audio-txt">
-            <p class="audio-name">{{audio.name.replace("_"," ")}}</p>
-            <p class="audio-date">{{audio.date}}</p>
-        </a>
-        <a href="#" class="ico-link" onclick="edit_audio_name(this)" data-name="{{audio.name}}" data-index="{{loop.index}}" >
-            <img src="/static/images/edit.svg" alt="editar" >
-        </a>
-        <a href="#" class="ico-link" onclick="confirm_delete(`{{audio.name}}`, `{{loop.index}}`)">
-            <img src="/static/images/delete.svg" alt="eliminar">
-        </a>
-    </div>
-    {% endfor %}
-    {% else %}
-    <div class="empty">
-        <img src="/static/images/find.svg" alt="buscar">
-        <p>Aquí verás tu historial de grabaciones. podrás revisar, vuelve a editar o eliminar sesiones</p>
-    </div>
-    {% endif %}
-
-</div>
-{% endblock content %}
-
-{% block modal %}
-<dialog>
-    <img src="/static/images/backup_circle.svg" alt="">
-    <h3 class="drop-title">Subir audio</h3>
-    <div id="drop_zone">
-        <img src="/static/images/backup.svg" class="backup-lg" alt="">
-        <p class="drop-txt"><a href="#" class="drop-a">Sube</a> o arrastra tú audio</p>
-        <p class="drop-formats">Formatos aceptados: mp3, wav, m4a, ACC </p>
-        <input type="file" name="audio" hidden>
-    </div>
-    <style>
-        
-    </style>
-    <div class="drop-audio-upload" hidden>
-        <img class="audio" src="/static/images/micro.svg" alt="audio"><span></span>
-        <a href="#" class="trash"><img src="/static/images/trash.svg" alt="eliminar"></a>
-    </div>
-    <div class="dropping">
-        <p>Suelta el archivo aquí</p>
-    </div>
-    <!-- <p class="drop-info-txt">Tamaño máximo de archivo: 100mb</p>  -->
-    
-    <div class="your-file"><span id="filename"></span><progress max="100" value="0"></progress></div>
-    <p class="drop-formats" id="text-drop"></p>
-    <button type="button" class="btn" onclick="close_modal()" id="btn-cancel">Cancelar</button>
-    <button type="button" class="btn" onclick="show_dropzone()" id="btn-repeat" hidden>Subir otro</button>
-    <button type="button" class="btn success disabled" id="btn-go-audio">Ir al audio</button>
-</dialog>
-<dialog id="dialog-delete">
-    <span class="circle warning">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <mask id="mask0_251_1719" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
-            <rect width="32" height="32" fill="#D9D9D9"/>
+    <a href="/english" class="profile-icon" title="Aprende Inglés">
+        <svg height="40" width="50" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                viewBox="0 0 512 512" xml:space="preserve">
+                <path style="fill:#FFFFFF;" d="M395.901,7.286H116.099C56.003,7.286,7.286,56.004,7.286,116.099v279.803
+                    c0,60.095,48.717,108.812,108.812,108.812h279.803c60.095,0,108.812-48.717,108.812-108.812V116.099
+                    C504.714,56.004,455.997,7.286,395.901,7.286z"/>
+                <polygon style="fill:#ED1F34;" points="504.714,231.958 280.042,231.958 280.042,7.286 231.958,7.286 231.958,231.958 
+                    7.286,231.958 7.286,280.042 231.958,280.042 231.958,504.714 280.042,504.714 280.042,280.042 504.714,280.042 "/>
+                <path d="M395.901,0H116.099C52.082,0,0,52.082,0,116.099v279.803C0,459.918,52.082,512,116.099,512h279.803
+                    C459.918,512,512,459.918,512,395.901V116.099C512,52.082,459.918,0,395.901,0z M497.427,116.099v108.572H287.329V14.573h108.573
+                    C451.883,14.573,497.427,60.118,497.427,116.099z M116.099,14.573h108.573v210.098H14.573V116.099
+                    C14.573,60.118,60.117,14.573,116.099,14.573z M14.573,395.901V287.329h210.098v210.098H116.099
+                    C60.117,497.427,14.573,451.882,14.573,395.901z M395.901,497.427H287.329V287.329H438.39c4.024,0,7.287-3.262,7.287-7.286
+                    c0-4.025-3.262-7.286-7.287-7.286H280.042c-4.024,0-7.286,3.262-7.286,7.286v217.384h-33.511V280.043
+                    c0-4.025-3.262-7.286-7.286-7.286H14.573v-33.512h217.385c4.024,0,7.286-3.262,7.286-7.286V14.573h33.511v217.384
+                    c0,4.025,3.262,7.286,7.286,7.286h217.385v33.512h-25.875c-4.024,0-7.286,3.262-7.286,7.286c0,4.025,3.262,7.286,7.286,7.286h25.875
+                    v108.572C497.427,451.882,451.883,497.427,395.901,497.427z"/>
+        </svg>
+    </a>
+    <a href="/" class="profile-icon" title="Talentos">
+        <svg fill="white" height="40" width="40" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+            viewBox="0 0 299.74 299.74" xml:space="preserve">
+            <g>
+                <path d="M217.635,225.419l72.711,72.709c1.074,1.074,2.482,1.611,3.891,1.611s2.816-0.537,3.891-1.611
+                    c2.15-2.148,2.15-5.633,0-7.781l-72.709-72.711c22.104-24.014,34.217-54.98,34.217-87.814c0-34.676-13.504-67.277-38.023-91.797
+                    c-24.518-24.52-57.117-38.023-91.789-38.023c-34.678,0-67.277,13.504-91.799,38.023C13.504,62.544,0,95.143,0,129.821
+                    c0,34.676,13.504,67.275,38.025,91.793c24.52,24.52,57.119,38.021,91.797,38.021C162.654,259.635,193.621,247.522,217.635,225.419z
+                    M11.006,129.821c0-65.514,53.301-118.814,118.816-118.814c65.51,0,118.807,53.301,118.807,118.814
+                    c0,46.281-26.604,86.463-65.318,106.066v-59.076c0-20.396-16.592-36.99-36.988-36.99h-33.01c-20.395,0-36.986,16.594-36.986,36.99
+                    v59.074C37.609,216.282,11.006,176.102,11.006,129.821z M87.332,176.811c0-14.328,11.654-25.984,25.98-25.984h33.01
+                    c14.326,0,25.982,11.656,25.982,25.984v63.959c-13.199,5.072-27.52,7.859-42.482,7.859c-14.967,0-29.289-2.789-42.49-7.861V176.811
+                    z"/>
+                <path d="M129.686,134.551c20.971,0,38.033-17.061,38.033-38.031c0-20.977-17.063-38.043-38.033-38.043
+                    c-20.973,0-38.033,17.066-38.033,38.043C91.652,117.491,108.713,134.551,129.686,134.551z M129.686,69.483
+                    c14.902,0,27.027,12.129,27.027,27.037c0,14.902-12.125,27.025-27.027,27.025c-14.902,0-27.027-12.123-27.027-27.025
+                    C102.658,81.612,114.783,69.483,129.686,69.483z"/>
+            </g>
+        </svg>
+    </a>
+    <a href="/chat" class="profile-icon" title="Chat">
+        <svg fill="white" height="40" width="40" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                viewBox="0 0 455.686 455.686" xml:space="preserve">
+            <g>
+                <g>
+                    <g>
+                        <path d="M317.733,10.19l-92.315,66.352H97.447c-15.809,0-29.051,10.957-32.569,25.689C28.428,106.023,0,136.804,0,174.258
+                            s28.428,68.235,64.878,72.028c2.137,8.949,7.86,16.501,15.572,21.053c-0.548,57.731,1.988,120.227,45.501,173.06
+                            c13.508,16.4,38.679,16.272,52.062-0.231l7.96-9.816c9.912-12.223,10.066-29.725,0.257-42.031
+                            c-13.311-16.7-20.017-35.501-23.283-58.164h3.112c16.661,0,30.168-13.507,30.168-30.168v-28.016h29.19l92.315,66.351
+                            c24.847,17.859,59.479,0.102,59.479-30.498V40.688C377.211,10.089,342.58-7.669,317.733,10.19z"/>
+                        <path d="M407.211,119.047v110.422c27.347-3.531,48.475-26.903,48.475-55.211S434.558,122.578,407.211,119.047z"/>
+                    </g>
+                </g>
+            </g>
+        </svg>
+    </a>
+    <a href="/business" class="profile-icon" title="Softskill">
+        <svg fill="#FFFF" width="50" height="50" viewBox="10 20 90 90" xmlns="http://www.w3.org/2000/svg"><path d="M43.84,46.76a5.35,5.35,0,1,1,5.46-5.34A5.41,5.41,0,0,1,43.84,46.76Z" fill-rule="evenodd"/><path d="M77.33,55.7,70.06,44.9V44A24,24,0,0,0,46.19,20a22,22,0,0,0-5.67.7A23.89,23.89,0,0,0,22.31,44a21.92,21.92,0,0,0,3.58,12.7c4.18,6,7,10.8,5.27,17.3a4.58,4.58,0,0,0,.9,4.2A4.43,4.43,0,0,0,35.74,80h19.6A4.72,4.72,0,0,0,60,76.2a5,5,0,0,0,.2-1.2,2.37,2.37,0,0,1,2.39-2H64a4.72,4.72,0,0,0,4.68-3.4A41.31,41.31,0,0,0,70.16,60h5.17a2.78,2.78,0,0,0,2.19-1.6A2.86,2.86,0,0,0,77.33,55.7ZM57.49,47.33l-1,1.57a2.22,2.22,0,0,1-1.76.94,2.38,2.38,0,0,1-.72-.16l-2.65-1a11.64,11.64,0,0,1-3.85,2.2l-.48,2.91a2,2,0,0,1-2,1.65h-2a2,2,0,0,1-2-1.65l-.48-2.91a10,10,0,0,1-3.69-2l-2.81,1a2.38,2.38,0,0,1-.72.16,2.1,2.1,0,0,1-1.76-1l-1-1.65a1.94,1.94,0,0,1,.48-2.51l2.33-1.89a10.11,10.11,0,0,1-.24-2.12,9.41,9.41,0,0,1,.24-2L31.1,36.88a1.92,1.92,0,0,1-.48-2.51l1-1.65a2,2,0,0,1,1.76-1,2.38,2.38,0,0,1,.72.16l2.81,1a11.52,11.52,0,0,1,3.69-2.12L41,28a1.91,1.91,0,0,1,2-1.57h2a1.92,1.92,0,0,1,2,1.49l.48,2.83a11.31,11.31,0,0,1,3.69,2l2.81-1a2.38,2.38,0,0,1,.72-.16,2.1,2.1,0,0,1,1.76,1l1,1.65A2,2,0,0,1,57,36.8l-2.33,1.89a9.56,9.56,0,0,1,.24,2.12,9.41,9.41,0,0,1-.24,2L57,44.74A2,2,0,0,1,57.49,47.33Z" fill-rule="evenodd"/></svg>                </a>
+    <a href="/interview" class="profile-icon" title="Entrevista">
+        <svg width="50" height="50" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <mask id="mask0_38_897" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="17">
+            <rect y="0.5" width="16" height="16" fill="#D9D9D9"/>
             </mask>
-            <g mask="url(#mask0_251_1719)">
-            <path d="M16 29.3666C15.6444 29.3666 15.3055 29.3 14.9833 29.1666C14.6611 29.0333 14.3666 28.8444 14.1 28.6L3.39997 17.9C3.15552 17.6333 2.96663 17.3389 2.8333 17.0166C2.69997 16.6944 2.6333 16.3555 2.6333 16C2.6333 15.6444 2.69997 15.3 2.8333 14.9666C2.96663 14.6333 3.15552 14.3444 3.39997 14.1L14.1 3.39997C14.3666 3.1333 14.6611 2.93886 14.9833 2.81663C15.3055 2.69441 15.6444 2.6333 16 2.6333C16.3555 2.6333 16.7 2.69441 17.0333 2.81663C17.3666 2.93886 17.6555 3.1333 17.9 3.39997L28.6 14.1C28.8666 14.3444 29.0611 14.6333 29.1833 14.9666C29.3055 15.3 29.3666 15.6444 29.3666 16C29.3666 16.3555 29.3055 16.6944 29.1833 17.0166C29.0611 17.3389 28.8666 17.6333 28.6 17.9L17.9 28.6C17.6555 28.8444 17.3666 29.0333 17.0333 29.1666C16.7 29.3 16.3555 29.3666 16 29.3666ZM16 26.7L26.7 16L16 5.29997L5.29997 16L16 26.7ZM14.6666 17.3333H17.3333V9.3333H14.6666V17.3333ZM16 21.3333C16.3777 21.3333 16.6944 21.2055 16.95 20.95C17.2055 20.6944 17.3333 20.3777 17.3333 20C17.3333 19.6222 17.2055 19.3055 16.95 19.05C16.6944 18.7944 16.3777 18.6666 16 18.6666C15.6222 18.6666 15.3055 18.7944 15.05 19.05C14.7944 19.3055 14.6666 19.6222 14.6666 20C14.6666 20.3777 14.7944 20.6944 15.05 20.95C15.3055 21.2055 15.6222 21.3333 16 21.3333Z" fill="#6B4426"/>
+            <g mask="url(#mask0_38_897)">
+            <path d="M4.00016 9.83333H12.0002V8.5H4.00016V9.83333ZM4.00016 7.83333H12.0002V6.5H4.00016V7.83333ZM4.00016 5.83333H12.0002V4.49999H4.00016V5.83333ZM14.6668 15.1667L12.0002 12.5H2.66683C2.30016 12.5 1.98627 12.3694 1.72516 12.1083C1.46405 11.8472 1.3335 11.5333 1.3335 11.1667V3.16666C1.3335 2.79999 1.46405 2.48611 1.72516 2.22499C1.98627 1.96388 2.30016 1.83333 2.66683 1.83333H13.3335C13.7002 1.83333 14.0141 1.96388 14.2752 2.22499C14.5363 2.48611 14.6668 2.79999 14.6668 3.16666V15.1667ZM2.66683 3.16666V11.1667H12.5502L13.3335 11.95V3.16666H2.66683Z" fill="#ffff"/>
             </g>
         </svg> 
-    </span>
-    <h2>¿Deseas eliminar tu audio?</h2>
-    <p>Si lo haces, no podrás recuperar tu grabación</p>
-    <button class="btn" id="delete_btn">Sí, eliminar</button>
-    <button class="btn success" id="exit_delete_btn" >No, mantener audio</button>
-</dialog>
-{% endblock modal %}
+    </a>
+</div>
+{% endblock content %}
 
 {% block script %}
 <script>
@@ -140,7 +148,7 @@ Inicio
     /** @param {HTMLAnchorElement} hyperlink */
     function edit_audio_name(hyperlink){
         const edit_img =  hyperlink.firstElementChild;
-        edit_img.src = "/static/images/save_bold.svg";
+        edit_img.src = "static/images/save_bold.svg";
         const del_hyper = hyperlink.nextElementSibling;
         del_hyper.hidden = true;
         hyperlink.onclick = () => save_audio_name(hyperlink);
@@ -166,7 +174,7 @@ Inicio
             return
         }
         const edit_img =  hyperlink.firstElementChild;
-        edit_img.src = "/static/images/edit.svg";
+        edit_img.src = "static/images/edit.svg";
         const del_hyper = hyperlink.nextElementSibling;
         del_hyper.hidden = false;
         hyperlink.onclick = () => edit_audio_name(hyperlink);

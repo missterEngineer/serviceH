@@ -15,7 +15,7 @@ body {
 
 @font-face {
   font-family: mulish;
-  src: url("/static/fonts/Mulish/Mulish-VariableFont_wght.ttf");
+  src: url("static/fonts/Mulish/Mulish-VariableFont_wght.ttf");
 }
 
 main {
@@ -133,7 +133,7 @@ label {
 }
 .sliders {
   background: linear-gradient(0deg, #0be494 0%, #0be494 100%),
-    url("/static/images/login_rectangle.png"), lightgray 50% / cover no-repeat;
+    url("static/images/login_rectangle.png"), lightgray 50% / cover no-repeat;
   background-blend-mode: color, normal;
   background-size: cover;
   display: flex;

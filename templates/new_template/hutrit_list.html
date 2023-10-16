@@ -223,22 +223,22 @@ Inicio
 {% endblock style %}
 {% block content %}
 <a href="/" class="back">
-    <img src="/static/images/back.svg" alt="volver">
+    <img src="../static/images/back.svg" alt="volver">
     <span>Volver</span>
 </a>
 <div class="card">
     {% for talent in talents %}
     <div class="talent-item" id="talent-{{loop.index}}">
-        <img src="/static/images/msg.svg">
+        <img src="../static/images/msg.svg">
         <a href="/hutrit/talent/{{talent.id}}" class="audio-txt">
             <p class="audio-name">{{talent.user.username}}</p>
             <p class="audio-date">{{talent.category_job.name}} {{talent.range_year.years}}</p>
         </a>
         <a href="#" class="ico-link" hidden>
-            <img src="/static/images/edit.svg" alt="editar">
+            <img src="../static/images/edit.svg" alt="editar">
         </a>
         <a href="#" class="ico-link" hidden>
-            <img src="/static/images/delete.svg" alt="eliminar">
+            <img src="../static/images/delete.svg" alt="eliminar">
         </a>
     </div>
     {% endfor %}

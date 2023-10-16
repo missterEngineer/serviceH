@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YourVoice | {% block title %}{% endblock title %}</title>
-    <link rel="shortcut icon" href="/static/images/logo.svg" type="image/x-icon">
-    <link rel="stylesheet" href="/static/css/style.0.0.2.css">
-    <link rel="stylesheet" href="/static/css/toastify.min.css">
-    <link rel="stylesheet" href="/static/css/logo.css">
+    <title>GPT Tools | {% block title %}{% endblock title %}</title>
+    <link rel="shortcut icon" href="static/images/logo.svg" type="image/x-icon">
+    <link rel="stylesheet" href="static/css/style.0.0.2.css">
+    <link rel="stylesheet" href="static/css/toastify.min.css">
+    <link rel="stylesheet" href="static/css/logo.css">
     <style>
         :root{
             --error:#9b0909;
@@ -54,7 +54,6 @@
         <header>
             {% include "components/logo.html" %}
             <div class="profile-box">
-                <span>{{session['user']}}</span>
                 <a href="/cybersecurity" title="Ciberseguridad">
                     <svg height="25" width="25" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                         viewBox="0 0 512 512"  xml:space="preserve">
@@ -93,26 +92,6 @@
                                 v108.572C497.427,451.882,451.883,497.427,395.901,497.427z"/>
                     </svg>
                 </a>
-                <a href="/hutrit/list" class="profile-icon" title="Talentos">
-                    <svg fill="white" height="20" width="20" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-                        viewBox="0 0 299.74 299.74" xml:space="preserve">
-                        <g>
-                            <path d="M217.635,225.419l72.711,72.709c1.074,1.074,2.482,1.611,3.891,1.611s2.816-0.537,3.891-1.611
-                                c2.15-2.148,2.15-5.633,0-7.781l-72.709-72.711c22.104-24.014,34.217-54.98,34.217-87.814c0-34.676-13.504-67.277-38.023-91.797
-                                c-24.518-24.52-57.117-38.023-91.789-38.023c-34.678,0-67.277,13.504-91.799,38.023C13.504,62.544,0,95.143,0,129.821
-                                c0,34.676,13.504,67.275,38.025,91.793c24.52,24.52,57.119,38.021,91.797,38.021C162.654,259.635,193.621,247.522,217.635,225.419z
-                                M11.006,129.821c0-65.514,53.301-118.814,118.816-118.814c65.51,0,118.807,53.301,118.807,118.814
-                                c0,46.281-26.604,86.463-65.318,106.066v-59.076c0-20.396-16.592-36.99-36.988-36.99h-33.01c-20.395,0-36.986,16.594-36.986,36.99
-                                v59.074C37.609,216.282,11.006,176.102,11.006,129.821z M87.332,176.811c0-14.328,11.654-25.984,25.98-25.984h33.01
-                                c14.326,0,25.982,11.656,25.982,25.984v63.959c-13.199,5.072-27.52,7.859-42.482,7.859c-14.967,0-29.289-2.789-42.49-7.861V176.811
-                                z"/>
-                            <path d="M129.686,134.551c20.971,0,38.033-17.061,38.033-38.031c0-20.977-17.063-38.043-38.033-38.043
-                                c-20.973,0-38.033,17.066-38.033,38.043C91.652,117.491,108.713,134.551,129.686,134.551z M129.686,69.483
-                                c14.902,0,27.027,12.129,27.027,27.037c0,14.902-12.125,27.025-27.027,27.025c-14.902,0-27.027-12.123-27.027-27.025
-                                C102.658,81.612,114.783,69.483,129.686,69.483z"/>
-                        </g>
-                    </svg>
-                </a>
                 <a href="/chat" class="profile-icon" title="Chat">
                     <svg fill="white" height="20" width="20" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                             viewBox="0 0 455.686 455.686" xml:space="preserve">
@@ -142,37 +121,6 @@
                         </g>
                     </svg> 
                 </a>
-                <a href="/change_password" class="profile-icon" title="Cambiar contraseña">
-                    <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <mask id="mask0_38_577" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="25">
-                        <rect x="0.242188" y="0.5" width="24" height="24" fill="#D9D9D9"/>
-                        </mask>
-                        <g mask="url(#mask0_38_577)">
-                        <path d="M6.09219 17.6C6.94219 16.95 7.89219 16.4375 8.94219 16.0625C9.99219 15.6875 11.0922 15.5 12.2422 15.5C13.3922 15.5 14.4922 15.6875 15.5422 16.0625C16.5922 16.4375 17.5422 16.95 18.3922 17.6C18.9755 16.9167 19.4297 16.1417 19.7547 15.275C20.0797 14.4083 20.2422 13.4833 20.2422 12.5C20.2422 10.2833 19.463 8.39583 17.9047 6.8375C16.3464 5.27917 14.4589 4.5 12.2422 4.5C10.0255 4.5 8.13802 5.27917 6.57969 6.8375C5.02135 8.39583 4.24219 10.2833 4.24219 12.5C4.24219 13.4833 4.40469 14.4083 4.72969 15.275C5.05469 16.1417 5.50885 16.9167 6.09219 17.6ZM12.2422 13.5C11.2589 13.5 10.4297 13.1625 9.75469 12.4875C9.07969 11.8125 8.74219 10.9833 8.74219 10C8.74219 9.01667 9.07969 8.1875 9.75469 7.5125C10.4297 6.8375 11.2589 6.5 12.2422 6.5C13.2255 6.5 14.0547 6.8375 14.7297 7.5125C15.4047 8.1875 15.7422 9.01667 15.7422 10C15.7422 10.9833 15.4047 11.8125 14.7297 12.4875C14.0547 13.1625 13.2255 13.5 12.2422 13.5ZM12.2422 22.5C10.8589 22.5 9.55885 22.2375 8.34219 21.7125C7.12552 21.1875 6.06719 20.475 5.16719 19.575C4.26719 18.675 3.55469 17.6167 3.02969 16.4C2.50469 15.1833 2.24219 13.8833 2.24219 12.5C2.24219 11.1167 2.50469 9.81667 3.02969 8.6C3.55469 7.38333 4.26719 6.325 5.16719 5.425C6.06719 4.525 7.12552 3.8125 8.34219 3.2875C9.55885 2.7625 10.8589 2.5 12.2422 2.5C13.6255 2.5 14.9255 2.7625 16.1422 3.2875C17.3589 3.8125 18.4172 4.525 19.3172 5.425C20.2172 6.325 20.9297 7.38333 21.4547 8.6C21.9797 9.81667 22.2422 11.1167 22.2422 12.5C22.2422 13.8833 21.9797 15.1833 21.4547 16.4C20.9297 17.6167 20.2172 18.675 19.3172 19.575C18.4172 20.475 17.3589 21.1875 16.1422 21.7125C14.9255 22.2375 13.6255 22.5 12.2422 22.5ZM12.2422 20.5C13.1255 20.5 13.9589 20.3708 14.7422 20.1125C15.5255 19.8542 16.2422 19.4833 16.8922 19C16.2422 18.5167 15.5255 18.1458 14.7422 17.8875C13.9589 17.6292 13.1255 17.5 12.2422 17.5C11.3589 17.5 10.5255 17.6292 9.74219 17.8875C8.95885 18.1458 8.24219 18.5167 7.59219 19C8.24219 19.4833 8.95885 19.8542 9.74219 20.1125C10.5255 20.3708 11.3589 20.5 12.2422 20.5ZM12.2422 11.5C12.6755 11.5 13.0339 11.3583 13.3172 11.075C13.6005 10.7917 13.7422 10.4333 13.7422 10C13.7422 9.56667 13.6005 9.20833 13.3172 8.925C13.0339 8.64167 12.6755 8.5 12.2422 8.5C11.8089 8.5 11.4505 8.64167 11.1672 8.925C10.8839 9.20833 10.7422 9.56667 10.7422 10C10.7422 10.4333 10.8839 10.7917 11.1672 11.075C11.4505 11.3583 11.8089 11.5 12.2422 11.5Z" fill="#FAFAFA"/>
-                        </g>
-                    </svg> 
-                </a>
-                {% if session.user == 'prueba' %}
-                <a href="/create_user" class="profile-icon" title="Crear usuario">
-                    <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                        <g id="SVGRepo_iconCarrier"> 
-                            <path d="M20 18L17 18M17 18L14 18M17 18V15M17 18V21M11 21H4C4 17.134 7.13401 14 11 14C11.695 14 12.3663 14.1013 13 14.2899M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> 
-                        </g>
-                    </svg>
-                </a>
-                {% endif %}
-                <a href="javascript:void(0)" onclick="confirm_logout()" class="profile-icon" title="Cerrar sesión">
-                    <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <mask id="mask0_38_581" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="25">
-                        <rect x="0.242188" y="0.5" width="24" height="24" fill="#D9D9D9"/>
-                        </mask>
-                        <g mask="url(#mask0_38_581)">
-                        <path d="M5.24219 21.5C4.69219 21.5 4.22135 21.3042 3.82969 20.9125C3.43802 20.5208 3.24219 20.05 3.24219 19.5V5.5C3.24219 4.95 3.43802 4.47917 3.82969 4.0875C4.22135 3.69583 4.69219 3.5 5.24219 3.5H12.2422V5.5H5.24219V19.5H12.2422V21.5H5.24219ZM16.2422 17.5L14.8672 16.05L17.4172 13.5H9.24219V11.5H17.4172L14.8672 8.95L16.2422 7.5L21.2422 12.5L16.2422 17.5Z" fill="#FAFAFA"/>
-                        </g>
-                    </svg> 
-                </a>
             </div>
         </header>
         <section>
@@ -181,13 +129,13 @@
     </main>
     {% block modal %}{% endblock modal %}
     <dialog id="dialog-logout">
-        <img src="/static/images/logout_circle.svg" alt="logout">
+        <img src="static/images/logout_circle.svg" alt="logout">
         <h2>Estás a punto de salir</h2>
         <p>¿Estás seguro de que deseas cerrar tu sesión?</p>
         <button class="btn" onclick="cancel_logout()">Cancelar</button>
         <button class="btn success" onclick="logout()">Cerrar sesión</button>
     </dialog>
-    <script type="text/javascript" src="/static/js/toastify.min.js"></script>
+    <script type="text/javascript" src="static/js/toastify.min.js"></script>
     <script>
         function confirm_logout(){
             document.getElementById("dialog-logout").showModal();
